@@ -201,6 +201,24 @@ DATABASES = {
     }
 }
 
+# Publicado (render.yaml): PostgreSQL, para que cuentas y compras sobrevivan a
+# los reinicios del servidor. La dirección llega en DATABASE_URL
+# (postgresql://usuario:clave@host:puerto/base). Sin esa variable, SQLite.
+if url_base := os.environ.get("DATABASE_URL"):
+    from urllib.parse import unquote, urlparse
+
+    _bd = urlparse(url_base)
+    DATABASES["default"] = {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": unquote(_bd.path.lstrip("/")),
+        "USER": unquote(_bd.username or ""),
+        "PASSWORD": unquote(_bd.password or ""),
+        "HOST": _bd.hostname or "",
+        "PORT": _bd.port or 5432,
+        "CONN_MAX_AGE": 60,
+        "CONN_HEALTH_CHECKS": True,
+    }
+
 # Caché en memoria del proceso. Los adelantos (~1 MB cada uno) van aparte y con
 # tope, para que no desplacen las búsquedas ni las letras.
 CACHES = {

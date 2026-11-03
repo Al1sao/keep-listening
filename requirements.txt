@@ -6,3 +6,6 @@ Pillow>=12.0           # portadas e imagenes (12.x trae wheels para Python 3.14)
 whitenoise>=6.9        # servido de archivos estaticos
 gunicorn>=23.0         # servidor WSGI para servir fuera de desarrollo
 django-allauth[socialaccount]>=65,<66  # entrar con Spotify, Apple Music, YouTube Music, SoundCloud
+# PostgreSQL: solo lo usa la versión publicada (DATABASE_URL, ver render.yaml).
+# En local se trabaja con SQLite, así que no hace falta en Python 3.14.
+psycopg[binary]>=3.2,<4 ; python_version < "3.14"

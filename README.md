@@ -153,8 +153,9 @@ de [render.yaml](render.yaml): `DJANGO_DEBUG=0`, clave secreta generada por Rend
 los datos de ejemplo cargados al arrancar (`KL_DEMO=1`). La contraseña del usuario `admin` no está en el
 repositorio: se carga en Render como `KL_ADMIN_PASSWORD`.
 
-- Es una **demostración**: la base SQLite vive dentro del contenedor y vuelve a los datos de ejemplo cada vez
-  que el servicio se reinicia.
+- La base es **PostgreSQL** (gratuita en Render, declarada en `render.yaml`): las cuentas y las compras
+  se conservan aunque el servicio se reinicie o se publique una versión nueva. En local se sigue usando SQLite.
+- Las bases gratuitas de Render vencen a los 30 días de creadas; después se puede crear otra desde el panel.
 - En el plan gratuito el servicio se duerme tras unos minutos sin uso: la primera visita tarda cerca de un
   minuto.
 - Para publicarlo en otra cuenta: <https://render.com/deploy?repo=https://github.com/Al1sao/keep-listening>.
