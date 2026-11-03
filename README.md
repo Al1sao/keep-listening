@@ -148,10 +148,10 @@ python -c "from django.core.management.utils import get_random_secret_key as k; 
 ### Versión en línea (Render)
 
 La página también está publicada en <https://keep-listening.onrender.com>, en el plan gratuito de
-[Render](https://render.com). Render construye la imagen con el mismo  y toma la configuración
+[Render](https://render.com). Render construye la imagen con el mismo `Dockerfile` y toma la configuración
 de [render.yaml](render.yaml): , clave secreta generada por Render, gunicorn como servidor y
-los datos de ejemplo cargados al arrancar (). La contraseña del usuario  no está en el
-repositorio: se carga en Render como .
+los datos de ejemplo cargados al arrancar (`KL_DEMO=1`). La contraseña del usuario `admin` no está en el
+repositorio: se carga en Render como `KL_ADMIN_PASSWORD`.
 
 - Es una **demostración**: la base SQLite vive dentro del contenedor y vuelve a los datos de ejemplo cada vez
   que el servicio se reinicia.
