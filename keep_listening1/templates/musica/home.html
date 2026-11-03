@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% load static kl_extras %}
+
+{% block titulo %}Inicio{% endblock %}
+{% block contenedor %}kl-sala{% endblock %}
+
+{% block contenido %}
+
+{% if temas_mundo %}
+{{ temas_mundo|json_script:"kl-catalogo" }}
+{% endif %}
+
+<section class="kl-espacio" aria-label="La sala">
+    <div class="kl-espacio__luz" aria-hidden="true"></div>
+    <div class="kl-espacio__halo" aria-hidden="true"></div>
+    <div class="kl-espacio__suelo" aria-hidden="true"></div>
+    <div class="kl-espacio__motas" aria-hidden="true">
+        <span style="--i: 0"></span>
+        <span style="--i: 1"></span>
+        <span style="--i: 2"></span>
+        <span style="--i: 3"></span>
+        <span style="--i: 4"></span>
+        <span style="--i: 5"></span>
+        <span style="--i: 6"></span>
+        <span style="--i: 7"></span>
+    </div>
+
+    <div class="kl-espacio__campo" id="kl-campo">
+        {% if temas_mundo %}
+            {% for tema in temas_mundo %}
+                <button class="kl-flota" type="button" data-catalogo="{{ tema.id }}"
+                        aria-label="Reproducir {{ tema.titulo }}, {{ tema.artista }}">
+                    <img src="{{ tema.portada }}" alt="" width="300" height="300" loading="lazy" decoding="async" crossorigin="anonymous">
+                    <span class="kl-flota__ficha">
+                        <strong>{{ tema.titulo }}</strong>
+                        <small>{{ tema.artista }}</small>
+                    </span>
+                </button>
+            {% endfor %}
+        {% else %}
+            <p class="kl-espacio__vacio">No llegaron adelantos. Recargá en un momento.</p>
+        {% endif %}
+    </div>
+
+    <div class="kl-espacio__pie">
+        {% if temas_mundo %}
+            <p class="kl-eyebrow">Hip hop y pop</p>
+        {% else %}
+            <p class="kl-eyebrow">La casa</p>
+        {% endif %}
+        {% if user.is_authenticated %}
+            <h1>Hola, {{ user.username }}</h1>
+            <p>La sala sigue el tema que suena. Cada pulso mueve lo que está flotando.</p>
+        {% else %}
+            <h1>La sala</h1>
+            <p>Tocá una portada. Entra un adelanto de unos 30 segundos y el cuarto se mueve con cada pulso.</p>
+        {% endif %}
+        <div class="kl-espacio__acciones">
+            {% if user.is_authenticated %}
+                <button class="kl-btn" type="button" data-reproducir-mapa><i class="bi bi-play-fill" aria-hidden="true"></i> Reproducir</button>
+            {% else %}
+                <a class="kl-btn" href="{% url 'usuarios:registro' %}"><i class="bi bi-person-plus" aria-hidden="true"></i> Crear cuenta</a>
+            {% endif %}
+            <button class="kl-btn kl-btn--fantasma" type="button" data-radio><i class="bi bi-broadcast" aria-hidden="true"></i> Radio</button>
+        </div>
+    </div>
+</section>
+
+{% if user.is_authenticated %}
+    <section class="kl-seccion kl-escena kl-gustan" aria-labelledby="titulo-me-gusta" data-lista="kl-me-gusta">
+        {{ me_gusta|json_script:"kl-me-gusta" }}
+        <div class="kl-titulo-seccion">
+            <div>
+                <h2 id="titulo-me-gusta"><i class="bi bi-heart-fill" aria-hidden="true"></i> Tus me gusta</h2>
+                <p class="kl-subtitulo">Lo que marcaste con el corazón, listo para volver a escuchar.</p>
+            </div>
+            {% if me_gusta %}
+                <button class="kl-btn kl-btn--fantasma kl-btn--sm" type="button" data-reproducir-escena="kl-me-gusta">
+                    <i class="bi bi-play-fill" aria-hidden="true"></i> Reproducir todo
+                </button>
+            {% endif %}
+        </div>
+        {% if me_gusta %}
+            <div class="kl-escena__grilla">
+                {% for pista in me_gusta %}
+                    <div class="kl-escena__item">
+                        <button class="kl-escena__tema" type="button" data-catalogo="{{ pista.id }}" data-tema="{{ pista.id }}"
+                                aria-label="Reproducir {{ pista.titulo }}, de {{ pista.artista }}">
+                            <span class="kl-escena__tapa">
+                                <img src="{{ pista.portada }}" alt="" width="300" height="300" loading="lazy" decoding="async" crossorigin="anonymous">
+                                <span class="kl-escena__play" aria-hidden="true"><i class="bi bi-play-fill" aria-hidden="true"></i></span>
+                            </span>
+                            <strong>{{ pista.titulo }}</strong>
+                            <small>{{ pista.artista }}</small>
+                        </button>
+                        <button class="kl-escena__gusta guardada" type="button" data-me-gusta="{{ pista.id }}"
+                                aria-pressed="true" aria-label="Quitar de me gusta">
+                            <i class="bi bi-heart-fill" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="kl-gustan__vacio">
+                <i class="bi bi-heart" aria-hidden="true"></i>
+                <p>Todavía no marcaste nada. Mientras suena un tema, tocá el corazón y aparece acá.</p>
+            </div>
+        {% endif %}
+    </section>
+{% endif %}
+
+{# ---- El disco del día: lado A hip hop, lado B pop. Se da vuelta. ---- #}
+{% if disco_del_dia %}
+<section class="kl-seccion kl-dia" id="kl-dia" aria-labelledby="titulo-dia">
+    {% for lado in disco_del_dia %}{{ lado.temas|json_script:lado.id_json }}{% endfor %}
+    <div class="kl-dia__plato">
+        <div class="kl-dia__disco" id="kl-dia-disco" aria-hidden="true">
+            {% for lado in disco_del_dia %}
+                <div class="kl-dia__cara kl-dia__cara--{{ lado.letra|lower }}" style="--portada: url('{{ lado.temas.0.portada }}');">
+                    <span class="kl-dia__surcos"></span>
+                    <span class="kl-dia__sello"><b>{{ lado.letra }}</b><small>{% now "d·m" %}</small></span>
+                </div>
+            {% endfor %}
+        </div>
+        <span class="kl-dia__sombra" aria-hidden="true"></span>
+    </div>
+
+    <div class="kl-dia__texto">
+        <span class="kl-eyebrow">El disco del día · {% now "j \d\e F" %}</span>
+        <h2 id="titulo-dia">Dos caras,<br>diez temas</h2>
+        <p class="kl-texto-suave">Cambia a medianoche y es el mismo para todos: el lado A es hip hop, el lado B es pop.</p>
+
+        {% for lado in disco_del_dia %}
+            <div class="kl-dia__lado" data-lado="{{ lado.letra }}" data-lista="{{ lado.id_json }}" {% if not forloop.first %}hidden{% endif %}>
+                <p class="kl-dia__rotulo">Lado {{ lado.letra }} · {{ lado.escena }}</p>
+                <ol class="kl-dia__lista">
+                    {% for tema in lado.temas %}
+                        <li>
+                            <button class="kl-dia__tema" type="button" data-catalogo="{{ tema.id }}" data-tema="{{ tema.id }}"
+                                    aria-label="Reproducir {{ tema.titulo }}, de {{ tema.artista }}">
+                                <span class="kl-dia__num">{{ lado.letra }}{{ forloop.counter }}</span>
+                                <img src="{{ tema.portada }}" alt="" width="44" height="44" loading="lazy" decoding="async">
+                                <span class="kl-dia__nombre"><strong>{{ tema.titulo }}</strong><small>{{ tema.artista }}</small></span>
+                                <span class="kl-dia__dura">{{ tema.duracion|duracion }}</span>
+                            </button>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        {% endfor %}
+
+        <div class="kl-dia__acciones">
+            <button class="kl-btn" type="button" data-reproducir-escena="{{ disco_del_dia.0.id_json }}" id="kl-dia-play">
+                <i class="bi bi-play-fill" aria-hidden="true"></i> <span>Poner el lado {{ disco_del_dia.0.letra }}</span>
+            </button>
+            {% if disco_del_dia|length > 1 %}
+                <button class="kl-btn kl-btn--fantasma" type="button" data-dar-vuelta aria-pressed="false">
+                    <i class="bi bi-arrow-repeat" aria-hidden="true"></i> Dar vuelta el disco
+                </button>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+{# ---- Tres segundos (juego) y la lista de la sala ---- #}
+{% if juego %}
+<div class="kl-inicio-par">
+    <section class="kl-juego" id="kl-juego" aria-labelledby="titulo-juego" data-lista="kl-juego-datos">
+        {{ juego|json_script:"kl-juego-datos" }}
+        <header class="kl-juego__cabeza">
+            <span class="kl-eyebrow">Juego</span>
+            <h2 id="titulo-juego">Tres segundos</h2>
+            <p class="kl-texto-suave">Suena un pedacito. ¿Qué tema es?</p>
+        </header>
+
+        <div class="kl-juego__mesa">
+            <button class="kl-juego__disco" type="button" id="kl-juego-escuchar" aria-label="Escuchar tres segundos">
+                <span class="kl-juego__aro" aria-hidden="true"></span>
+                <span class="kl-juego__tapa"><img id="kl-juego-tapa" alt="" width="160" height="160"></span>
+                <i class="bi bi-play-fill" aria-hidden="true"></i>
+            </button>
+            <div class="kl-juego__opciones" id="kl-juego-opciones" role="group" aria-label="Opciones"></div>
+        </div>
+
+        <p class="kl-juego__estado" id="kl-juego-estado" aria-live="polite">Tocá el disco para escuchar.</p>
+
+        <footer class="kl-juego__pie">
+            <dl class="kl-juego__marcador">
+                <div><dt>Racha</dt><dd id="kl-juego-racha">0</dd></div>
+                <div><dt>Mejor</dt><dd id="kl-juego-mejor">0</dd></div>
+                <div><dt>Puntos</dt><dd id="kl-juego-puntos">0</dd></div>
+            </dl>
+            <div class="kl-juego__botones">
+                <button class="kl-btn kl-btn--fantasma kl-btn--sm" type="button" id="kl-juego-mas" disabled>+3 s</button>
+                <button class="kl-btn kl-btn--fantasma kl-btn--sm" type="button" id="kl-juego-entero" hidden>
+                    <i class="bi bi-play-fill" aria-hidden="true"></i> Entero
+                </button>
+                <button class="kl-btn kl-btn--sm" type="button" id="kl-juego-otra">Otra</button>
+            </div>
+        </footer>
+    </section>
+
+    {% if ranking %}
+    <section class="kl-podio" aria-labelledby="titulo-podio" data-lista="kl-podio-datos">
+        {{ ranking|json_script:"kl-podio-datos" }}
+        <header class="kl-podio__cabeza">
+            <div>
+                <span class="kl-eyebrow">La lista de la sala</span>
+                <h2 id="titulo-podio">Lo más guardado</h2>
+            </div>
+            <button class="kl-btn kl-btn--fantasma kl-btn--sm" type="button" data-reproducir-escena="kl-podio-datos">
+                <i class="bi bi-play-fill" aria-hidden="true"></i> Todo
+            </button>
+        </header>
+        <ol class="kl-podio__lista">
+            {% for tema in ranking %}
+                <li>
+                    <button class="kl-podio__tema" type="button" data-catalogo="{{ tema.id }}" data-tema="{{ tema.id }}"
+                            aria-label="Puesto {{ forloop.counter }}: {{ tema.titulo }}, de {{ tema.artista }}">
+                        <span class="kl-podio__puesto" aria-hidden="true">{{ forloop.counter }}</span>
+                        <img src="{{ tema.portada }}" alt="" width="56" height="56" loading="lazy" decoding="async">
+                        <span class="kl-podio__nombre"><strong>{{ tema.titulo }}</strong><small>{{ tema.artista }}</small></span>
+                        <span class="kl-podio__votos">{% if tema.votos %}<i class="bi bi-heart-fill" aria-hidden="true"></i> {{ tema.votos }}{% else %}—{% endif %}</span>
+                    </button>
+                </li>
+            {% endfor %}
+        </ol>
+        <p class="kl-podio__nota kl-texto-suave">Se ordena con los me gusta de todos. Sumá el tuyo desde el corazón del reproductor.</p>
+    </section>
+    {% endif %}
+</div>
+{% endif %}
+
+{# ---- Artistas: cada disco suena sus temas ---- #}
+{% if artistas %}
+<section class="kl-seccion kl-artistas" aria-labelledby="titulo-artistas">
+    {% for artista in artistas %}{{ artista.temas|json_script:artista.id_json }}{% endfor %}
+    <div class="kl-titulo-seccion">
+        <div>
+            <h2 id="titulo-artistas">En la batea</h2>
+            <p class="kl-subtitulo">Tocá un artista y suenan sus temas, uno detrás del otro.</p>
+        </div>
+        <a href="{% url 'musica:explorar' %}">Explorar</a>
+    </div>
+    <ul class="kl-artistas__fila">
+        {% for artista in artistas %}
+            <li>
+                <button class="kl-artistas__disco" type="button" data-reproducir-escena="{{ artista.id_json }}"
+                        aria-label="Reproducir a {{ artista.nombre }}">
+                    <span class="kl-artistas__vinilo" style="--portada: url('{{ artista.portada }}');" aria-hidden="true"></span>
+                    <strong>{{ artista.nombre }}</strong>
+                    <small>{{ artista.temas|length }} tema{{ artista.temas|length|pluralize }}</small>
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
+</section>
+{% endif %}
+
+{# ---- La disquería ---- #}
+{% if novedades %}
+<section class="kl-seccion" aria-labelledby="titulo-novedades">
+    <div class="kl-titulo-seccion">
+        <div>
+            <h2 id="titulo-novedades">Recién prensados</h2>
+            <p class="kl-subtitulo">Vinilos de artistas independientes, en la disquería.</p>
+        </div>
+        <a href="{% url 'tienda:catalogo' %}">Ir a la disquería</a>
+    </div>
+    <div class="kl-disqueria-grilla">
+        {% for album in novedades %}
+            {% include "tienda/_producto.html" with album=album %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{# ---- Hecho en la comunidad ---- #}
+<section class="kl-seccion" aria-labelledby="titulo-comunidad">
+    <div class="kl-titulo-seccion">
+        <div>
+            <h2 id="titulo-comunidad">Hecho en la sala</h2>
+            <p class="kl-subtitulo">Temas que subió la comunidad y aprobó el equipo.</p>
+        </div>
+        {% if comunidad %}<a href="{% url 'musica:explorar' %}">Ver todos</a>{% endif %}
+    </div>
+    {% if comunidad %}
+        <div class="kl-grilla">
+            {% for cancion in comunidad %}
+                {% include "partials/_tarjeta_tema.html" with cancion=cancion %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <a class="kl-inicio-cortar" href="{% if user.is_authenticated %}{% url 'musica:subir_cancion' %}{% else %}{% url 'usuarios:registro' %}{% endif %}">
+            <span class="kl-inicio-cortar__disco" aria-hidden="true"></span>
+            <span>
+                <strong>Todavía no hay temas de la comunidad</strong>
+                <small>Cortá el primer máster: subí tu tema y aparece acá cuando lo aprueben.</small>
+            </span>
+            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+</section>
+
+{% endblock %}
+
+{% block js_extra %}
+<script src="{% estatico 'js/espacio.js' %}" data-pagina></script>
+<script src="{% estatico 'js/inicio.js' %}" data-pagina></script>
+{% endblock %}
+

@@ -1,0 +1,791 @@
+// ---------------------------------------------------------------------------
+// Inicio, explorar, detalle de cancion y mi musica
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+// --- Detalle de cancion ---
+// --- Ficha de un tema: la funda con el disco adentro -------------------------
+// Flex con wrap: se acomoda al ancho real de la columna central.
+.kl-ficha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: clamp(1.5rem, 4vw, 3rem);
+
+  &__funda {
+    position: relative;
+    flex: 1 1 240px;
+    max-width: 380px;
+    margin-right: clamp(2rem, 8%, 5rem); // lugar para que el disco asome
+
+    .kl-vinilo {
+      position: absolute;
+      inset: 3%;
+      width: auto;
+      transition: transform .7s cubic-bezier(.22, 1, .36, 1);
+    }
+  }
+
+  &__tapa {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 6px;
+    box-shadow: 0 30px 60px -24px rgba(#000, .9), inset 0 0 0 1px rgba(#fff, .06);
+  }
+
+  &__funda:hover .kl-vinilo { transform: translateX(22%); }
+
+  &.sonando .kl-vinilo { transform: translateX(42%); }
+  &.sonando .kl-vinilo__giro { animation: kl-girar $kl-vuelta-disco linear infinite; }
+
+  &__info {
+    flex: 999 1 320px;
+    min-width: 0;
+
+    h1 {
+      margin: .4rem 0 .3rem;
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      line-height: .98;
+      overflow-wrap: anywhere;
+    }
+
+    .kl-recorrido { margin: 0 0 1rem; }
+    .kl-publicacion__motivo { margin: 0 0 1rem; }
+  }
+
+  &__artista {
+    margin-bottom: 1.4rem;
+    font-size: 1.05rem;
+
+    a { color: $kl-tinta; font-weight: 700; }
+  }
+
+  &__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-ficha .kl-vinilo { transition: none; }
+  .kl-ficha.sonando .kl-vinilo__giro { animation: none; }
+}
+
+// La hoja de corte: datos técnicos en una grilla de celdas.
+.kl-hoja {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1px;
+  margin: 0 0 1.5rem;
+  overflow: hidden;
+  border-radius: 18px;
+  background: $kl-linea;
+  box-shadow: inset 0 0 0 1px $kl-linea;
+
+  > div {
+    padding: .8rem 1rem;
+    background: $kl-sup-1;
+  }
+
+  &__ancho { grid-column: 1 / -1; }
+
+  dt {
+    font-size: .66rem;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: $kl-texto-suave;
+  }
+
+  dd { margin: .2rem 0 0; font-weight: 700; overflow-wrap: anywhere; }
+}
+
+// --- Mi musica: pestanas ---
+.kl-tabs {
+  display: flex;
+  gap: .35rem;
+  padding-bottom: .5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid rgba($kl-verde-700, .15);
+  overflow-x: auto;
+  @include scrollbar(6px);
+
+  &__item {
+    padding: .5rem 1.1rem;
+    border-radius: $kl-radio-pill;
+    color: $kl-texto-suave;
+    font-weight: 700;
+    font-size: .9rem;
+    white-space: nowrap;
+    border: 0;
+    background: transparent;
+
+    &:hover { background: $kl-sup-4; color: #fff; }
+
+    &.activo {
+      background: #fff;
+      color: #000;
+    }
+
+    .kl-badge { margin-left: .35rem; }
+  }
+}
+
+.kl-tab-panel {
+  display: none;
+
+  &.activo { display: block; animation: kl-aparecer 220ms both; }
+}
+
+// --- Subir un tema: el torno de corte ---
+// Formulario a la izquierda; a la derecha, el disco donde se graba en
+// espiral la huella real del archivo (torno.js).
+// Flex con wrap y no media queries: la columna central cambia de ancho según
+// los paneles abiertos, así que el torno baja solo cuando no entra al lado.
+.kl-subir {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1.75rem;
+
+  &__form {
+    flex: 999 1 360px;
+    min-width: 0;
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1.25rem, 3vw, 2rem);
+
+    .kl-flotante,
+    .kl-archivo { margin-bottom: 0; }
+  }
+}
+
+// Select con etiqueta chica arriba, mismo lenguaje que los campos flotantes.
+.kl-campo {
+  display: grid;
+  gap: .35rem;
+
+  > label {
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: $kl-texto-suave;
+  }
+
+  select {
+    width: 100%;
+    min-height: 3rem;
+    padding: .7rem 2.4rem .7rem 1rem;
+    border: 1px solid rgba(#fff, .1);
+    border-radius: 14px;
+    background: $kl-sup-2 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23a3a8a6'%3E%3Cpath d='M4 6l4 4 4-4'/%3E%3C/svg%3E") no-repeat right .9rem center / 14px;
+    color: $kl-tinta;
+    appearance: none;
+    transition: border-color $kl-transicion, box-shadow $kl-transicion;
+
+    &:focus {
+      outline: none;
+      border-color: tema(1, .7);
+      box-shadow: 0 0 0 4px tema(1, .14);
+    }
+  }
+
+  small { font-size: .78rem; color: $kl-texto-suave; }
+}
+
+.kl-torno {
+  flex: 1 1 280px;
+  max-width: 460px;
+  margin-inline: auto;
+  display: grid;
+  gap: 1.25rem;
+  justify-items: center;
+  padding: clamp(1.25rem, 3vw, 1.75rem);
+  border-radius: $kl-radio-lg;
+  background:
+    radial-gradient(120% 80% at 50% 0%, tema(1, .08), transparent 60%),
+    $kl-sup-1;
+  border: 1px solid rgba(#fff, .06);
+
+  position: sticky;
+  top: calc(#{$kl-header-alto} + 1rem);
+
+  // El plato: el disco gira lento mientras corta.
+  &__plato {
+    position: relative;
+    width: min(100%, 340px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    box-shadow: 0 30px 60px -20px rgba(#000, .8), inset 0 0 0 1px rgba(#fff, .05);
+
+    &::after {
+      // Brillo fijo: el disco gira debajo, la luz no.
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(from 30deg, transparent 0 12%, rgba(#fff, .07) 16%, transparent 22% 62%, rgba(#fff, .05) 66%, transparent 72%);
+      pointer-events: none;
+    }
+
+    &.cortando .kl-torno__lienzo { animation: kl-girar $kl-vuelta-disco linear infinite; }
+  }
+
+  &__lienzo {
+    width: 100%;
+    height: 100%;
+    display: block;
+    border-radius: 50%;
+  }
+
+  // La etiqueta: portada elegida + título escrito a mano.
+  &__sello {
+    position: absolute;
+    inset: 31%;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: 50%;
+    background: tema(1);
+    color: #0b0d0c;
+    text-align: center;
+
+    img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+
+      &[hidden] { display: none; }
+    }
+
+    img:not([hidden]) + span {
+      background: rgba(#000, .55);
+      color: #fff;
+      padding: .15rem .5rem;
+      border-radius: $kl-radio-pill;
+    }
+
+    // El título va arriba del agujero, como el nombre en una etiqueta.
+    span {
+      position: absolute;
+      top: 14%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: max-content;
+      max-width: 78%;
+      font-family: $kl-fuente-display;
+      font-size: clamp(.6rem, 1.6vw, .74rem);
+      font-weight: 800;
+      line-height: 1.1;
+      overflow-wrap: anywhere;
+      @include lineas(2);
+    }
+
+    &::after {
+      // Agujero central.
+      content: "";
+      position: absolute;
+      width: 9%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: $kl-sup-0;
+    }
+  }
+
+  &__info {
+    display: grid;
+    gap: .3rem;
+    justify-items: center;
+    text-align: center;
+
+    strong { font-family: $kl-fuente-display; font-size: 1.05rem; }
+    span { font-size: .84rem; color: $kl-texto-suave; overflow-wrap: anywhere; }
+    button { margin-top: .4rem; }
+  }
+
+  // Pasos del proceso, numerados como caras de un disco.
+  &__pasos {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: .55rem;
+    counter-reset: cara;
+    font-size: .86rem;
+    color: $kl-texto-suave;
+
+    // Bloque con el número al costado: el <strong> y el texto fluyen juntos.
+    li {
+      position: relative;
+      padding-left: 2.2rem;
+      counter-increment: cara;
+
+      &::before {
+        position: absolute;
+        left: 0;
+        top: .1em;
+        content: "A" counter(cara);
+        font-family: $kl-fuente-display;
+        font-weight: 800;
+        font-size: .75rem;
+        color: tema(1);
+      }
+    }
+
+    strong { color: $kl-tinta; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-torno__plato.cortando .kl-torno__lienzo { animation: none; }
+}
+
+// --- Estado de publicacion ---
+.kl-publicacion {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .9rem 1rem;
+  padding: .9rem 1rem;
+  border-radius: 20px;
+  background: $kl-sup-1;
+  box-shadow: inset 0 0 0 1px $kl-linea;
+
+  &__portada {
+    width: 64px;
+    height: 64px;
+    border-radius: $kl-radio-sm;
+    object-fit: cover;
+  }
+
+  &__datos { min-width: 0; }
+
+  &__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem;
+  }
+
+  // El surco de estado y el motivo ocupan todo el ancho de la tarjeta.
+  .kl-recorrido,
+  &__motivo { grid-column: 1 / -1; margin: 0; }
+
+  &__motivo {
+    padding: .6rem .85rem;
+    border-radius: $kl-radio-sm;
+    background: rgba($kl-error, .1);
+    color: #ffb4a8;
+    font-size: .85rem;
+  }
+
+  @include hasta("sm") {
+    grid-template-columns: 48px minmax(0, 1fr);
+
+    &__portada { width: 48px; height: 48px; }
+    &__acciones { grid-column: 1 / -1; }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Explorar: secciones de hip hop y pop con los adelantos de Apple
+// ---------------------------------------------------------------------------
+.kl-escena {
+  margin-top: 1.5rem;
+
+  &__grilla {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.25rem 1rem;
+
+    @include hasta("sm") {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem .75rem;
+    }
+  }
+
+  &__tema {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+    min-width: 0;
+    padding: .6rem;
+    border: 0;
+    border-radius: $kl-radio;
+    background: transparent;
+    color: $kl-tinta;
+    text-align: left;
+    cursor: pointer;
+    transition: background $kl-transicion;
+
+    &:hover,
+    &:focus-visible { background: rgba(#fff, .06); }
+
+    strong {
+      margin-top: .5rem;
+      font-size: .92rem;
+      @include lineas(1);
+    }
+
+    small {
+      font-size: .8rem;
+      color: $kl-texto-suave;
+      @include lineas(1);
+    }
+
+    &.sonando strong { color: tema(1); }
+  }
+
+  &__tapa {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(#fff, .06);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .35);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .5s cubic-bezier(.2, .9, .15, 1);
+    }
+  }
+
+  &__play {
+    position: absolute;
+    right: .55rem;
+    bottom: .55rem;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: $kl-menta;
+    color: $kl-noche;
+    font-size: 1.35rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .45);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity $kl-transicion, transform $kl-transicion;
+  }
+
+  &__tema:hover &__tapa img { transform: scale(1.05); }
+
+  &__tema:hover &__play,
+  &__tema:focus-visible &__play,
+  &__tema.sonando &__play {
+    opacity: 1;
+    transform: none;
+  }
+
+  // En pantallas táctiles no hay hover: el botón queda siempre visible.
+  @media (hover: none) {
+    &__play { opacity: 1; transform: none; width: 38px; height: 38px; font-size: 1.1rem; }
+  }
+}
+
+
+// Corazón sobre una tarjeta (Tus me gusta)
+.kl-escena__item {
+  position: relative;
+  min-width: 0;
+}
+
+.kl-escena__gusta {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .55);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: transform $kl-transicion, color $kl-transicion;
+
+  &:hover { transform: scale(1.1); }
+  &.guardada { color: $kl-rosa; }
+}
+
+.kl-gustan {
+  padding: 1.5rem clamp(1rem, 2.5vw, 1.75rem) 0;
+
+  h2 i { color: $kl-rosa; font-size: .85em; }
+
+  &__vacio {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    padding: 1.1rem 1.25rem;
+    border: 1px dashed rgba(#fff, .18);
+    border-radius: $kl-radio;
+    color: $kl-texto-suave;
+
+    i { font-size: 1.5rem; color: $kl-rosa; }
+    p { margin: 0; }
+  }
+}
+
+.kl-hero__acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+// ---------------------------------------------------------------------------
+// Tu colección: cabecera con cifras y la batea (discos parados que se hojean)
+// ---------------------------------------------------------------------------
+.kl-coleccion {
+  &__cabeza {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.2rem 2rem;
+    margin-bottom: 1.4rem;
+
+    h1 {
+      margin: .3rem 0 0;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: -.045em;
+    }
+  }
+
+  &__cifras {
+    display: flex;
+    gap: 1.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li { display: grid; }
+
+    strong {
+      font-family: $kl-fuente-display;
+      font-size: 2rem;
+      line-height: 1;
+      letter-spacing: -.04em;
+      color: tema(1);
+    }
+
+    span {
+      font-size: .72rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: $kl-texto-suave;
+    }
+  }
+
+  &__vacia {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem 2rem;
+    padding: 2rem;
+    border-radius: 24px;
+    background: $kl-sup-1;
+    box-shadow: inset 0 0 0 1px $kl-linea;
+
+    .kl-vinilo { width: 120px; }
+    h2 { margin: 0 0 .3rem; }
+    p { margin: 0 0 1rem; color: $kl-texto-suave; }
+    i { color: $kl-rosa; }
+  }
+}
+
+.kl-batea {
+  display: grid;
+  gap: 1.5rem 2.5rem;
+  align-items: center;
+  padding: clamp(1rem, 3vw, 2rem);
+  border-radius: 28px;
+  background:
+    radial-gradient(ellipse at 30% 100%, tema(1, .12), transparent 60%),
+    $kl-sup-1;
+  box-shadow: inset 0 0 0 1px $kl-linea;
+
+  @include desde("lg") { grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr); }
+
+  // El cajón: perspectiva desde arriba y adelante, como mirando una batea.
+  &__cajon {
+    position: relative;
+    height: clamp(300px, 42vh, 420px);
+    perspective: 1100px;
+    perspective-origin: 50% -30%;
+    touch-action: none;
+    cursor: grab;
+    outline-offset: 6px;
+    border-radius: 16px;
+
+    &.hojeando { cursor: grabbing; }
+
+    // El borde de madera de la batea.
+    &::after {
+      content: "";
+      position: absolute;
+      inset: auto 4% 0;
+      height: 22%;
+      border-radius: 0 0 14px 14px;
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, .8) 30%), $kl-sup-2;
+      box-shadow: inset 0 1px 0 rgba(#fff, .08);
+      pointer-events: none;
+      z-index: 50;
+    }
+  }
+
+  &__disco {
+    --pos: 0;
+    position: absolute;
+    left: 50%;
+    bottom: 10%;
+    width: min(62%, 300px);
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 4px;
+    background: $kl-sup-3;
+    cursor: pointer;
+    z-index: calc(40 - var(--pos));
+    transform-origin: 50% 100%;
+    // Cada disco de atrás está más lejos, más arriba y un poco más oscuro.
+    transform:
+      translateX(-50%)
+      translateZ(calc(var(--pos) * -46px))
+      translateY(calc(var(--pos) * -10px))
+      rotateX(-4deg);
+    filter: brightness(calc(1 - var(--pos) * .09));
+    box-shadow: 0 -2px 0 rgba(#fff, .06), 0 18px 40px rgba(0, 0, 0, .55);
+    transition: transform .55s cubic-bezier(.22, 1, .36, 1), filter .4s ease, opacity .4s ease;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: 4px;
+      object-fit: cover;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    // Los ya vistos se vuelcan hacia adelante.
+    &.volcado {
+      opacity: 0;
+      transform: translateX(-50%) translateZ(80px) translateY(40px) rotateX(-78deg);
+    }
+
+    &.delante {
+      box-shadow: 0 0 0 2px tema(1, .9), 0 30px 60px rgba(0, 0, 0, .6);
+    }
+
+    &.sonando::after {
+      content: "";
+      position: absolute;
+      top: .6rem;
+      right: .6rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: tema(1);
+      box-shadow: 0 0 0 4px tema(1, .3);
+    }
+  }
+
+  &__ficha {
+    h2 {
+      margin: .2rem 0 .3rem;
+      font-size: clamp(1.6rem, 3vw, 2.3rem);
+      line-height: 1.02;
+      letter-spacing: -.04em;
+      @include lineas(2);
+    }
+
+    p { margin: 0; color: $kl-texto-suave; }
+  }
+
+  &__contador {
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .16em;
+    color: tema(1) !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .6rem;
+    margin: 1.2rem 0 .8rem;
+  }
+
+  &__ayuda { font-size: .76rem; }
+}
+
+// Historial como un surco: cada tema es una marca en la línea del tiempo.
+.kl-surco-historial {
+  position: relative;
+  margin: 1rem 0 0;
+  padding: 0 0 0 1.4rem;
+  list-style: none;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 5px;
+    width: 2px;
+    background: linear-gradient($kl-sup-4, transparent);
+  }
+
+  li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 40px minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: .8rem;
+    padding: .45rem 0;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: -1.4rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: $kl-sup-1;
+      box-shadow: inset 0 0 0 2px $kl-sup-4;
+    }
+
+    &.sonando::before { box-shadow: inset 0 0 0 6px tema(1); }
+  }
+
+  img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; }
+  a { color: #fff; font-weight: 700; }
+  small { display: block; color: $kl-texto-suave; }
+  time { font-size: .75rem; color: $kl-texto-suave; white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-batea__disco { transition: none; }
+}

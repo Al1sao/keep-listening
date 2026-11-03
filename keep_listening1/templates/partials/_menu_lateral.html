@@ -1,0 +1,56 @@
+<div class="offcanvas offcanvas-start kl-offcanvas" tabindex="-1" id="klMenu" aria-labelledby="klMenuTitulo">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title h5" id="klMenuTitulo">Keep listening</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% comment %}
+            El buscador del header se oculta en pantallas chicas: sin esto no
+            habria forma de buscar desde el celular.
+        {% endcomment %}
+        <form class="kl-offcanvas__buscar" action="{% url 'musica:explorar' %}" method="get" role="search">
+            <label class="kl-solo-lectores" for="kl-buscar-menu">Buscar música</label>
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" id="kl-buscar-menu" name="q" value="{{ q|default:'' }}"
+                   placeholder="¿Qué querés escuchar hoy?" autocomplete="off">
+            <button type="submit" class="kl-solo-lectores">Buscar</button>
+        </form>
+
+        <nav aria-label="Navegación principal">
+            <a class="kl-offcanvas__link" href="{% url 'musica:home' %}"><i class="bi bi-house-door" aria-hidden="true"></i> Inicio</a>
+            <a class="kl-offcanvas__link" href="{% url 'musica:explorar' %}"><i class="bi bi-compass" aria-hidden="true"></i> Explorar</a>
+            <button class="kl-offcanvas__link" type="button" data-abrir-estudio><i class="bi bi-soundwave" aria-hidden="true"></i> Ahora suena</button>
+            <a class="kl-offcanvas__link" href="{% url 'tienda:catalogo' %}"><i class="bi bi-shop" aria-hidden="true"></i> Tienda</a>
+
+            {% if user.is_authenticated %}
+                <p class="kl-offcanvas__seccion">Mi cuenta</p>
+                <a class="kl-offcanvas__link" href="{% url 'musica:mi_musica' %}"><i class="bi bi-music-note-list" aria-hidden="true"></i> Mi música</a>
+                <a class="kl-offcanvas__link" href="{% url 'musica:subir_cancion' %}"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i> Subir canción</a>
+                <a class="kl-offcanvas__link" href="{% url 'musica:mis_publicaciones' %}"><i class="bi bi-collection" aria-hidden="true"></i> Mis publicaciones</a>
+                <a class="kl-offcanvas__link" href="{% url 'tienda:carrito' %}"><i class="bi bi-cart3" aria-hidden="true"></i> Carrito</a>
+                <a class="kl-offcanvas__link" href="{% url 'tienda:mis_pedidos' %}"><i class="bi bi-bag-check" aria-hidden="true"></i> Mis compras</a>
+                <a class="kl-offcanvas__link" href="{% url 'usuarios:perfil' %}"><i class="bi bi-person" aria-hidden="true"></i> Mi perfil</a>
+            {% else %}
+                <p class="kl-offcanvas__seccion">Cuenta</p>
+                <a class="kl-offcanvas__link" href="{% url 'usuarios:login' %}"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Iniciar sesión</a>
+                <a class="kl-offcanvas__link" href="{% url 'usuarios:registro' %}"><i class="bi bi-person-plus" aria-hidden="true"></i> Registrarse</a>
+            {% endif %}
+
+            {% if user.es_admin %}
+                <p class="kl-offcanvas__seccion">Administración</p>
+                <a class="kl-offcanvas__link" href="{% url 'panel:dashboard' %}"><i class="bi bi-speedometer2" aria-hidden="true"></i> Resumen general</a>
+                <a class="kl-offcanvas__link" href="{% url 'panel:canciones' %}"><i class="bi bi-list-check" aria-hidden="true"></i> Gestión de canciones</a>
+                <a class="kl-offcanvas__link" href="{% url 'panel:usuarios' %}"><i class="bi bi-people" aria-hidden="true"></i> Usuarios</a>
+                <a class="kl-offcanvas__link" href="{% url 'panel:albumes' %}"><i class="bi bi-vinyl" aria-hidden="true"></i> Productos</a>
+                <a class="kl-offcanvas__link" href="{% url 'panel:pedidos' %}"><i class="bi bi-box-seam" aria-hidden="true"></i> Pedidos</a>
+            {% endif %}
+
+            <p class="kl-offcanvas__seccion">Escenas</p>
+            {% for escena in escenas_nav %}
+                <a class="kl-offcanvas__link" href="{% url 'musica:explorar' %}?escena={{ escena.slug }}">
+                    <i class="bi bi-music-note-beamed" aria-hidden="true"></i> {{ escena.nombre }}
+                </a>
+            {% endfor %}
+        </nav>
+    </div>
+</div>

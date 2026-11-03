@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Mis publicaciones{% endblock %}
+
+{% block contenido %}
+<header class="kl-coleccion__cabeza">
+    <div>
+        <span class="kl-eyebrow">Mis publicaciones</span>
+        <h1>Tus temas,<br>de la prueba a la sala</h1>
+    </div>
+    <ul class="kl-coleccion__cifras" aria-label="Resumen">
+        <li><strong>{{ conteos.aprobadas }}</strong><span>en la sala</span></li>
+        <li><strong>{{ conteos.pendientes }}</strong><span>en revisión</span></li>
+        <li><strong>{{ conteos.rechazadas }}</strong><span>devuelta{{ conteos.rechazadas|pluralize }}</span></li>
+    </ul>
+</header>
+
+<div class="kl-consola__barra">
+    <nav class="kl-filtros" aria-label="Estado">
+        <a class="kl-filtros__item {% if not estado %}activo{% endif %}" href="{% url 'musica:mis_publicaciones' %}">Todas <span>{{ conteos.total }}</span></a>
+        {% for valor, etiqueta in estados %}
+            <a class="kl-filtros__item {% if estado == valor %}activo{% endif %}" href="?estado={{ valor }}">{{ etiqueta }}</a>
+        {% endfor %}
+    </nav>
+    <a class="kl-btn" href="{% url 'musica:subir_cancion' %}"><i class="bi bi-plus-lg" aria-hidden="true"></i> Subir un tema</a>
+</div>
+
+{# Cada tema recorre el mismo surco que un pedido: subida, revisión, sala. #}
+<div class="kl-panel__cola">
+    {% for cancion in publicaciones %}
+        <article class="kl-publicacion">
+            <img class="kl-publicacion__portada" src="{{ cancion.portada_url }}" alt="" width="64" height="64" loading="lazy">
+            <div class="kl-publicacion__datos">
+                <a class="kl-fila-tema__titulo" href="{{ cancion.get_absolute_url }}">{{ cancion.titulo }}</a>
+                <div class="kl-fila-tema__sub">
+                    {{ cancion.genero.nombre|default:"Sin género" }} ·
+                    {% if cancion.album %}{{ cancion.album.titulo }}{% else %}Sencillo{% endif %} ·
+                    {{ cancion.reproducciones }} escucha{{ cancion.reproducciones|pluralize }}
+                </div>
+            </div>
+            <div class="kl-publicacion__acciones">
+                {% if cancion.aprobada %}
+                    <button class="kl-play kl-play--sm" type="button" data-reproducir="{{ cancion.id }}" aria-label="Reproducir {{ cancion.titulo }}">
+                        <i class="bi bi-play-fill" aria-hidden="true"></i>
+                    </button>
+                {% endif %}
+                <a class="kl-btn kl-btn--fantasma kl-btn--sm" href="{% url 'musica:editar_cancion' cancion.slug %}">
+                    <i class="bi bi-pencil" aria-hidden="true"></i> Editar
+                </a>
+                <form method="post" action="{% url 'musica:eliminar_cancion' cancion.slug %}"
+                      data-confirmar="¿Seguro que querés eliminar &quot;{{ cancion.titulo }}&quot;?">
+                    {% csrf_token %}
+                    <button class="kl-btn kl-btn--peligro kl-btn--sm" type="submit" aria-label="Eliminar {{ cancion.titulo }}"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                </form>
+            </div>
+            <ol class="kl-recorrido {% if cancion.estado == 'RECHAZADA' %}cancelado{% endif %}" aria-label="Estado: {{ cancion.get_estado_display }}">
+                {% for etapa in cancion.recorrido %}
+                    <li class="{% if etapa.hecha %}hecha{% endif %} {% if etapa.actual %}actual{% endif %}" {% if etapa.actual %}aria-current="step"{% endif %}>{{ etapa.nombre }}</li>
+                {% endfor %}
+            </ol>
+            {% if cancion.motivo_rechazo %}
+                <p class="kl-publicacion__motivo"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> Por qué volvió: {{ cancion.motivo_rechazo }}</p>
+            {% endif %}
+        </article>
+    {% empty %}
+        <div class="kl-coleccion__vacia">
+            <div class="kl-vinilo" data-estilo="2" aria-hidden="true"><div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div></div>
+            <div>
+                <h2>{% if estado %}Nada con ese filtro{% else %}Todavía no subiste nada{% endif %}</h2>
+                <p>Cortá tu primer máster: el equipo lo escucha y lo pasa a la sala.</p>
+                <a class="kl-btn" href="{% url 'musica:subir_cancion' %}"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i> Subir un tema</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<section class="kl-seccion" aria-labelledby="titulo-albumes">
+    <div class="kl-titulo-seccion">
+        <h2 id="titulo-albumes">Tus álbumes</h2>
+        <a href="{% url 'musica:crear_album' %}">Nuevo álbum</a>
+    </div>
+    <div class="kl-grilla-ancha">
+        {% for album in albumes %}
+            <article class="kl-album">
+                <a class="kl-album__portada" href="{{ album.get_absolute_url }}">
+                    <img src="{{ album.portada_url }}" alt="" width="300" height="300" loading="lazy">
+                </a>
+                <div class="kl-album__cuerpo">
+                    <a class="kl-album__titulo" href="{{ album.get_absolute_url }}">{{ album.titulo }}</a>
+                    <span class="kl-texto-suave">{{ album.num_canciones }} tema{{ album.num_canciones|pluralize }}</span>
+                    <a class="kl-btn kl-btn--fantasma kl-btn--sm kl-mt-2" href="{% url 'musica:editar_album' album.slug %}">
+                        <i class="bi bi-pencil" aria-hidden="true"></i> Editar
+                    </a>
+                </div>
+            </article>
+        {% empty %}
+            <p class="kl-texto-suave">Todavía no creaste álbumes.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,736 @@
+// ---------------------------------------------------------------------------
+// "Entrá y seguí escuchando": a la izquierda el tema (funda + vinilo que
+// asoma), a la derecha el formulario con etiquetas que flotan.
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+$sesion-curva: cubic-bezier(.22, 1, .36, 1);
+
+.kl-sesion {
+  position: fixed;
+  inset: 0;
+  z-index: 1300;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+
+  &[hidden] { display: none; }
+
+  &__velo {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 4, 4, .72);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2);
+    backdrop-filter: blur(14px) saturate(1.2);
+    opacity: 0;
+    transition: opacity .3s ease;
+  }
+
+  &__caja {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    width: min(860px, 100%);
+    max-height: calc(100dvh - 2rem);
+    overflow: hidden auto;
+    border-radius: 28px;
+    background: $kl-sup-1;
+    box-shadow:
+      0 0 0 1px rgba(#fff, .08),
+      0 40px 120px rgba(0, 0, 0, .7);
+    opacity: 0;
+    transform: translateY(30px) scale(.96);
+    filter: blur(6px);
+    transition: opacity .3s ease, transform .55s $sesion-curva, filter .4s ease;
+
+    @include desde("md") { grid-template-columns: 1fr 1.05fr; }
+  }
+
+  &.abierto &__velo { opacity: 1; }
+  &.abierto &__caja { opacity: 1; transform: none; filter: none; }
+
+  // ---- Lado del tema -------------------------------------------------------
+  &__escena {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 210px;
+    padding: 1.4rem;
+    overflow: hidden;
+    isolation: isolate;
+    background: radial-gradient(circle at 30% 30%, rgba($kl-menta, .25), transparent 60%), #101412;
+
+    @include desde("md") { min-height: 520px; padding: 2rem; }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(180deg, rgba(0, 0, 0, .05) 30%, rgba(0, 0, 0, .78));
+    }
+  }
+
+  &__fondo {
+    position: absolute;
+    inset: -20%;
+    z-index: -2;
+    background-size: cover;
+    background-position: center;
+    filter: blur(40px) saturate(1.4) brightness(.7);
+    transform: scale(1.1);
+  }
+
+  &__disco {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    width: min(62%, 290px);
+    aspect-ratio: 1;
+    transform: translate(-66%, -58%);
+
+    @include hasta("md") {
+      top: 1.2rem;
+      left: auto;
+      right: 3.2rem;
+      width: 118px;
+      transform: none;
+    }
+
+    .kl-vinilo {
+      position: absolute;
+      inset: 4%;
+      transform: translateX(0);
+      transition: transform 1s $sesion-curva .25s;
+    }
+  }
+
+  &.abierto &__disco .kl-vinilo { transform: translateX(44%); }
+
+  &__funda {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: #121614 center / cover;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, .6), inset 0 0 0 1px rgba(#fff, .08);
+
+    .kl-logo { width: 45%; height: 45%; }
+    &.con-portada .kl-logo { display: none; }
+  }
+
+  &__tema {
+    position: relative;
+    max-width: 90%;
+
+    small {
+      display: block;
+      margin-bottom: .2rem;
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: rgba(#fff, .7);
+    }
+
+    strong {
+      display: block;
+      font-family: $kl-fuente-display;
+      font-size: clamp(1.3rem, 2.6vw, 1.9rem);
+      line-height: 1.05;
+      letter-spacing: -.03em;
+      color: #fff;
+      @include lineas(2);
+    }
+
+    span {
+      display: block;
+      margin-top: .25rem;
+      color: rgba(#fff, .78);
+      @include lineas(1);
+    }
+  }
+
+  // ---- Lado del formulario -------------------------------------------------
+  &__form {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 1.5rem 1.6rem;
+
+    @include desde("md") { padding: 2.6rem 2.4rem; }
+
+    h2 {
+      margin: 0 0 .6rem;
+      font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+      line-height: 1.02;
+      letter-spacing: -.045em;
+    }
+  }
+
+  &__cerrar {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(#fff, .06);
+    color: #fff;
+    cursor: pointer;
+    transition: background $kl-transicion, transform $kl-transicion;
+
+    &:hover { background: rgba(#fff, .14); transform: rotate(90deg); }
+  }
+
+  &__eyebrow {
+    margin: 0 0 .5rem;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: $kl-menta;
+  }
+
+  &__bajada {
+    margin: 0 0 1.6rem;
+    color: $kl-texto-suave;
+  }
+
+  &__error {
+    margin: 0 0 .9rem;
+    padding: .6rem .8rem;
+    border-radius: 12px;
+    background: rgba($kl-error, .14);
+    color: #ffb4a8;
+    font-size: .88rem;
+    animation: kl-sesion-temblor .4s ease;
+
+    &[hidden] { display: none; }
+  }
+
+  &__entrar {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    width: 100%;
+    padding: .45rem 1.2rem .45rem .45rem;
+    border: 0;
+    border-radius: 999px;
+    background: $kl-menta;
+    color: $kl-noche;
+    font-weight: 800;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform $kl-transicion, box-shadow $kl-transicion, background $kl-transicion;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba($kl-menta, .3);
+      background: #d6ff6a;
+    }
+
+    &:disabled { opacity: .6; transform: none; }
+  }
+
+  &__entrar-icono {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: $kl-noche;
+    color: $kl-menta;
+    font-size: 1.2rem;
+  }
+
+  &__o {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    margin: 1.4rem 0 .8rem;
+    color: $kl-texto-suave;
+    font-size: .8rem;
+
+    &::before,
+    &::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(#fff, .1);
+    }
+  }
+
+  &__registro {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .75rem 1rem;
+    border: 1px solid rgba(#fff, .14);
+    border-radius: 999px;
+    color: #fff;
+    font-weight: 700;
+    transition: border-color $kl-transicion, background $kl-transicion;
+
+    i { transition: transform $kl-transicion; }
+
+    &:hover {
+      color: #fff;
+      border-color: rgba($kl-menta, .6);
+      background: rgba($kl-menta, .06);
+
+      i { transform: translateX(3px); }
+    }
+  }
+
+  &__demo {
+    margin: 1rem 0 0;
+    text-align: center;
+    font-size: .78rem;
+    color: $kl-texto-suave;
+
+    code { color: $kl-menta; }
+  }
+}
+
+// Campo con etiqueta que sube cuando hay foco o texto.
+.kl-flotante {
+  position: relative;
+  margin-bottom: .9rem;
+
+  input {
+    width: 100%;
+    height: 58px;
+    padding: 1.35rem 3rem .4rem 1rem;
+    border: 1px solid rgba(#fff, .12);
+    border-radius: 16px;
+    background: rgba(#fff, .04);
+    color: #fff;
+    font: inherit;
+    transition: border-color $kl-transicion, background $kl-transicion, box-shadow $kl-transicion;
+
+    &:focus {
+      outline: none;
+      border-color: rgba($kl-menta, .8);
+      background: rgba(#fff, .06);
+      box-shadow: 0 0 0 4px rgba($kl-menta, .15);
+    }
+  }
+
+  label {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    color: rgba(#fff, .55);
+    pointer-events: none;
+    transform: translateY(-50%);
+    transform-origin: left top;
+    transition: transform .2s ease, color .2s ease;
+  }
+
+  input:focus + label,
+  input:not(:placeholder-shown) + label {
+    color: $kl-menta;
+    transform: translateY(-118%) scale(.74);
+  }
+
+  > i {
+    position: absolute;
+    top: 50%;
+    right: .95rem;
+    transform: translateY(-50%);
+    color: rgba(#fff, .45);
+    pointer-events: none;
+  }
+
+  &__ver {
+    position: absolute;
+    top: 50%;
+    right: .5rem;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: rgba(#fff, .45);
+    transform: translateY(-50%);
+    cursor: pointer;
+
+    &:hover { color: #fff; background: rgba(#fff, .08); }
+  }
+}
+
+@keyframes kl-sesion-temblor {
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+body.kl-sesion-abierta { overflow: hidden; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-sesion__caja,
+  .kl-sesion__velo,
+  .kl-sesion__disco .kl-vinilo { transition: none; }
+}
+
+// ---------------------------------------------------------------------------
+// Páginas de cuenta (entrar, crear cuenta): mismo lenguaje, a página completa.
+// ---------------------------------------------------------------------------
+.kl-cuenta {
+  display: grid;
+  place-items: center;
+  min-height: calc(100dvh - var(--kl-dock) - #{$kl-header-alto} - 4rem);
+  padding: 1.5rem 0 2rem;
+
+  &__caja {
+    display: grid;
+    width: min(940px, 100%);
+    overflow: hidden;
+    border-radius: 28px;
+    background: $kl-sup-1;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, .5), inset 0 0 0 1px $kl-linea;
+    animation: kl-cuenta-entra .7s $sesion-curva both;
+
+    @include desde("md") { grid-template-columns: 1fr 1.05fr; }
+  }
+
+  &__escena {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: 240px;
+    padding: 2rem;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 38%, tema(1, .22), transparent 60%),
+      repeating-radial-gradient(circle at 50% 38%, rgba(#fff, .025) 0 1px, transparent 1px 7px),
+      $kl-sup-2;
+
+    @include desde("md") { min-height: 560px; }
+  }
+
+  &__plato {
+    position: relative;
+    align-self: center;
+    width: min(70%, 300px);
+    margin-top: 1rem;
+
+    @include hasta("md") { width: 150px; margin-top: 0; }
+  }
+
+  &__vinilo {
+    --disco-a: var(--kl-c1);
+    --disco-b: var(--kl-c2);
+    --vuelta: #{$kl-vuelta-disco * 1.2};
+
+    &.cambia { animation: kl-disco-edicion .6s $sesion-curva; }
+  }
+
+  &__sello {
+    display: grid;
+    place-items: center;
+
+    .kl-logo { width: 70%; height: 70%; filter: none; }
+
+    &--nombre {
+      background: tema(1);
+      color: #0b0d0c;
+
+      &::after { display: none; }
+
+      span {
+        max-width: 86%;
+        overflow: hidden;
+        font-family: $kl-fuente-display;
+        font-size: clamp(.55rem, 1.3vw, .85rem);
+        font-weight: 800;
+        text-align: center;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  &__brazo {
+    position: absolute;
+    top: -6%;
+    right: -12%;
+    width: 22%;
+    fill: #d9d9d4;
+    stroke: #d9d9d4;
+    transform-origin: 75% 13%;
+    transform: rotate(6deg);
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, .5));
+  }
+
+  &__leyenda {
+    position: relative;
+
+    small {
+      display: block;
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: tema(1);
+    }
+
+    strong {
+      display: block;
+      margin: .2rem 0;
+      font-family: $kl-fuente-display;
+      font-size: 1.5rem;
+      letter-spacing: -.03em;
+      color: #fff;
+    }
+
+    span { color: $kl-texto-suave; font-size: .9rem; }
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+
+    @include desde("md") { padding: 2.8rem 2.6rem; }
+
+    h1 {
+      margin: 0 0 .6rem;
+      font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+      line-height: 1;
+      letter-spacing: -.045em;
+    }
+
+    .kl-form__error { margin: -.5rem 0 .8rem; }
+  }
+}
+
+// Vúmetro: la aguja va de -50° (débil) a +50° (excelente) y entra en rojo arriba.
+.kl-vumetro {
+  --nivel: 0;
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  margin: -.3rem 0 1rem;
+  padding: .6rem .8rem;
+  border-radius: 14px;
+  background: rgba(#fff, .03);
+  box-shadow: inset 0 0 0 1px $kl-linea;
+
+  svg {
+    flex: 0 0 auto;
+    width: 72px;
+    stroke-width: 4;
+    stroke-linecap: round;
+
+    circle { fill: #fff; }
+  }
+
+  &__arco { stroke: rgba(#fff, .15); }
+  &__rojo { stroke: tema(1, .8); }
+
+  &__aguja {
+    stroke: #fff;
+    stroke-width: 2.5;
+    transform-origin: 60px 58px;
+    transform: rotate(calc(-58deg + var(--nivel) * 116deg));
+    transition: transform .5s cubic-bezier(.34, 1.56, .64, 1);
+  }
+
+  strong { display: block; font-size: .86rem; }
+  small { color: $kl-texto-suave; font-size: .75rem; }
+
+  &[data-nivel="0"] strong,
+  &[data-nivel="1"] strong { color: #ffb4a8; }
+  &[data-nivel="4"] strong { color: tema(1); }
+}
+
+@keyframes kl-cuenta-entra {
+  from { opacity: 0; transform: translateY(24px) scale(.98); }
+}
+
+@keyframes kl-disco-edicion {
+  40% { transform: scale(1.08) rotate(-6deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-cuenta__caja,
+  .kl-cuenta__vinilo.cambia { animation: none; }
+  .kl-vumetro__aguja { transition: none; }
+}
+
+// Campo flotante con área de texto.
+.kl-flotante--area textarea {
+  width: 100%;
+  min-height: 110px;
+  padding: 1.5rem 1rem .6rem;
+  border: 1px solid rgba(#fff, .12);
+  border-radius: 16px;
+  background: rgba(#fff, .04);
+  color: #fff;
+  font: inherit;
+  resize: vertical;
+
+  &:focus { outline: none; border-color: rgba($kl-menta, .8); box-shadow: 0 0 0 4px rgba($kl-menta, .15); }
+}
+
+.kl-flotante--area label { top: 1.2rem; }
+
+.kl-flotante--area textarea:focus + label,
+.kl-flotante--area textarea:not(:placeholder-shown) + label {
+  color: $kl-menta;
+  transform: translateY(-80%) scale(.74);
+}
+
+// ---------------------------------------------------------------------------
+// Entrar con una plataforma: una batea de simples de 7". Cada disco tiene el
+// logo de la plataforma en la etiqueta y el color de la marca (--marca); al
+// pasar el puntero sale de la funda y gira a la velocidad de todos los discos.
+// ---------------------------------------------------------------------------
+.kl-simples {
+  // Las cuatro plataformas en una fila: el disco se achica si el panel es angosto.
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-items: center;
+  gap: 1rem .5rem;
+
+  form { display: contents; }
+
+  &__disco {
+    --marca: 255, 255, 255;
+    --sello-tinta: #050606;
+    display: grid;
+    justify-items: center;
+    gap: .45rem;
+    width: 100%;
+    max-width: 76px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: $kl-texto-suave;
+    font: inherit;
+    cursor: pointer;
+
+    &:focus-visible { outline: none; }
+    &:focus-visible .kl-simples__vinilo { box-shadow: 0 0 0 2px tema(1); }
+  }
+
+  // La funda: un cuadrado con el color de la marca, corrido detrás del disco
+  // (el disco se ve entero, sin espacio vacío arriba).
+  &__funda {
+    position: relative;
+    display: block;
+    width: min(100%, 64px);
+    aspect-ratio: 1;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 6px 14px 6px -6px;
+      border-radius: 5px;
+      background: linear-gradient(160deg, rgba(var(--marca), .35), rgba(var(--marca), .08)), $kl-sup-2;
+      box-shadow: inset 0 0 0 1px rgba(#fff, .08);
+      transition: transform .5s cubic-bezier(.22, 1, .36, 1);
+    }
+  }
+
+  &__vinilo {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, transparent 58%, rgba(#fff, .06) 59% 60%, transparent 61%),
+      repeating-radial-gradient(circle, #161717 0 1.5px, #0a0a0a 1.5px 3px);
+    box-shadow: 0 8px 16px -8px rgba(#000, .9), inset 0 0 0 1px rgba(#fff, .07);
+    transition: transform .5s cubic-bezier(.22, 1, .36, 1);
+  }
+
+  // La etiqueta: grande, con el color de la marca y su logo bien visible.
+  &__sello {
+    position: absolute;
+    inset: 20%;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: rgb(var(--marca));
+    color: var(--sello-tinta);
+    font-size: 1.25rem;
+    line-height: 1;
+    box-shadow: 0 0 0 2px rgba(#000, .35);
+  }
+
+  &__nombre {
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .02em;
+    line-height: 1.15;
+    text-align: center;
+    transition: color $kl-transicion;
+  }
+
+  &__disco:hover:not(:disabled),
+  &__disco:focus-visible {
+    .kl-simples__vinilo {
+      transform: translateX(6px);
+      animation: kl-girar $kl-vuelta-disco linear infinite;
+    }
+
+    .kl-simples__funda::before { transform: translateX(-4px); }
+    .kl-simples__nombre { color: $kl-tinta; }
+  }
+
+  // Sin claves todavía: un test pressing en blanco, sin color de sello.
+  &__disco:disabled {
+    cursor: not-allowed;
+
+    .kl-simples__funda::before { background: $kl-sup-2; opacity: .55; }
+    .kl-simples__vinilo { opacity: .6; }
+    .kl-simples__sello { background: #e8e6df; color: #6b6e6c; }
+    .kl-simples__nombre { opacity: .55; }
+  }
+
+  // El color de cada sello.
+  &__disco--spotify { --marca: 30, 215, 96; }
+  &__disco--apple { --marca: 250, 45, 72; --sello-tinta: #fff; }
+  &__disco--google { --marca: 255, 0, 51; --sello-tinta: #fff; }
+  &__disco--soundcloud { --marca: 255, 85, 0; --sello-tinta: #fff; }
+
+  &__nota {
+    margin: .7rem 0 0;
+    text-align: center;
+    font-size: .74rem;
+    color: $kl-texto-suave;
+
+    code { color: $kl-menta; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-simples__disco:hover .kl-simples__vinilo,
+  .kl-simples__disco:focus-visible .kl-simples__vinilo { animation: none; }
+}
+
+// Páginas de allauth (error o cancelación al volver de una plataforma).
+.kl-allauth {
+  h1 { font-size: clamp(1.5rem, 3vw, 2rem); }
+  p { color: $kl-texto-suave; }
+
+  &__volver {
+    margin: 1.4rem 0 0;
+
+    a { color: $kl-tinta; font-weight: 700; }
+  }
+}

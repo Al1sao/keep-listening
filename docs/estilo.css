@@ -1,0 +1,93 @@
+/* Estilos compartidos de la documentación de Keep Listening (web y PDF). */
+:root {
+  --tinta: #1b1e1c;
+  --suave: #5a615c;
+  --linea: #e3e6e1;
+  --acento: #5f7f00;
+  --acento-fondo: #f3f8e4;
+  --papel: #ffffff;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font: 16px/1.55 "Segoe UI", Arial, sans-serif;
+  color: var(--tinta);
+  background: var(--papel);
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+}
+
+h1 { font-size: 2.1rem; line-height: 1.15; margin: 0 0 .3rem; letter-spacing: -.02em; }
+h2 { font-size: 1.45rem; margin: 2.2rem 0 .6rem; padding-top: .4rem; border-top: 2px solid var(--linea); }
+h3 { font-size: 1.1rem; margin: 1.4rem 0 .4rem; }
+p, li { margin: 0 0 .55rem; }
+ul, ol { padding-left: 1.3rem; }
+a { color: var(--acento); }
+code { font: .88em Consolas, monospace; background: #f1f3ef; padding: 1px 5px; border-radius: 4px; }
+
+figure { margin: .8rem 0 1.2rem; }
+figure img { display: block; width: 100%; height: auto; border: 1px solid var(--linea); border-radius: 8px; }
+figcaption { font-size: .85rem; color: var(--suave); margin-top: .3rem; }
+
+.portada { padding: 2rem 0 1rem; }
+.portada .etiqueta { font-size: .8rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--acento); }
+.portada .bajada { font-size: 1.1rem; color: var(--suave); margin-bottom: 1.4rem; }
+
+.datos { width: 100%; border-collapse: collapse; margin: .6rem 0 1rem; font-size: .95rem; }
+.datos th, .datos td { text-align: left; vertical-align: top; padding: .45rem .6rem; border-bottom: 1px solid var(--linea); }
+.datos th { width: 32%; color: var(--suave); font-weight: 600; }
+.datos thead th { width: auto; color: var(--tinta); border-bottom: 2px solid var(--linea); }
+
+.nota { background: var(--acento-fondo); border-left: 4px solid var(--acento); padding: .6rem .9rem; border-radius: 0 6px 6px 0; margin: .8rem 0; font-size: .95rem; }
+
+.pasos { counter-reset: paso; list-style: none; padding: 0; }
+.pasos li { counter-increment: paso; position: relative; padding-left: 2.1rem; }
+.pasos li::before {
+  content: counter(paso);
+  position: absolute; left: 0; top: .05rem;
+  width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  background: var(--acento); color: #fff;
+  font-size: .8rem; font-weight: 700; text-align: center; line-height: 1.5rem;
+}
+
+.dos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.dos figure { margin: .4rem 0; }
+
+.diagrama { overflow-x: auto; margin: .6rem 0 1.2rem; padding: .6rem; border: 1px solid var(--linea); border-radius: 8px; background: #fbfcfa; }
+.diagrama .mermaid { display: flex; justify-content: center; }
+
+.indice { columns: 2; column-gap: 2rem; }
+
+.pie { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--linea); font-size: .85rem; color: var(--suave); }
+
+@media (max-width: 640px) {
+  h1 { font-size: 1.7rem; }
+  .dos { grid-template-columns: 1fr; }
+  .indice { columns: 1; }
+  .datos th { width: 40%; }
+}
+
+@media print {
+  @page { size: A4; margin: 14mm 14mm 16mm; }
+  body { font-size: 10.5pt; }
+  main { max-width: none; padding: 0; }
+  h2 { break-after: avoid; }
+  h3 { break-after: avoid; }
+  figure, .diagrama, table, .nota { break-inside: avoid; }
+  .salto { break-before: page; }
+  a { color: var(--tinta); text-decoration: none; }
+  .solo-web { display: none; }
+  main > figure img { width: auto; max-width: 100%; max-height: 92mm; margin: 0 auto; }
+  .diagrama svg { max-height: 200mm; }
+}
+
+pre { overflow-x: auto; background: #f1f3ef; padding: .7rem .9rem; border-radius: 6px; }
+pre code { background: none; padding: 0; }

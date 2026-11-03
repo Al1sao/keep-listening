@@ -1,0 +1,619 @@
+// ---------------------------------------------------------------------------
+// Cascaron de la app: biblioteca | escucha | ahora (vinilo 3D)
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+.kl-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  width: 100%;
+  height: calc(100dvh - var(--kl-dock));
+  background: #000;
+  overflow: hidden;
+
+  @include desde("lg") {
+    grid-template-columns: 232px minmax(0, 1fr);
+    grid-template-rows: 150px minmax(0, 1fr);
+  }
+
+  @include desde("xl") {
+    grid-template-columns: 232px minmax(0, 1fr) 300px;
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+
+.kl-rail {
+  display: none;
+  flex-direction: column;
+  gap: .35rem;
+  min-height: 0;
+  padding: .85rem .7rem 1rem;
+  overflow: auto;
+  background: #000;
+  @include scrollbar(8px, $kl-sup-4);
+
+  @include desde("lg") {
+    display: flex;
+    grid-column: 1;
+    grid-row: 1 / -1;
+  }
+
+  &__marca {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .35rem .7rem .85rem;
+    color: #fff;
+    font-family: $kl-fuente-display;
+    font-weight: 700;
+    letter-spacing: -.02em;
+
+    &:hover { color: #fff; }
+  }
+
+  &__nav,
+  &__biblioteca {
+    display: grid;
+    gap: 2px;
+  }
+
+  &__biblioteca { margin-top: 1.1rem; }
+
+  &__titulo {
+    margin: 0 0 .35rem;
+    padding-inline: .85rem;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: $kl-texto-suave;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    width: 100%;
+    padding: .62rem .85rem;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: $kl-texto-suave;
+    font: inherit;
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+
+    i { width: 1.1rem; font-size: 1.05rem; }
+
+    &:hover { color: #fff; background: $kl-sup-3; }
+
+    &.activo { color: #fff; background: $kl-sup-3; }
+  }
+
+  &__badge {
+    margin-left: auto;
+    min-width: 1.25rem;
+    padding: 0 .35rem;
+    border-radius: $kl-radio-pill;
+    background: $kl-menta;
+    color: $kl-noche;
+    font-size: .7rem;
+    text-align: center;
+
+    &[data-cantidad="0"] { display: none; }
+  }
+}
+
+.kl-workspace {
+  display: flex;
+  flex-direction: column;
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  margin: 8px 8px 8px;
+
+  @include desde("lg") { margin-top: 0; }
+  background: $kl-sup-1;
+  border-radius: 12px;
+  overflow: hidden;
+
+  @include desde("lg") {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  @include desde("xl") {
+    grid-row: 1;
+    margin-right: 0;
+  }
+
+  .kl-contenedor { max-width: none; }
+}
+
+.kl-top {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: $kl-header-alto;
+  padding: .55rem .75rem;
+  background: rgba(18, 18, 18, .92);
+
+  &__menu,
+  &__marca {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #fff;
+    font-size: 1.25rem;
+    flex: 0 0 auto;
+
+    &:hover { background: $kl-sup-4; color: #fff; }
+  }
+
+  @include desde("lg") {
+    &__menu,
+    &__marca { display: none; }
+  }
+
+  &__acciones {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    margin-left: auto;
+    flex: 0 0 auto;
+  }
+
+  &__icono {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 1.05rem;
+
+    &:hover { background: $kl-sup-4; color: #fff; }
+  }
+
+  &__texto {
+    color: #fff;
+    font-weight: 700;
+    padding: .4rem .7rem;
+    border-radius: $kl-radio-pill;
+
+    &:hover { color: #fff; background: $kl-sup-4; }
+
+    @include hasta("sm") { display: none; }
+  }
+
+  &__cuenta {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .25rem .75rem .25rem .25rem;
+    border: 0;
+    border-radius: $kl-radio-pill;
+    background: #000;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+
+    &:hover { color: #fff; background: $kl-sup-4; }
+  }
+
+  .kl-buscador {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 420px;
+  }
+
+  .kl-buscador__campo {
+    background: $kl-sup-3;
+    border: 0;
+    box-shadow: none;
+
+    i { color: $kl-texto-suave; }
+
+    &:focus-within {
+      outline: 2px solid #fff;
+      outline-offset: 0;
+      background: $kl-sup-4;
+    }
+  }
+}
+
+// En el celular el reproductor de abajo y "Ahora suena" ya cumplen este papel:
+// el panel lateral solo aparece desde lg.
+.kl-stage {
+  display: none;
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  min-height: 0;
+  margin: 8px 8px 0;
+  background: $kl-sup-1;
+  border-radius: 12px;
+  overflow: hidden;
+
+  @include desde("lg") {
+    display: flex;
+    grid-column: 2;
+    grid-row: 1;
+    flex-direction: row;
+  }
+
+  @include desde("xl") {
+    grid-column: 3;
+    grid-row: 1;
+    flex-direction: column;
+    margin: 8px 8px 8px 0;
+  }
+
+  &__lienzo {
+    position: relative;
+    flex: 0 0 118px;
+    width: 118px;
+    max-width: 42%;
+    min-height: 0;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    background:
+      radial-gradient(circle at 50% 58%, rgba($kl-menta, .12), transparent 42%),
+      #0c0c0c;
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    @include desde("lg") {
+      flex-basis: 42%;
+      width: auto;
+      max-width: none;
+    }
+
+    @include desde("xl") {
+      flex: 0 0 280px;
+      width: auto;
+      height: 280px;
+    }
+  }
+
+  &__info {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    gap: .15rem;
+    width: 0;
+    min-width: 0;
+    padding: .7rem .85rem .8rem;
+    overflow: hidden;
+
+    h2 {
+      margin: 0;
+      width: 100%;
+      min-width: 0;
+      font-size: 1rem;
+      overflow-wrap: anywhere;
+      @include lineas(2);
+    }
+
+    p {
+      margin: .15rem 0 .45rem;
+      color: $kl-texto-suave;
+      font-size: .84rem;
+      @include lineas(2);
+
+      @include hasta("xl") { display: none; }
+    }
+  }
+
+  // .kl-btn llega después y pisa un display:none suelto.
+  button.kl-stage__radio { display: none; }
+
+  @include desde("xl") {
+    button.kl-stage__radio { display: inline-flex; }
+
+    &__info { width: auto; }
+  }
+
+  &__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+  }
+}
+
+.kl-pie {
+  display: grid;
+  gap: 1rem 2rem;
+  align-items: center;
+  margin-top: 3rem;
+  padding: 1.6rem clamp(1rem, 2.5vw, 1.75rem) 1.8rem;
+  border-top: 1px solid $kl-linea;
+  font-size: .8rem;
+  color: $kl-texto-suave;
+
+  @include desde("md") { grid-template-columns: minmax(0, 1.2fr) auto; }
+
+  &__lado {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+
+    strong { display: block; font-family: $kl-fuente-display; font-size: 1rem; color: #fff; }
+  }
+
+  // Un disquito mostrando su etiqueta "B".
+  &__disco {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .06) 0 1px, transparent 1px 3px),
+      $kl-sup-2;
+    box-shadow: inset 0 0 0 1px $kl-linea;
+
+    span {
+      display: grid;
+      place-items: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: tema(1);
+      color: #0b0d0c;
+      font-size: .6rem;
+      font-weight: 900;
+    }
+  }
+
+  &__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem 1.2rem;
+
+    a { color: rgba(#fff, .78); font-weight: 700; }
+    a:hover { color: tema(1); }
+  }
+
+  &__creditos {
+    margin: 0;
+    font-size: .72rem;
+
+    @include desde("md") { grid-column: 1 / -1; }
+
+    a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  }
+}
+
+
+
+// ---------------------------------------------------------------------------
+// Logo: vinilo con onda. Toma los colores del tema que suena y, con música,
+// el brillo gira y las barras laten.
+// ---------------------------------------------------------------------------
+.kl-logo {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  filter: drop-shadow(0 4px 12px tema(1, .25));
+
+  &__c1 { stop-color: tema(1); transition: stop-color .8s ease; }
+  &__c2 { stop-color: tema(2); transition: stop-color .8s ease; }
+
+  &__surcos {
+    transform-origin: 20px 20px;
+  }
+
+  &__onda rect {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+}
+
+body.kl-en-vivo .kl-logo {
+  .kl-logo__surcos { animation: kl-girar $kl-vuelta-disco linear infinite; }
+
+  .kl-logo__onda rect {
+    animation: kl-logo-onda .9s ease-in-out infinite;
+
+    &:nth-child(2) { animation-delay: .15s; }
+    &:nth-child(3) { animation-delay: .3s; }
+  }
+}
+
+@keyframes kl-logo-onda {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(.55); }
+}
+
+.kl-marca {
+  white-space: nowrap;
+  font-family: $kl-fuente-display;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -.04em;
+  color: #fff;
+
+  span {
+    font-weight: 600;
+    color: tema(1);
+    transition: color .8s ease;
+  }
+}
+
+.kl-top__marca .kl-logo { width: 32px; height: 32px; }
+
+@media (prefers-reduced-motion: reduce) {
+  body.kl-en-vivo .kl-logo .kl-logo__surcos,
+  body.kl-en-vivo .kl-logo .kl-logo__onda rect { animation: none; }
+}
+
+// ---------------------------------------------------------------------------
+// Navegación continua (navegar.js): solo el contenido cambia; la bandeja, el
+// estante y el fondo vivo quedan quietos. Y la púa recorre el borde mientras carga.
+// ---------------------------------------------------------------------------
+.kl-main { view-transition-name: kl-contenido; }
+.kl-player { view-transition-name: kl-bandeja; }
+.kl-rail { view-transition-name: kl-estante; }
+
+::view-transition-old(root),
+::view-transition-new(root) { animation: none; }
+
+::view-transition-old(kl-contenido) { animation: kl-contenido-sale .2s ease both; }
+::view-transition-new(kl-contenido) { animation: kl-contenido-entra .42s cubic-bezier(.22, 1, .36, 1) both; }
+
+@keyframes kl-contenido-sale {
+  to { opacity: 0; transform: translateY(6px); }
+}
+
+@keyframes kl-contenido-entra {
+  from { opacity: 0; transform: translateY(16px); }
+}
+
+.kl-pua {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2000;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, tema(1));
+  box-shadow: 0 0 10px tema(1, .8);
+  transform: scaleX(0);
+  transform-origin: left;
+  opacity: 0;
+  pointer-events: none;
+
+  &.activa {
+    opacity: 1;
+    transform: scaleX(.85);
+    transition: transform 6s cubic-bezier(.1, .8, .2, 1), opacity .2s ease;
+  }
+
+  &.fin {
+    opacity: 0;
+    transform: scaleX(1);
+    transition: transform .2s ease, opacity .35s ease .15s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(kl-contenido),
+  ::view-transition-new(kl-contenido) { animation: none; }
+}
+
+// ---------------------------------------------------------------------------
+// Estante: los me gusta como lomos de discos parados. El color del lomo es
+// la tapa misma, estirada (se ve la franja central). Al pasar, el disco se
+// asoma hacia arriba y muestra la tapa; un toque lo pone a sonar.
+// ---------------------------------------------------------------------------
+.kl-estante {
+  margin-top: 1rem;
+
+  &__fila {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    min-height: 96px;
+    padding: 20px .7rem 0;
+    border-bottom: 3px solid $kl-sup-4;   // la tabla del estante
+    overflow: hidden;
+  }
+
+  &__lomo {
+    --portada: none;
+    position: relative;
+    flex: 0 0 13px;
+    height: 72px;
+    padding: 0;
+    border: 0;
+    border-radius: 2px 2px 0 0;
+    background: var(--portada) 50% 50% / 1400% 140%, $kl-sup-3;
+    box-shadow: inset -2px 0 0 rgba(0, 0, 0, .35), inset 1px 0 0 rgba(#fff, .12);
+    cursor: pointer;
+    transition: transform .45s cubic-bezier(.22, 1, .36, 1), flex-basis .45s cubic-bezier(.22, 1, .36, 1);
+
+    // Alturas distintas, como discos de verdad.
+    &:nth-child(3n) { height: 66px; }
+    &:nth-child(4n + 1) { height: 78px; }
+
+    &:hover,
+    &:focus-visible {
+      z-index: 2;
+      flex-basis: 56px;
+      transform: translateY(-14px);
+    }
+
+    &.sonando { box-shadow: inset 0 -3px 0 tema(1), inset -2px 0 0 rgba(0, 0, 0, .35); }
+    &.entra { animation: kl-lomo-entra .6s cubic-bezier(.22, 1, .36, 1) both; }
+  }
+
+  &__nombre {
+    position: absolute;
+    inset: 4px 0;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    overflow: hidden;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    line-height: 13px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #fff;
+    text-shadow: 0 0 3px rgba(0, 0, 0, .9);
+    transition: opacity .2s ease;
+  }
+
+  // La tapa aparece cuando el disco sale.
+  &__tapa {
+    position: absolute;
+    inset: 0;
+    border-radius: 3px;
+    background: var(--portada) center / cover;
+    opacity: 0;
+    transition: opacity .3s ease .1s;
+  }
+
+  &__lomo:hover &__tapa,
+  &__lomo:focus-visible &__tapa { opacity: 1; }
+
+  &__lomo:hover &__nombre,
+  &__lomo:focus-visible &__nombre { opacity: 0; }
+
+  &__vacio {
+    margin: 0 0 .7rem;
+    font-size: .78rem;
+    color: $kl-texto-suave;
+
+    i { color: $kl-rosa; }
+  }
+}
+
+@keyframes kl-lomo-entra {
+  from { transform: translateY(-40px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-estante__lomo { transition: none; }
+  .kl-estante__lomo.entra { animation: none; }
+}

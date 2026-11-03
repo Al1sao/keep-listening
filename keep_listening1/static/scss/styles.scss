@@ -1,0 +1,57 @@
+// ===========================================================================
+// Keep Listening - Hoja de estilos principal
+// Arquitectura 7-1 sobre Bootstrap 5, con el sistema de modulos de Dart Sass.
+//
+//   abstracts/  -> variables, funciones y mixins (sin CSS de salida)
+//                  + la configuracion de Bootstrap y de los iconos
+//   base/       -> reset, tipografia y utilidades propias
+//   layout/     -> header, contenedores y reproductor
+//   components/ -> botones, tarjetas, formularios, buscador, tablas...
+//   pages/      -> estilos especificos de cada pantalla
+//
+// Se usa @use y no @import: @import quedo obsoleto en Dart Sass y desaparece
+// en la version 3. Cada parcial declara de que depende (`@use "../abstracts"`)
+// en lugar de confiar en el orden de los imports de este archivo.
+//
+// Compilar:  npm run css        (una vez)
+//            npm run css:watch  (modo desarrollo)
+// ===========================================================================
+
+// 1. Framework (ya configurado con la paleta) e iconos
+@use "abstracts/bootstrap";
+@use "abstracts/iconos";
+
+// 2. Base
+@use "base/fuentes";
+@use "base/reset";
+@use "base/tipografia";
+@use "base/utilidades";
+
+// 3. Layout
+@use "layout/contenedores";
+@use "layout/shell";
+@use "layout/header";
+@use "layout/reproductor";
+
+// 4. Componentes
+@use "components/botones";
+@use "components/tarjetas";
+@use "components/formularios";
+@use "components/buscador";
+@use "components/varios";
+@use "components/vinilo";
+
+// 5. Paginas
+@use "pages/musica";
+@use "pages/tienda";
+@use "pages/disqueria";
+@use "pages/panel";
+@use "pages/perfil";
+@use "pages/estudio";
+@use "pages/letra";
+@use "pages/espacio";
+@use "pages/ahora";
+@use "pages/sesion";
+@use "pages/errores";
+@use "pages/inicio";
+@use "pages/explorar";

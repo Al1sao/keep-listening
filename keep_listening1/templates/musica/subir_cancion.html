@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load kl_extras %}
+
+{% block titulo %}{% if editando %}Editar tema{% else %}Subir un tema{% endif %}{% endblock %}
+
+{% block contenido %}
+<header class="kl-coleccion__cabeza">
+    <div>
+        <span class="kl-eyebrow">{% if editando %}Editar{% else %}Publicar{% endif %}</span>
+        <h1>{% if editando %}Retocá "{{ cancion.titulo }}"{% else %}Cortá tu<br>primer máster{% endif %}</h1>
+    </div>
+</header>
+
+<div class="kl-subir">
+    <form class="kl-panel-caja kl-subir__form" method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <p class="kl-sesion__error" role="alert">{% for error in form.non_field_errors %}{{ error }}{% endfor %}</p>
+        {% endif %}
+
+        {# El audio primero: es lo que se "corta" en el torno. #}
+        <label class="kl-dropzone" data-dropzone for="{{ form.archivo_audio.id_for_label }}">
+            <span class="kl-dropzone__icono"><i class="bi bi-file-earmark-music" aria-hidden="true"></i></span>
+            <span>
+                <strong data-dropzone-nombre>{% if editando %}Reemplazar el audio (opcional){% else %}Arrastrá tu tema o hacé clic{% endif %}</strong>
+                <small>mp3, wav, ogg, m4a o flac · hasta 25 MB</small>
+            </span>
+            <input type="file" name="{{ form.archivo_audio.html_name }}" id="{{ form.archivo_audio.id_for_label }}"
+                   accept="audio/*" data-audio="1" {% if not editando %}required{% endif %}>
+        </label>
+        {% for error in form.archivo_audio.errors %}<p class="kl-form__error">{{ error }}</p>{% endfor %}
+
+        <div class="kl-flotante">
+            {{ form.titulo|flotante }}
+            <label for="{{ form.titulo.id_for_label }}">{{ form.titulo.label }}</label>
+        </div>
+        {% for error in form.titulo.errors %}<p class="kl-form__error" id="{{ form.titulo.auto_id }}-error">{{ error }}</p>{% endfor %}
+
+        <div class="kl-perfil-grilla__par">
+            <div class="kl-campo">
+                <label for="{{ form.genero.id_for_label }}">{{ form.genero.label }}</label>
+                {{ form.genero }}
+                {% for error in form.genero.errors %}<p class="kl-form__error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="kl-campo">
+                <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+                {{ form.tipo }}
+            </div>
+        </div>
+
+        <div class="kl-perfil-grilla__par" id="kl-bloque-album">
+            <div class="kl-campo">
+                <label for="{{ form.album.id_for_label }}">{{ form.album.label }}</label>
+                {{ form.album }}
+                <small>¿No está? <a href="{% url 'musica:crear_album' %}">Creá el álbum primero</a>.</small>
+                {% for error in form.album.errors %}<p class="kl-form__error">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="kl-campo">
+                <label for="{{ form.numero_pista.id_for_label }}">{{ form.numero_pista.label }}</label>
+                {{ form.numero_pista }}
+            </div>
+        </div>
+
+        <label class="kl-archivo" for="{{ form.portada.id_for_label }}">
+            <i class="bi bi-image" aria-hidden="true"></i>
+            <span><strong>{{ form.portada.label }}</strong><small>Cuadrada, hasta 5 MB. Va a ser la etiqueta del disco.</small></span>
+            <input type="file" name="{{ form.portada.html_name }}" id="{{ form.portada.id_for_label }}" accept="image/*" data-preview="portada">
+        </label>
+        {% for error in form.portada.errors %}<p class="kl-form__error">{{ error }}</p>{% endfor %}
+
+        <div class="kl-form__acciones">
+            <a class="kl-btn kl-btn--fantasma" href="{% url 'musica:mis_publicaciones' %}">Volver</a>
+            <button class="kl-btn" type="submit">
+                <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i> {% if editando %}Guardar cambios{% else %}Enviar a revisión{% endif %}
+            </button>
+        </div>
+    </form>
+
+    {# El torno: la huella real del archivo se graba en espiral sobre el disco. #}
+    <aside class="kl-torno" aria-label="Vista previa del disco">
+        <div class="kl-torno__plato">
+            <canvas class="kl-torno__lienzo" id="kl-torno-lienzo" width="640" height="640" aria-hidden="true"></canvas>
+            <span class="kl-torno__sello" data-preview-destino="portada">
+                <img alt="" width="160" height="160" {% if editando and cancion.portada %}src="{{ cancion.portada.url }}"{% else %}hidden{% endif %}>
+                <span id="kl-torno-titulo">{% if editando %}{{ cancion.titulo }}{% else %}tu tema{% endif %}</span>
+            </span>
+        </div>
+        <div class="kl-torno__info" aria-live="polite">
+            <strong id="kl-torno-estado">{% if editando %}Tu máster actual{% else %}Esperando el audio{% endif %}</strong>
+            <span id="kl-torno-datos">Elegí un archivo y lo cortamos en el disco.</span>
+            <button class="kl-btn kl-btn--fantasma kl-btn--sm" type="button" id="kl-torno-escuchar" hidden>
+                <i class="bi bi-play-fill" aria-hidden="true"></i> <span>Escuchar el corte</span>
+            </button>
+        </div>
+        <ol class="kl-torno__pasos">
+            <li><strong>Cortás</strong> el tema acá: audio, datos y etiqueta.</li>
+            <li><strong>Revisión:</strong> el equipo lo aprueba o te dice qué cambiar.</li>
+            <li><strong>A la sala:</strong> aparece en Explorar y cualquiera lo escucha.</li>
+        </ol>
+    </aside>
+</div>
+{% if editando and cancion.archivo_audio %}<span hidden id="kl-torno-actual" data-url="{{ cancion.archivo_audio.url }}"></span>{% endif %}
+{% endblock %}
+
+{% block js_extra %}
+<script src="{% estatico 'js/torno.js' %}" data-pagina></script>
+{% endblock %}

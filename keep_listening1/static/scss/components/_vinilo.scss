@@ -1,0 +1,111 @@
+// ---------------------------------------------------------------------------
+// Vinilo reutilizable (tienda, login). Seis diseños por data-estilo:
+// 0 negro · 1 color · 2 marmolado · 3 salpicado · 4 picture disc · 5 neón.
+// Colores: --disco-a / --disco-b (r, g, b). Etiqueta: --portada (url()).
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+// Las variables NO se declaran acá: se heredan del contenedor (la tarjeta de la
+// tienda, la hoja, el login). Si faltan, cada uso tiene su respaldo.
+.kl-vinilo {
+  --vuelta: #{$kl-vuelta-disco};
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: drop-shadow(0 22px 40px rgba(0, 0, 0, .55));
+
+  // Brillo fijo: la luz queda quieta y el surco gira por debajo.
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      conic-gradient(from 25deg, transparent 0 8%, rgba(#fff, .18) 12%, transparent 17% 55%, rgba(#fff, .1) 60%, transparent 66%);
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  &__giro {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .045) 0 1px, transparent 1px 3px),
+      $kl-sup-2;
+    box-shadow: inset 0 0 0 2px rgba(#fff, .08);
+  }
+
+  &.girando &__giro { animation: kl-girar var(--vuelta) linear infinite; }
+
+  &__sello {
+    position: absolute;
+    inset: 33%;
+    border-radius: 50%;
+    background: var(--portada, none) center / cover, rgb(var(--disco-b, 61, 206, 160));
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, .35);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 45%;
+      border-radius: 50%;
+      background: #050606;
+    }
+  }
+
+  &[data-estilo="1"] &__giro {
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .06) 0 1px, transparent 1px 3px),
+      radial-gradient(circle, rgba(var(--disco-a, 198, 245, 78), .55), rgba(var(--disco-a, 198, 245, 78), .95));
+    box-shadow: inset 0 0 40px rgba(#fff, .18), inset 0 0 0 2px rgba(#fff, .2);
+  }
+
+  &[data-estilo="2"] &__giro {
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .05) 0 1px, transparent 1px 3px),
+      radial-gradient(ellipse at 30% 40%, rgba(#fff, .35), transparent 30%),
+      conic-gradient(from 40deg,
+        rgb(var(--disco-a, 198, 245, 78)), rgb(var(--disco-b, 61, 206, 160)) 18%, rgba(#fff, .7) 22%, rgb(var(--disco-a, 198, 245, 78)) 30%,
+        rgb(var(--disco-b, 61, 206, 160)) 52%, rgb(var(--disco-a, 198, 245, 78)) 68%, rgba(#fff, .55) 72%, rgb(var(--disco-b, 61, 206, 160)) 80%, rgb(var(--disco-a, 198, 245, 78)));
+  }
+
+  &[data-estilo="3"] &__giro {
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .04) 0 1px, transparent 1px 3px),
+      radial-gradient(circle at 22% 30%, rgb(var(--disco-a, 198, 245, 78)) 0 5%, transparent 5.5%),
+      radial-gradient(circle at 70% 22%, rgb(var(--disco-b, 61, 206, 160)) 0 3.5%, transparent 4%),
+      radial-gradient(circle at 80% 64%, rgb(var(--disco-a, 198, 245, 78)) 0 6%, transparent 6.5%),
+      radial-gradient(circle at 30% 78%, rgb(var(--disco-b, 61, 206, 160)) 0 4.5%, transparent 5%),
+      radial-gradient(circle at 55% 88%, rgb(var(--disco-a, 198, 245, 78)) 0 2.5%, transparent 3%),
+      radial-gradient(circle at 12% 58%, rgb(var(--disco-a, 198, 245, 78)) 0 2%, transparent 2.5%),
+      radial-gradient(circle at 88% 40%, rgb(var(--disco-b, 61, 206, 160)) 0 2%, transparent 2.5%),
+      $kl-sup-2;
+  }
+
+  &[data-estilo="4"] &__giro {
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .035) 0 1px, transparent 1px 3px),
+      var(--portada, none) center / cover,
+      $kl-sup-3;
+  }
+
+  &[data-estilo="4"] &__sello {
+    inset: 43%;
+    background: rgb(var(--disco-b, 61, 206, 160));
+  }
+
+  &[data-estilo="5"] &__giro {
+    background:
+      repeating-radial-gradient(circle, transparent 0 7px, rgba(var(--disco-a, 198, 245, 78), .9) 7px 8px),
+      #050505;
+    box-shadow:
+      inset 0 0 0 2px rgba(var(--disco-a, 198, 245, 78), .6),
+      0 0 calc(18px + var(--kl-pulso, 0) * 40px) rgba(var(--disco-a, 198, 245, 78), .55);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-vinilo.girando .kl-vinilo__giro { animation: none; }
+}

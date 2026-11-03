@@ -1,0 +1,51 @@
+// ---------------------------------------------------------------------------
+// Bootstrap, solo lo que Keep Listening usa.
+//
+// El sitio tiene su propio sistema de componentes (kl-*). De Bootstrap se usan
+// los componentes con JS (dropdown, offcanvas, modal), el botón de cerrar, las
+// transiciones, el texto solo para lectores y siete utilidades (al final, a
+// mano). Importar el framework entero sumaba ~350 KB de CSS que nadie usaba;
+// la API de utilidades sola generaba 19 KB para esas siete clases.
+// ---------------------------------------------------------------------------
+
+// El sitio es oscuro siempre: el modo oscuro de Bootstrap no se usa.
+$enable-dark-mode: false;
+
+// Configuración
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/variables-dark";
+@import "bootstrap/scss/maps";
+@import "bootstrap/scss/mixins";
+
+// Base y componentes
+@import "bootstrap/scss/root";
+@import "bootstrap/scss/reboot";
+@import "bootstrap/scss/type";
+@import "bootstrap/scss/transitions";
+@import "bootstrap/scss/dropdown";
+@import "bootstrap/scss/close";
+@import "bootstrap/scss/modal";
+
+// El offcanvas sin sus variantes por breakpoint (.offcanvas-sm … -xxl), que el
+// sitio no usa: se importa con un solo breakpoint y después se restaura.
+$kl-breakpoints-bootstrap: $grid-breakpoints;
+$grid-breakpoints: (xs: 0);
+@import "bootstrap/scss/offcanvas";
+$grid-breakpoints: $kl-breakpoints-bootstrap;
+
+@import "bootstrap/scss/helpers/visually-hidden";
+
+// Las utilidades que aparecen en templates y JS (si se usa otra, se agrega acá).
+.d-none { display: none !important; }
+.me-2 { margin-right: .5rem !important; }
+.ms-1 { margin-left: .25rem !important; }
+.ms-auto { margin-left: auto !important; }
+
+@include media-breakpoint-up(sm) {
+  .d-sm-grid { display: grid !important; }
+}
+
+@include media-breakpoint-up(md) {
+  .d-md-inline { display: inline !important; }
+}

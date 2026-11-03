@@ -1,0 +1,97 @@
+{% extends "panel/base_panel.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Administrar usuarios{% endblock %}
+
+{% block panel %}
+<header class="kl-coleccion__cabeza">
+    <div>
+        <span class="kl-eyebrow">Cuentas</span>
+        <h1>Quién está<br>en la sala</h1>
+    </div>
+    <ul class="kl-coleccion__cifras" aria-label="Resumen">
+        <li><strong>{{ total }}</strong><span>cuenta{{ total|pluralize }}</span></li>
+    </ul>
+</header>
+
+<div class="kl-consola__barra">
+    <nav class="kl-filtros" aria-label="Filtro">
+        <a class="kl-filtros__item {% if not filtro %}activo{% endif %}" href="{% url 'panel:usuarios' %}">Todos</a>
+        <a class="kl-filtros__item {% if filtro == 'bloqueados' %}activo{% endif %}" href="?filtro=bloqueados">Sancionados</a>
+        <a class="kl-filtros__item {% if filtro == 'admins' %}activo{% endif %}" href="?filtro=admins">Administradores</a>
+    </nav>
+    <form class="kl-consola__buscar" method="get" role="search">
+        <input type="hidden" name="filtro" value="{{ filtro }}">
+        <label class="visually-hidden" for="usuarios-q">Buscar por usuario o correo</label>
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input class="kl-input" type="search" id="usuarios-q" name="q" value="{{ q }}" placeholder="Usuario o correo">
+    </form>
+</div>
+
+<div class="kl-tabla-scroll">
+    <table class="kl-tabla">
+        <thead>
+            <tr>
+                <th scope="col">Cuenta</th>
+                <th scope="col">Rol</th>
+                <th scope="col">Temas</th>
+                <th scope="col">Compras</th>
+                <th scope="col">Desde</th>
+                <th scope="col">Estado</th>
+                <th scope="col"><span class="visually-hidden">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in usuarios %}
+                <tr {% if u.bloqueado %}class="apagada"{% endif %}>
+                    <td>
+                        <a class="kl-tabla__quien" href="{% url 'usuarios:perfil_publico' u.username %}">
+                            <span class="kl-tabla__avatar" aria-hidden="true">{% if u.avatar %}<img src="{{ u.avatar.url }}" alt="" width="36" height="36" loading="lazy">{% else %}{{ u.username|slice:":1"|upper }}{% endif %}</span>
+                            <span><strong>{{ u.username }}</strong><small>{{ u.email }}</small></span>
+                        </a>
+                    </td>
+                    <td><span class="kl-badge {% if u.es_admin %}kl-badge--aprobada{% else %}kl-badge--neutro{% endif %}">{{ u.get_rol_display }}</span></td>
+                    <td class="kl-tabla__num">{{ u.n_canciones }}</td>
+                    <td class="kl-tabla__num">{{ u.n_pedidos }}</td>
+                    <td class="kl-texto-suave">{{ u.fecha_registro|date:"d/m/Y" }}</td>
+                    <td>
+                        {% if u.bloqueado %}
+                            <span class="kl-led kl-led--apagado" title="{{ u.motivo_bloqueo }}">Bloqueada</span>
+                        {% else %}
+                            <span class="kl-led">Activa</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="kl-tabla__acciones">
+                            {% if u != user %}
+                                <form method="post" action="{% url 'panel:sancionar_usuario' u.id %}"
+                                      {% if not u.bloqueado %}data-confirmar="¿Bloquear a {{ u.username }}?"{% endif %}>
+                                    {% csrf_token %}
+                                    {% if not u.bloqueado %}<input type="hidden" name="motivo" value="Incumplimiento de las normas de la plataforma">{% endif %}
+                                    <button class="kl-btn {% if u.bloqueado %}kl-btn--fantasma{% else %}kl-btn--peligro{% endif %} kl-btn--sm" type="submit">
+                                        {% if u.bloqueado %}<i class="bi bi-unlock" aria-hidden="true"></i> Desbloquear{% else %}<i class="bi bi-slash-circle" aria-hidden="true"></i> Bloquear{% endif %}
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'panel:cambiar_rol' u.id %}"
+                                      data-confirmar="¿Cambiar el rol de {{ u.username }}?">
+                                    {% csrf_token %}
+                                    <button class="kl-btn kl-btn--fantasma kl-btn--sm" type="submit" aria-label="Cambiar el rol de {{ u.username }}" title="Cambiar rol">
+                                        <i class="bi bi-shield" aria-hidden="true"></i>
+                                    </button>
+                                </form>
+                            {% else %}
+                                <span class="kl-texto-suave">Tu cuenta</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7" class="kl-tabla__vacia">Sin resultados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% query_sin_pagina as querystring %}
+{% include "partials/_paginacion.html" with pagina=pagina querystring=querystring %}
+{% endblock %}

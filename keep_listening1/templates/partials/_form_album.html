@@ -1,0 +1,49 @@
+{% comment %}
+Formulario de álbum con la vista previa del disco (panel y artista).
+Parámetros: form, volver (URL del botón Volver).
+{% endcomment %}
+<div class="kl-subir">
+    <form class="kl-panel-caja kl-subir__form" method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <p class="kl-sesion__error" role="alert">{% for error in form.non_field_errors %}{{ error }} {% endfor %}</p>
+        {% endif %}
+
+        {% for campo in form %}
+            {% if campo.name in "disponible_digital,disponible_fisico,publicado" %}
+                <label class="kl-interruptor" for="{{ campo.id_for_label }}">
+                    {{ campo }}
+                    <span>{{ campo.label }}</span>
+                </label>
+            {% else %}
+                <div class="kl-campo">
+                    <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                    {{ campo }}
+                    {% if campo.help_text %}<small>{{ campo.help_text }}</small>{% endif %}
+                    {% for error in campo.errors %}<p class="kl-form__error">{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <div class="kl-form__acciones">
+            <a class="kl-btn kl-btn--fantasma" href="{{ volver }}">Volver</a>
+            <button class="kl-btn" type="submit"><i class="bi bi-save" aria-hidden="true"></i> Guardar</button>
+        </div>
+    </form>
+
+    {# El disco como va a verse en la disquería: la portada elegida es la etiqueta. #}
+    <aside class="kl-torno" aria-label="Vista previa del disco">
+        <div class="kl-torno__plato">
+            <div class="kl-vinilo" data-estilo="0"><div class="kl-vinilo__giro"></div></div>
+            <span class="kl-torno__sello" data-preview-destino="portada">
+                <img alt="" width="160" height="160" {% if form.instance.portada %}src="{{ form.instance.portada.url }}"{% else %}hidden{% endif %}>
+                <span>{{ form.instance.titulo|default:"tu álbum" }}</span>
+            </span>
+        </div>
+        <div class="kl-torno__info">
+            <strong>Así se ve en la disquería</strong>
+            <span>La etiqueta cambia al elegir la portada.</span>
+        </div>
+    </aside>
+</div>

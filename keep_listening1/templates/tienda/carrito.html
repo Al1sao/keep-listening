@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Tu bolsa{% endblock %}
+
+{% block contenido %}
+{% include "tienda/_pasos.html" with paso=1 %}
+
+<div class="kl-bolsa">
+    <section class="kl-bolsa__discos" aria-labelledby="titulo-bolsa">
+        <h1 id="titulo-bolsa">Tu bolsa de la disquería</h1>
+
+        <div id="kl-carrito-items">
+            {% for item in items %}
+                {% with p=item.album.paleta %}
+                <article class="kl-item-carrito" data-item="{{ item.id }}"
+                         style="--disco-a: {{ p.acento_rgb }}; --disco-b: {{ p.fondo_rgb }}; --portada: url('{{ item.album.portada_url }}');">
+                    <a class="kl-item-carrito__funda" href="{{ item.album.get_absolute_url }}" aria-label="{{ item.album.titulo }}">
+                        {% if not item.es_digital %}
+                            <span class="kl-vinilo kl-item-carrito__disco" data-estilo="{{ item.album.estilo_de_vinilo }}" aria-hidden="true">
+                                <span class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></span>
+                            </span>
+                        {% endif %}
+                        <img src="{{ item.album.portada_url }}" alt="" width="96" height="96" loading="lazy">
+                    </a>
+                    <div class="kl-item-carrito__datos">
+                        <a class="kl-item-carrito__titulo" href="{{ item.album.get_absolute_url }}">{{ item.album.titulo }}</a>
+                        <span class="kl-item-carrito__sub">{{ item.album.artista.username }}</span>
+                        <span class="kl-item-carrito__formato">
+                            {% if item.es_digital %}<i class="bi bi-cloud-arrow-down" aria-hidden="true"></i> Digital
+                            {% else %}<i class="bi bi-vinyl-fill" aria-hidden="true"></i> Vinilo · {{ item.album.nombre_estilo_vinilo }}{% endif %}
+                            · {{ item.precio_unitario|moneda }} c/u
+                        </span>
+                    </div>
+                    <div class="kl-item-carrito__acciones">
+                        <div class="kl-cantidad">
+                            <button type="button" data-item-cantidad="{{ item.id }}" data-delta="-1" aria-label="Restar uno de {{ item.album.titulo }}">−</button>
+                            <input type="number" value="{{ item.cantidad }}" min="1" max="20" data-item-input="{{ item.id }}" aria-label="Cantidad de {{ item.album.titulo }}">
+                            <button type="button" data-item-cantidad="{{ item.id }}" data-delta="1" aria-label="Sumar uno de {{ item.album.titulo }}">+</button>
+                        </div>
+                        <strong class="kl-item-carrito__precio" data-item-subtotal="{{ item.id }}">{{ item.subtotal|moneda }}</strong>
+                        <button class="kl-item-carrito__quitar" type="button" data-item-eliminar="{{ item.id }}" aria-label="Quitar {{ item.album.titulo }}">
+                            <i class="bi bi-x-lg" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </article>
+                {% endwith %}
+            {% empty %}
+                <div class="kl-coleccion__vacia" id="kl-carrito-vacio">
+                    <div class="kl-vinilo" data-estilo="2" aria-hidden="true"><div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div></div>
+                    <div>
+                        <h2>La bolsa está vacía</h2>
+                        <p>Pasá por la disquería: cada disco tiene su edición y su lado B.</p>
+                        <a class="kl-btn" href="{% url 'tienda:catalogo' %}"><i class="bi bi-vinyl" aria-hidden="true"></i> Ir a la disquería</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if items %}
+            <div class="kl-bolsa__pie">
+                <a class="kl-btn kl-btn--fantasma" href="{% url 'tienda:catalogo' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Seguir mirando</a>
+                <form method="post" action="{% url 'tienda:vaciar_carrito' %}" data-confirmar="¿Vaciar toda la bolsa?">
+                    {% csrf_token %}
+                    <button class="kl-btn kl-btn--fantasma kl-btn--sm" type="submit">Vaciar</button>
+                </form>
+            </div>
+        {% endif %}
+    </section>
+
+    {# Ticket de la disquería #}
+    <aside class="kl-ticket" aria-labelledby="titulo-ticket">
+        <h2 id="titulo-ticket">Ticket</h2>
+        <dl>
+            <div><dt>Discos</dt><dd data-carrito-cantidad>{{ cantidad }}</dd></div>
+            <div><dt>Envío</dt><dd>Se calcula al despachar</dd></div>
+        </dl>
+        <div class="kl-ticket__total">
+            <span>Total</span>
+            <strong data-carrito-total>{{ total|moneda }}</strong>
+        </div>
+        {% if items %}
+            <a class="kl-btn kl-btn--bloque" href="{% url 'tienda:checkout' %}"><i class="bi bi-credit-card" aria-hidden="true"></i> Ir a pagar</a>
+        {% endif %}
+        <p class="kl-ticket__nota">Keep Listening Records · gracias por bancar a los artistas</p>
+        <span class="kl-ticket__codigo" aria-hidden="true"></span>
+    </aside>
+</div>
+{% endblock %}

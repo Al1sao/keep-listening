@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*.sqlite3
+.venv/
+mi_entorno/
+node_modules/
+staticfiles/
+media/
+.env
+*.log
+.DS_Store
+
+# Clave generada automaticamente en desarrollo (ver settings.py)
+.secret_key
+.env.local
+
+# El CSS compilado (npm run build) se versiona para poder ejecutar sin Node.
+.cache/
+
+# Respaldos y material de trabajo que no forman parte de la entrega
+media_respaldo_*.zip
+guia/
+.claude/

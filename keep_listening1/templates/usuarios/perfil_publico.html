@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ artista.username }}{% endblock %}
+{% block meta_descripcion %}{{ artista.username }} en Keep Listening{% if artista.biografia %}: {{ artista.biografia|truncatechars:140 }}{% endif %}{% endblock %}
+
+{% block contenido %}
+<header class="kl-perfil-disco">
+    {% with grabado="KEEP LISTENING RECORDS · "|add:artista.username|upper %}
+        {% include "usuarios/_etiqueta.html" with persona=artista grabado=grabado %}
+    {% endwith %}
+    <div class="kl-perfil-disco__datos">
+        <span class="kl-eyebrow">Artista</span>
+        <h1>{{ artista.username }}</h1>
+        {% if artista.biografia %}<p class="kl-perfil-disco__bio">{{ artista.biografia }}</p>{% endif %}
+        <dl class="kl-creditos">
+            <div><dt>Temas</dt><dd>{{ canciones|length }}</dd></div>
+            <div><dt>Vinilos</dt><dd>{{ albumes|length }}</dd></div>
+        </dl>
+        {% if canciones %}
+            <button class="kl-btn" type="button" data-reproducir-todo><i class="bi bi-play-fill" aria-hidden="true"></i> Escuchar a {{ artista.username }}</button>
+        {% endif %}
+    </div>
+</header>
+
+{% if albumes %}
+    <section class="kl-seccion" aria-labelledby="titulo-vinilos">
+        <div class="kl-titulo-seccion"><h2 id="titulo-vinilos">Sus vinilos</h2></div>
+        <div class="kl-disqueria-grilla">
+            {% for album in albumes %}
+                {% include "tienda/_producto.html" with album=album %}
+            {% endfor %}
+        </div>
+    </section>
+{% endif %}
+
+{% if canciones %}
+    <section class="kl-seccion" aria-labelledby="titulo-temas">
+        <div class="kl-titulo-seccion"><h2 id="titulo-temas">Temas</h2></div>
+        <div class="kl-grilla">
+            {% for cancion in canciones %}
+                {% include "partials/_tarjeta_tema.html" with cancion=cancion %}
+            {% endfor %}
+        </div>
+    </section>
+{% elif not albumes %}
+    <div class="kl-coleccion__vacia">
+        <div class="kl-vinilo" data-estilo="0" aria-hidden="true"><div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div></div>
+        <div>
+            <h2>Todavía en el estudio</h2>
+            <p>{{ artista.username }} no publicó nada por ahora.</p>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

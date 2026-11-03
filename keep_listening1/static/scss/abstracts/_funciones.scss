@@ -1,0 +1,23 @@
+@use "sass:math";
+// ---------------------------------------------------------------------------
+// Funciones auxiliares
+// ---------------------------------------------------------------------------
+
+/// Color del tema que suena (--kl-c1 / --kl-c2 / --kl-c3), con transparencia
+/// opcional. Las variables se definen en :root (base/_reset.scss) con los
+/// colores de la marca y ambiente.js las cambia según la portada.
+///   tema(1)        → rgb(var(--kl-c1))
+///   tema(2, .4)    → rgba(var(--kl-c2), .4)
+@function tema($numero, $alfa: 1) {
+  @if $alfa == 1 {
+    @return rgb(var(--kl-c#{$numero}));
+  }
+  @return rgba(var(--kl-c#{$numero}), $alfa);
+}
+
+/// Tamano fluido entre dos valores segun el viewport.
+@function fluido($min, $max, $vmin: 320, $vmax: 1280) {
+  $pendiente: math.div($max - $min, $vmax - $vmin);
+  $base: $min - $pendiente * $vmin;
+  @return clamp(#{$min}px, #{$base}px + #{$pendiente * 100}vw, #{$max}px);
+}

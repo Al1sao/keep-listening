@@ -1,0 +1,8 @@
+# Keep Listening - dependencias de Python
+# Compatible con Python 3.10 a 3.14
+
+Django>=5.2.17,<6      # 5.2 LTS, con soporte oficial para Python 3.14
+Pillow>=12.0           # portadas e imagenes (12.x trae wheels para Python 3.14)
+whitenoise>=6.9        # servido de archivos estaticos
+gunicorn>=23.0         # servidor WSGI para servir fuera de desarrollo
+django-allauth[socialaccount]>=65,<66  # entrar con Spotify, Apple Music, YouTube Music, SoundCloud

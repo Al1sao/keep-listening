@@ -1,0 +1,213 @@
+// ---------------------------------------------------------------------------
+// Buscador con resultados en vivo
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+.kl-buscador {
+  position: relative;
+  flex: 1 1 auto;
+  max-width: 460px;
+
+  &__campo {
+    &:focus-within {
+      outline: 2px solid tema(1, .7);
+      outline-offset: 2px;
+    }
+
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .35rem .9rem;
+    background: rgba(#fff, .08);
+    border: 1px solid rgba($kl-menta, .18);
+    border-radius: $kl-radio-pill;
+    box-shadow: inset 0 1px 2px rgba($kl-verde-900, .12);
+
+    i { color: $kl-texto-suave; font-size: .9rem; }
+
+    input {
+      flex: 1;
+      border: 0;
+      background: transparent;
+      padding: .3rem 0;
+      font-size: .9rem;
+      color: $kl-texto;
+
+      // Sin outline propio, pero el campo entero marca el foco (ver &:focus-within
+      // del contenedor): nunca se navega a ciegas con el teclado.
+      &:focus { outline: none; }
+      &::placeholder { color: rgba($kl-texto-suave, .8); }
+    }
+  }
+
+  &__resultados {
+    position: absolute;
+    top: calc(100% + .6rem);
+    left: 0;
+    z-index: 1050;
+    display: none;
+    width: min(620px, calc(100vw - 2rem));
+    max-height: 70vh;
+    overflow-y: auto;
+    padding: .6rem;
+    border-radius: 22px;
+    background: rgba(12, 14, 13, .97);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .6), inset 0 0 0 1px $kl-linea;
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    @include scrollbar(8px);
+
+    &.visible { display: block; animation: kl-cajon-abre .35s cubic-bezier(.22, 1, .36, 1) both; }
+  }
+
+  &__grupo-titulo {
+    margin: 0;
+    padding: .55rem .6rem .35rem;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: $kl-texto-suave;
+  }
+
+  // Cajón: las tapas en fila, un poco inclinadas, se enderezan al pasar.
+  &__cajon {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 118px;
+    gap: .75rem;
+    padding: .4rem .6rem .8rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    perspective: 700px;
+    @include scrollbar(6px);
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    width: 100%;
+    padding: .45rem .6rem;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: $kl-texto;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover,
+    &.activo {
+      background: tema(1, .12);
+      color: #fff;
+    }
+
+    img {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    strong {
+      display: block;
+      font-size: .88rem;
+      @include lineas(1);
+    }
+
+    small {
+      display: block;
+      color: $kl-texto-suave;
+      font-size: .76rem;
+      @include lineas(1);
+    }
+
+    &--disco {
+      flex-direction: column;
+      align-items: stretch;
+      gap: .35rem;
+      padding: 0;
+      scroll-snap-align: start;
+      background: transparent !important;
+
+      strong { font-size: .8rem; }
+      small { font-size: .72rem; }
+    }
+  }
+
+  &__tapa {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .5);
+    transform: rotateY(-14deg);
+    transition: transform .4s cubic-bezier(.22, 1, .36, 1), box-shadow .4s ease;
+
+    img { width: 100%; height: 100%; border-radius: 0; }
+
+    i {
+      position: absolute;
+      right: .4rem;
+      bottom: .4rem;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: tema(1);
+      color: #0b0d0c;
+      opacity: 0;
+      transform: scale(.7);
+      transition: opacity .2s ease, transform .3s cubic-bezier(.22, 1, .36, 1);
+    }
+  }
+
+  &__item--disco:hover &__tapa,
+  &__item--disco.activo &__tapa {
+    transform: rotateY(0) translateY(-4px);
+    box-shadow: 0 16px 30px rgba(0, 0, 0, .6), 0 0 0 2px tema(1);
+
+    i { opacity: 1; transform: none; }
+  }
+
+  &__todo {
+    margin-top: .35rem;
+    border-top: 1px solid $kl-linea;
+    border-radius: 0 0 12px 12px;
+    color: tema(1);
+    font-weight: 700;
+  }
+
+  &__vacio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .7rem;
+    margin: 0;
+    padding: 1.1rem;
+    color: $kl-texto-suave;
+    font-size: .88rem;
+  }
+
+  // Mientras busca: un surco que gira.
+  &__surco {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, rgba(#fff, .2) 0 1px, transparent 1px 3px), $kl-sup-3;
+    box-shadow: inset 0 0 0 5px $kl-sup-3, 0 0 0 1px tema(1);
+    animation: kl-girar 1.2s linear infinite;
+  }
+
+  @include hasta("md") {
+    &--header { display: none; }
+  }
+}
+
+@keyframes kl-cajon-abre {
+  from { opacity: 0; transform: translateY(-8px) scale(.98); }
+}

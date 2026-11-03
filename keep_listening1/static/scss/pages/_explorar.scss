@@ -1,0 +1,340 @@
+// ---------------------------------------------------------------------------
+// Explorar: el dial. Una radio de pie — pantalla con la estación, perilla y
+// una banda de FM que se mueve bajo una aguja fija (static/js/explorar.js).
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+$dial-curva: cubic-bezier(.22, 1, .36, 1);
+
+// Buscador grande de la página.
+.kl-explorar-buscar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 560px;
+  margin-bottom: 1.5rem;
+
+  > i {
+    position: absolute;
+    left: 1.1rem;
+    color: $kl-texto-suave;
+    pointer-events: none;
+  }
+
+  input {
+    width: 100%;
+    min-height: 3.1rem;
+    padding: .7rem 3rem .7rem 2.8rem;
+    border: 1px solid rgba(#fff, .1);
+    border-radius: $kl-radio-pill;
+    background: $kl-sup-2;
+    color: $kl-tinta;
+    font: inherit;
+    transition: border-color $kl-transicion, box-shadow $kl-transicion;
+
+    &::placeholder { color: $kl-texto-suave; }
+
+    &:focus {
+      outline: none;
+      border-color: tema(1, .7);
+      box-shadow: 0 0 0 4px tema(1, .14);
+    }
+  }
+
+  > a {
+    position: absolute;
+    right: .9rem;
+    color: $kl-texto-suave;
+
+    &:hover { color: #fff; }
+  }
+}
+
+.kl-dial {
+  position: relative;
+  margin-bottom: 2rem;
+  padding: clamp(1rem, 3vw, 1.6rem);
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(#fff, .05), transparent 40%),
+    $kl-sup-1;
+  box-shadow: inset 0 0 0 1px $kl-linea, 0 30px 60px -30px rgba(#000, .8);
+
+  &[hidden] { display: none; }
+
+  &__frente {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+
+  // ---- La pantalla ------------------------------------------------------------
+  &__pantalla {
+    position: relative;
+    flex: 999 1 380px;
+    min-width: 0;
+    overflow: hidden;
+    padding: clamp(1rem, 2.5vw, 1.4rem);
+    border-radius: 20px;
+    background:
+      radial-gradient(90% 120% at 0% 50%, tema(1, .14), transparent 60%),
+      #070808;
+    box-shadow: inset 0 0 0 1px rgba(#fff, .06), inset 0 10px 30px rgba(#000, .6);
+
+    // Líneas de barrido, como una pantalla de verdad.
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(0deg, rgba(#fff, .025) 0 1px, transparent 1px 3px);
+      pointer-events: none;
+    }
+  }
+
+  &__estatica {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    mix-blend-mode: screen;
+    image-rendering: pixelated;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  &__estacion {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 1.8rem);
+  }
+
+  // La tapa con el disco asomando detrás.
+  &__tapa {
+    position: relative;
+    flex: none;
+    width: clamp(96px, 20vw, 150px);
+    aspect-ratio: 1;
+    margin-right: clamp(1.2rem, 4vw, 2.4rem);
+
+    img {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 6px;
+      object-fit: cover;
+      box-shadow: 0 16px 30px -12px rgba(#000, .9);
+    }
+  }
+
+  &__disco {
+    position: absolute;
+    inset: 4%;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, #050606 0 4%, tema(1) 4.5% 26%, #000 26.5% 28%, transparent 28.5%),
+      repeating-radial-gradient(circle, #151616 0 2px, #0a0a0a 2px 4px);
+    transform: translateX(30%);
+    transition: transform .6s $dial-curva;
+  }
+
+  &.sintonizando &__disco { transform: translateX(8%); }
+
+  &__datos {
+    min-width: 0;
+
+    h2 {
+      margin: .25rem 0 .1rem;
+      font-size: clamp(1.5rem, 3.4vw, 2.4rem);
+      line-height: 1.02;
+      letter-spacing: -.035em;
+      @include lineas(2);
+    }
+  }
+
+  &__frecuencia {
+    margin: 0;
+    font-family: $kl-fuente-display;
+    color: tema(1);
+    text-shadow: 0 0 14px tema(1, .55);
+
+    strong { font-size: clamp(1.8rem, 4vw, 2.6rem); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+    span { font-size: .8rem; font-weight: 800; letter-spacing: .2em; }
+  }
+
+  &__banda {
+    margin: 0;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: $kl-texto-suave;
+  }
+
+  &__artista { margin: 0; color: rgba(#fff, .75); @include lineas(1); }
+
+  // Cada estación nueva entra con un pequeño "enganche" de señal.
+  &.cambia &__datos,
+  &.cambia &__tapa img { animation: kl-dial-engancha .45s $dial-curva; }
+
+  // ---- Los mandos ----------------------------------------------------------------
+  &__mandos {
+    flex: 1 1 200px;
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: .9rem;
+  }
+
+  // La perilla gira con la sintonía (--giro lo pone explorar.js).
+  &__perilla {
+    --giro: 0deg;
+    position: relative;
+    width: 108px;
+    aspect-ratio: 1;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background:
+      repeating-conic-gradient(from 0deg, rgba(#fff, .08) 0 2deg, transparent 2deg 10deg),
+      radial-gradient(circle at 35% 30%, #3a3e3c, #151716 70%);
+    box-shadow: 0 14px 28px -10px rgba(#000, .9), inset 0 2px 0 rgba(#fff, .12), 0 0 0 6px $kl-sup-2;
+    cursor: grab;
+    touch-action: none;
+    transform: rotate(var(--giro));
+
+    &:active { cursor: grabbing; }
+
+    span {
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      width: 5px;
+      height: 22%;
+      border-radius: 3px;
+      background: tema(1);
+      box-shadow: 0 0 8px tema(1, .8);
+      transform: translateX(-50%);
+    }
+  }
+
+  &__botones { display: flex; gap: .4rem; }
+
+  &__auto {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .82rem;
+    font-weight: 700;
+    color: $kl-texto-suave;
+    cursor: pointer;
+
+    input { accent-color: tema(1); width: 1rem; height: 1rem; }
+  }
+
+  // ---- La banda de FM ---------------------------------------------------------------
+  &__banda-fm {
+    position: relative;
+    height: 88px;
+    overflow: hidden;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #0e0f0f, #070808);
+    box-shadow: inset 0 0 0 1px rgba(#fff, .06), inset 0 8px 20px rgba(#000, .7);
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+
+    &:active { cursor: grabbing; }
+
+    &:focus-visible {
+      outline: 2px solid tema(1);
+      outline-offset: 3px;
+    }
+  }
+
+  &__escala {
+    --por-mhz: 20px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    will-change: transform;
+    // Marcas cada 0,5 MHz; más largas en cada MHz.
+    background:
+      repeating-linear-gradient(90deg, rgba(#fff, .35) 0 1px, transparent 1px calc(var(--por-mhz))) left 12px / 100% 18px no-repeat,
+      repeating-linear-gradient(90deg, rgba(#fff, .16) 0 1px, transparent 1px calc(var(--por-mhz) / 2)) left 12px / 100% 10px no-repeat;
+  }
+
+  &__numero {
+    position: absolute;
+    top: 34px;
+    font-family: $kl-fuente-display;
+    font-size: .78rem;
+    font-weight: 800;
+    color: rgba(#fff, .5);
+    transform: translateX(-50%);
+  }
+
+  // Cada estación, una muesca de color; la que suena, más alta.
+  &__muesca {
+    position: absolute;
+    bottom: 12px;
+    width: 4px;
+    height: 16px;
+    border-radius: 2px;
+    background: tema(2, .7);
+    transform: translateX(-50%);
+    transition: height .3s $dial-curva, background .3s ease;
+
+    &.sonando {
+      height: 26px;
+      background: tema(1);
+      box-shadow: 0 0 10px tema(1, .8);
+    }
+  }
+
+  // Donde termina el hip hop y empieza el pop.
+  &__corte {
+    position: absolute;
+    top: 56px;
+    padding-left: .5rem;
+    border-left: 1px dashed rgba(#fff, .3);
+    font-size: .64rem;
+    font-weight: 800;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: rgba(#fff, .55);
+    white-space: nowrap;
+  }
+
+  &__aguja {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 50%;
+    width: 3px;
+    border-radius: 2px;
+    background: #ff4d3d;
+    box-shadow: 0 0 12px rgba(255, 77, 61, .9);
+    transform: translateX(-50%);
+    pointer-events: none;
+  }
+}
+
+@keyframes kl-dial-engancha {
+  0% { opacity: .2; transform: translateX(-6px) skewX(-6deg); filter: blur(3px); }
+  40% { opacity: 1; transform: translateX(3px); filter: none; }
+  100% { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-dial.cambia .kl-dial__datos,
+  .kl-dial.cambia .kl-dial__tapa img { animation: none; }
+  .kl-dial__disco { transition: none; }
+}

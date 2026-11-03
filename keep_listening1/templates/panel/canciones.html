@@ -1,0 +1,49 @@
+{% extends "panel/base_panel.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Gestión de canciones{% endblock %}
+
+{% block panel %}
+<header class="kl-coleccion__cabeza">
+    <div>
+        <span class="kl-eyebrow">Moderación</span>
+        <h1>Pruebas<br>de prensa</h1>
+        <p class="kl-texto-suave">Antes de prensar, el sello escucha la prueba. Aprobá, devolvé con un motivo o retocá los datos.</p>
+    </div>
+</header>
+
+<div class="kl-consola__barra">
+    <nav class="kl-filtros" aria-label="Estado">
+        <a class="kl-filtros__item {% if estado == 'PENDIENTE' %}activo{% endif %}" href="?estado=PENDIENTE">Pendientes <span>{{ conteos.PENDIENTE }}</span></a>
+        <a class="kl-filtros__item {% if estado == 'APROBADA' %}activo{% endif %}" href="?estado=APROBADA">Aprobadas <span>{{ conteos.APROBADA }}</span></a>
+        <a class="kl-filtros__item {% if estado == 'RECHAZADA' %}activo{% endif %}" href="?estado=RECHAZADA">Rechazadas <span>{{ conteos.RECHAZADA }}</span></a>
+        <a class="kl-filtros__item {% if not estado %}activo{% endif %}" href="?estado=">Todas</a>
+    </nav>
+    <form class="kl-consola__buscar" method="get" role="search">
+        <input type="hidden" name="estado" value="{{ estado }}">
+        <label class="visually-hidden" for="panel-q">Buscar por título o artista</label>
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input class="kl-input" type="search" id="panel-q" name="q" value="{{ q }}" placeholder="Título o artista">
+    </form>
+</div>
+
+<div class="kl-panel__cola">
+    {% for cancion in canciones %}
+        {% include "panel/_prueba.html" with cancion=cancion completo=True %}
+    {% empty %}
+        <div class="kl-coleccion__vacia">
+            <div class="kl-vinilo" data-estilo="1" aria-hidden="true"><div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div></div>
+            <div>
+                <h2>No hay pruebas en este estado</h2>
+                <p>Probá con otro filtro o con otra búsqueda.</p>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+{% query_sin_pagina as querystring %}
+{% include "partials/_paginacion.html" with pagina=pagina querystring=querystring %}
+
+{% endblock %}
+
+{% block fuera_de_consola %}{% include "panel/_modal_rechazo.html" %}{% endblock %}

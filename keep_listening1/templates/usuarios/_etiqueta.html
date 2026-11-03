@@ -1,0 +1,25 @@
+{% comment %}
+    La persona como etiqueta de vinilo: su foto (o iniciales) en el centro y un
+    texto grabado en círculo alrededor, como en el surco final de un disco.
+    Parámetros: persona, grabado (texto del anillo), vista_previa (id del input de avatar).
+{% endcomment %}
+<div class="kl-etiqueta" aria-hidden="true">
+    <div class="kl-vinilo girando kl-etiqueta__disco" data-estilo="0">
+        <div class="kl-vinilo__giro">
+            <span class="kl-etiqueta__sello" {% if vista_previa %}data-preview-destino="{{ vista_previa }}"{% endif %}>
+                {% if persona.avatar %}
+                    <img src="{{ persona.avatar.url }}" alt="" width="160" height="160">
+                {% else %}
+                    <img alt="" width="160" height="160" hidden>
+                    <span>{{ persona.iniciales }}</span>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    <svg class="kl-etiqueta__grabado" viewBox="0 0 200 200" focusable="false">
+        <defs>
+            <path id="kl-arco-{{ persona.pk }}" d="M100,100 m-90,0 a90,90 0 1,1 180,0 a90,90 0 1,1 -180,0"/>
+        </defs>
+        <text><textPath href="#kl-arco-{{ persona.pk }}">{{ grabado }} · {{ grabado }} ·</textPath></text>
+    </svg>
+</div>

@@ -1,0 +1,145 @@
+@use "sass:map";
+@use "sass:color";
+@use "variables" as *;
+// ---------------------------------------------------------------------------
+// Mixins reutilizables
+// ---------------------------------------------------------------------------
+
+/// Media query segun el mapa $kl-bp (mobile first).
+@mixin desde($punto) {
+  $valor: map.get($kl-bp, $punto);
+  @if $valor == null {
+    @error "Breakpoint `#{$punto}` inexistente.";
+  }
+  @media (min-width: $valor) {
+    @content;
+  }
+}
+
+@mixin hasta($punto) {
+  $valor: map.get($kl-bp, $punto);
+  @media (max-width: ($valor - 0.02px)) {
+    @content;
+  }
+}
+
+/// Tarjeta base de la interfaz.
+@mixin tarjeta($fondo: #181818, $radio: 12px) {
+  background: $fondo;
+  border: 0;
+  border-radius: $radio;
+  box-shadow: none;
+  transition: background $kl-transicion;
+}
+
+/// Aclara la superficie al pasar el mouse.
+@mixin elevar($y: 0, $sombra: none) {
+  &:hover {
+    background: #222;
+  }
+}
+
+/// Recorta el texto a N lineas.
+@mixin lineas($cantidad: 1) {
+  display: -webkit-box;
+  -webkit-line-clamp: $cantidad;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/// Grilla responsiva automatica.
+@mixin grilla($min: 180px, $gap: 1.25rem) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax($min, 1fr));
+  gap: $gap;
+}
+
+/// Carrusel horizontal con scroll suave.
+@mixin fila-scroll($gap: 1.25rem) {
+  display: flex;
+  gap: $gap;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding-bottom: .75rem;
+
+  > * {
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+  }
+}
+
+/// Barra de scroll con los colores de la marca.
+@mixin scrollbar($ancho: 10px, $pulgar: rgba($kl-verde-600, .55)) {
+  &::-webkit-scrollbar {
+    height: $ancho;
+    width: $ancho;
+  }
+  &::-webkit-scrollbar-track {
+    background: rgba($kl-verde-700, .10);
+    border-radius: $kl-radio-pill;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $pulgar;
+    border-radius: $kl-radio-pill;
+
+    &:hover {
+      background: $kl-verde-700;
+    }
+  }
+  scrollbar-color: $pulgar rgba($kl-verde-700, .10);
+  scrollbar-width: thin;
+}
+
+/// Boton solido de la marca.
+@mixin boton($fondo: $kl-menta, $texto: $kl-noche) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .6rem 1.35rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: $texto;
+  background: $fondo;
+  border: 1px solid transparent;
+  border-radius: $kl-radio-pill;
+  cursor: pointer;
+  transition: background $kl-transicion, transform $kl-transicion, box-shadow $kl-transicion;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($fondo, $lightness: -6%);
+    color: $texto;
+    transform: translateY(-1px);
+    box-shadow: $kl-sombra-sm;
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+  }
+}
+
+/// Solo visible para lectores de pantalla.
+@mixin oculto-visualmente {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/// Relacion de aspecto cuadrada para portadas.
+@mixin cuadrado {
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  width: 100%;
+}

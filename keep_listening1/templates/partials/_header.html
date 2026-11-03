@@ -1,0 +1,66 @@
+<header class="kl-top">
+    <button class="kl-top__menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#klMenu" aria-label="Abrir menú">
+        <i aria-hidden="true" class="bi bi-list"></i>
+    </button>
+
+    <a class="kl-top__marca" href="{% url 'musica:home' %}" aria-label="Keep Listening, inicio">
+        {% include "partials/_logo.html" with sufijo="top" %}
+    </a>
+
+    <div class="kl-buscador kl-buscador--header" id="kl-buscador">
+        <div class="kl-buscador__campo">
+            <i aria-hidden="true" class="bi bi-search"></i>
+            <label class="kl-solo-lectores" for="kl-buscador-input">Buscar</label>
+            <input type="search" id="kl-buscador-input" placeholder="¿Qué querés escuchar?"
+                   autocomplete="off" data-buscador>
+        </div>
+        <div class="kl-buscador__resultados" id="kl-buscador-resultados"></div>
+    </div>
+
+    <nav class="kl-top__acciones" aria-label="Tu cuenta">
+        {% if user.is_authenticated %}
+            <a class="kl-top__icono" href="{% url 'tienda:carrito' %}" aria-label="Carrito, {{ carrito_cantidad }} productos">
+                <i aria-hidden="true" class="bi bi-cart3"></i>
+                <span class="kl-header__contador" data-carrito-contador data-cantidad="{{ carrito_cantidad }}">{{ carrito_cantidad }}</span>
+            </a>
+            <div class="dropdown">
+                <button class="kl-top__cuenta dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"
+                        aria-label="Cuenta de {{ user.username }}">
+                    {% if user.avatar %}
+                        <img class="kl-header__avatar" src="{{ user.avatar.url }}" alt="" width="30" height="30" decoding="async">
+                    {% else %}
+                        <span class="kl-header__avatar">{{ user.iniciales }}</span>
+                    {% endif %}
+                    <span class="d-none d-md-inline">{{ user.username }}</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="{% url 'musica:mi_musica' %}"><i aria-hidden="true" class="bi bi-music-note-list me-2"></i>Mi música</a></li>
+                    <li><a class="dropdown-item" href="{% url 'musica:mis_publicaciones' %}"><i aria-hidden="true" class="bi bi-cloud-arrow-up me-2"></i>Mis publicaciones</a></li>
+                    <li><a class="dropdown-item" href="{% url 'tienda:mis_pedidos' %}"><i aria-hidden="true" class="bi bi-bag-check me-2"></i>Mis compras</a></li>
+                    <li><a class="dropdown-item" href="{% url 'usuarios:perfil' %}"><i aria-hidden="true" class="bi bi-person me-2"></i>Mi perfil</a></li>
+                    {% if user.es_admin %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'panel:dashboard' %}">
+                                <i aria-hidden="true" class="bi bi-shield-check me-2"></i>Panel
+                                {% if canciones_pendientes_nav %}
+                                    <span class="kl-badge kl-badge--pendiente ms-1">{{ canciones_pendientes_nav }}</span>
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% endif %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form action="{% url 'usuarios:logout' %}" method="post">
+                            {% csrf_token %}
+                            <button class="dropdown-item" type="submit"><i aria-hidden="true" class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        {% else %}
+            <a class="kl-top__texto" href="{% url 'usuarios:login' %}">Entrar</a>
+            <a class="kl-btn kl-btn--sm" href="{% url 'usuarios:registro' %}">Registrarse</a>
+        {% endif %}
+    </nav>
+</header>

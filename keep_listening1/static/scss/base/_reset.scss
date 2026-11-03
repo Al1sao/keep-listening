@@ -1,0 +1,89 @@
+// ---------------------------------------------------------------------------
+// Reset y estilos globales
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+:root {
+  // Colores del tema que suena (r, g, b): los de la marca hasta que ambiente.js
+  // los cambia según la portada. Se usan con tema() (abstracts/_funciones).
+  --kl-c1: 198, 245, 78;
+  --kl-c2: 61, 206, 160;
+  --kl-c3: 240, 195, 106;
+  --kl-ambiente: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+body {
+  --kl-dock: 80px;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  background: #000;
+  color: $kl-tinta;
+  font-family: $kl-fuente;
+
+  @include desde("md") {
+    --kl-dock: 96px;
+  }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: $kl-menta;
+  text-decoration: none;
+  transition: color $kl-transicion;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid rgba($kl-menta, .7);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+hr {
+  border-color: rgba($kl-verde-700, .18);
+  opacity: 1;
+}
+
+::selection {
+  background: rgba($kl-menta, .45);
+  color: $kl-noche;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

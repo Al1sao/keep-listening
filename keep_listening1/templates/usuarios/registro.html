@@ -1,0 +1,98 @@
+{% extends "usuarios/_base_cuenta.html" %}
+{% load kl_extras static %}
+
+{% block titulo %}Crear cuenta{% endblock %}
+
+{% block escena %}
+    {# Tu primer disco: la etiqueta dice tu nombre y la edición mejora con la contraseña. #}
+    <div class="kl-cuenta__plato">
+        <div class="kl-vinilo girando kl-cuenta__vinilo" id="kl-registro-vinilo" data-estilo="0">
+            <div class="kl-vinilo__giro">
+                <span class="kl-vinilo__sello kl-cuenta__sello kl-cuenta__sello--nombre">
+                    <span id="kl-registro-etiqueta">tu nombre</span>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="kl-cuenta__leyenda">
+        <small>Tu primer disco</small>
+        <strong id="kl-registro-edicion">Edición negro clásico</strong>
+        <span>Mientras más segura la contraseña, mejor la edición.</span>
+    </div>
+{% endblock %}
+
+{% block formulario %}
+    <p class="kl-sesion__eyebrow">Crear cuenta</p>
+    <h1>Grabá tu<br>primer disco</h1>
+    <p class="kl-sesion__bajada">Para escuchar, guardar tus me gusta y publicar tus temas.</p>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{% firstof request.POST.next request.GET.next %}">
+        {% if form.non_field_errors %}
+            <p class="kl-sesion__error" role="alert">{% for error in form.non_field_errors %}{{ error }}{% endfor %}</p>
+        {% endif %}
+
+        <div class="kl-flotante">
+            {{ form.username|flotante }}
+            <label for="{{ form.username.id_for_label }}">Usuario</label>
+            <i class="bi bi-person" aria-hidden="true"></i>
+        </div>
+        {% for error in form.username.errors %}<p class="kl-form__error" id="{{ form.username.auto_id }}-error">{{ error }}</p>{% endfor %}
+
+        <div class="kl-flotante">
+            {{ form.email|flotante }}
+            <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
+            <i class="bi bi-envelope" aria-hidden="true"></i>
+        </div>
+        {% for error in form.email.errors %}<p class="kl-form__error" id="{{ form.email.auto_id }}-error">{{ error }}</p>{% endfor %}
+
+        <div class="kl-flotante">
+            {{ form.password1|flotante }}
+            <label for="{{ form.password1.id_for_label }}">Contraseña</label>
+            <button class="kl-flotante__ver" type="button" data-ver-password aria-label="Mostrar contraseña" aria-pressed="false">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+            </button>
+        </div>
+        {# Vúmetro: la aguja sube con la seguridad de la contraseña. #}
+        <div class="kl-vumetro" data-medidor data-nivel="0" aria-live="polite">
+            <svg viewBox="0 0 120 64" aria-hidden="true" focusable="false">
+                <path class="kl-vumetro__arco" d="M10 58 A50 50 0 0 1 110 58" fill="none"/>
+                <path class="kl-vumetro__rojo" d="M92 23 A50 50 0 0 1 110 58" fill="none"/>
+                <line class="kl-vumetro__aguja" x1="60" y1="58" x2="60" y2="14"/>
+                <circle cx="60" cy="58" r="4"/>
+            </svg>
+            <div>
+                <strong data-medidor-texto>Muy débil</strong>
+                <small>8 caracteres o más, con mayúscula y número.</small>
+            </div>
+        </div>
+        {% for error in form.password1.errors %}<p class="kl-form__error" id="{{ form.password1.auto_id }}-error">{{ error }}</p>{% endfor %}
+
+        <div class="kl-flotante">
+            {{ form.password2|flotante }}
+            <label for="{{ form.password2.id_for_label }}">Repetir contraseña</label>
+            <button class="kl-flotante__ver" type="button" data-ver-password aria-label="Mostrar contraseña" aria-pressed="false">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+            </button>
+        </div>
+        {% for error in form.password2.errors %}<p class="kl-form__error" id="{{ form.password2.auto_id }}-error">{{ error }}</p>{% endfor %}
+
+        <button class="kl-sesion__entrar" type="submit">
+            <span class="kl-sesion__entrar-icono"><i class="bi bi-vinyl-fill" aria-hidden="true"></i></span>
+            <span>Crear mi cuenta</span>
+        </button>
+    </form>
+
+    <div class="kl-sesion__o"><span>o prensala con</span></div>
+    {% url 'musica:home' as inicio %}
+    {% firstof request.GET.next inicio as siguiente %}
+    {% include "partials/_plataformas.html" with siguiente=siguiente texto="Registrarte" %}
+
+    <div class="kl-sesion__o"><span>¿Ya tenés cuenta?</span></div>
+    <a class="kl-sesion__registro" href="{% url 'usuarios:login' %}">Entrar <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+{% endblock %}
+
+{% block js_extra %}
+<script src="{% estatico 'js/cuenta.js' %}" data-pagina></script>
+{% endblock %}

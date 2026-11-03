@@ -1,0 +1,60 @@
+// ---------------------------------------------------------------------------
+// Tipografia
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+h1, .h1, h2, .h2, h3, .h3 {
+  font-family: $kl-fuente-display;
+}
+
+h1, .h1 { font-size: fluido(26, 34); letter-spacing: -.03em; line-height: 1.12; font-weight: 700; }
+h2, .h2 { font-size: fluido(20, 24); letter-spacing: -.02em; font-weight: 700; }
+h3, .h3 { font-size: fluido(19, 24); }
+h4, .h4 { font-size: fluido(17, 20); }
+
+.kl-titulo-seccion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  h2, h3 {
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    font-size: fluido(20, 24);
+    color: $kl-tinta;
+  }
+
+  a {
+    font-size: .88rem;
+    font-weight: 700;
+    color: $kl-texto-suave;
+
+    &:hover { color: #fff; }
+  }
+}
+
+.kl-subtitulo {
+  color: $kl-texto-suave;
+  font-size: .95rem;
+  margin-bottom: 0;
+}
+
+.kl-eyebrow {
+  display: inline-block;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: $kl-verde-600;
+}
+
+.kl-texto-suave { color: $kl-texto-suave; }
+.kl-texto-claro { color: $kl-texto-claro; }
+.kl-mono {
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: .88em;
+}

@@ -1,0 +1,204 @@
+// ---------------------------------------------------------------------------
+// Badges, alertas, tablas, paginacion y avisos flotantes
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+// --- Badges de estado ---
+.kl-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .22rem .7rem;
+  border-radius: $kl-radio-pill;
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: rgba($kl-verde-500, .16);
+  color: $kl-menta;
+
+  &--pendiente { background: rgba($kl-ambar, .2); color: $kl-ambar-texto; }
+  &--aprobada { background: rgba($kl-exito, .18); color: $kl-exito-texto; }
+  &--rechazada { background: rgba($kl-error, .16); color: $kl-error; }
+  &--neutro { background: rgba($kl-texto-suave, .16); color: $kl-texto; }
+}
+
+// --- Avisos: etiquetas de vinilo --------------------------------------------
+// Cada aviso es una etiqueta redonda (el ícono) con un aro que se vacía
+// mientras el aviso sigue a la vista. Salen sobre la bandeja, a la derecha.
+@property --kl-resto {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 1;
+}
+
+.kl-alertas {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(var(--kl-dock) + 1rem);
+  z-index: 1080;
+  display: grid;
+  justify-items: end;
+  gap: .6rem;
+  width: min(380px, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+.kl-alerta {
+  --tono: var(--kl-c1);
+  --dura: 4.2s;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: .75rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: .45rem .6rem .45rem .45rem;
+  border-radius: 999px;
+  background: rgba(12, 14, 13, .94);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .55), inset 0 0 0 1px $kl-linea;
+  pointer-events: auto;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  animation: kl-etiqueta-entra .5s cubic-bezier(.22, 1, .36, 1) both;
+
+  &--success { --tono: 125, 255, 178; }
+  &--danger { --tono: 224, 106, 92; }
+  &--warning { --tono: 240, 195, 106; }
+
+  // La etiqueta: el ícono en el centro y el aro del tiempo alrededor.
+  > i {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgb(var(--tono)) 0 42%, $kl-sup-2 43%);
+    color: #0b0d0c;
+    font-size: 1rem;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(rgb(var(--tono)) calc(var(--kl-resto) * 360deg), transparent 0);
+      -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+      mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+      animation: kl-etiqueta-tiempo var(--dura) linear forwards;
+    }
+  }
+
+  &:hover > i::after { animation-play-state: paused; }
+
+  &.saliendo {
+    opacity: 0;
+    transform: translateX(30px) rotate(6deg);
+    transition: opacity .25s ease, transform .3s ease;
+  }
+
+  &__texto { font-size: .88rem; line-height: 1.3; }
+
+  &__cerrar {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: $kl-texto-suave;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover { background: rgba(#fff, .08); color: $kl-texto; }
+  }
+}
+
+@keyframes kl-etiqueta-entra {
+  from { opacity: 0; transform: translateY(20px) rotate(-8deg) scale(.9); }
+}
+
+@keyframes kl-etiqueta-tiempo {
+  from { --kl-resto: 1; }
+  to { --kl-resto: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-alerta { animation: none; }
+  .kl-alerta > i::after { animation: none; }
+}
+
+// Tablas: viven en pages/_panel (solo las usa la consola).
+
+// --- Paginacion ---
+.kl-paginacion {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .35rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+
+  a, span {
+    min-width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    padding-inline: .6rem;
+    border-radius: $kl-radio-pill;
+    background: rgba(#fff, .04);
+    border: 1px solid rgba($kl-verde-700, .18);
+    color: $kl-tinta;
+    font-weight: 600;
+    font-size: .9rem;
+  }
+
+  a:hover { background: $kl-menta; color: $kl-noche; }
+
+  .activa {
+    background: $kl-menta;
+    border-color: $kl-menta;
+    color: $kl-noche;
+  }
+
+  .deshabilitada {
+    opacity: .45;
+    pointer-events: none;
+  }
+}
+
+// --- Migas de pan ---
+.kl-migas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  font-size: .84rem;
+  color: $kl-texto-suave;
+  margin-bottom: 1rem;
+
+  a { color: $kl-verde-600; }
+  span::before { content: "/"; margin-right: .4rem; opacity: .5; }
+}
+
+// --- Modales ---
+.kl-modal {
+  .modal-content {
+    border: 0;
+    border-radius: $kl-radio;
+    background: $kl-crema-100;
+    box-shadow: $kl-sombra-lg;
+  }
+
+  .modal-header {
+    border-bottom: 1px solid rgba($kl-verde-700, .12);
+  }
+
+  .modal-title { font-weight: 800; color: $kl-tinta; }
+  .btn-close { filter: invert(1) grayscale(1) brightness(2); }
+
+  .modal-footer { border-top: 1px solid rgba($kl-verde-700, .12); }
+}

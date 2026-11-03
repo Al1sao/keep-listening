@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Tus compras{% endblock %}
+
+{% block contenido %}
+<header class="kl-coleccion__cabeza">
+    <div>
+        <span class="kl-eyebrow">Tus compras</span>
+        <h1>Lo que pasó por<br>la disquería</h1>
+    </div>
+    <ul class="kl-coleccion__cifras" aria-label="Resumen">
+        <li><strong>{{ pedidos|length }}</strong><span>pedido{{ pedidos|length|pluralize }}</span></li>
+        <li><strong>{{ total_gastado|moneda }}</strong><span>en total</span></li>
+    </ul>
+</header>
+
+{% for pedido in pedidos %}
+    <article class="kl-pedido">
+        <header class="kl-pedido__cabecera">
+            <div>
+                <span class="kl-pedido__numero">Matriz {{ pedido.numero }}</span>
+                <time class="kl-texto-suave" datetime="{{ pedido.fecha|date:'c' }}">{{ pedido.fecha|date:"d/m/Y H:i" }}</time>
+            </div>
+            <strong>{{ pedido.total|moneda }}</strong>
+        </header>
+        {# El estado como un surco: la púa está en la etapa actual. #}
+        <ol class="kl-recorrido {% if pedido.estado == 'CANCELADO' %}cancelado{% endif %}" aria-label="Estado del pedido">
+            {% for etapa in pedido.recorrido %}
+                <li class="{% if etapa.hecha %}hecha{% endif %} {% if etapa.actual %}actual{% endif %}" {% if etapa.actual %}aria-current="step"{% endif %}>{{ etapa.nombre }}</li>
+            {% endfor %}
+        </ol>
+        <ul class="kl-ticket__lista">
+            {% for item in pedido.items.all %}
+                <li>
+                    <span><strong>{{ item.nombre_album }}</strong><small>{{ item.artista }} · {{ item.get_formato_display }} · ×{{ item.cantidad }}</small></span>
+                    <span>{{ item.subtotal|moneda }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </article>
+{% empty %}
+    <div class="kl-coleccion__vacia">
+        <div class="kl-vinilo" data-estilo="3" aria-hidden="true"><div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div></div>
+        <div>
+            <h2>Todavía no compraste</h2>
+            <p>Cuando te lleves un vinilo, lo vas a poder seguir desde acá.</p>
+            <a class="kl-btn" href="{% url 'tienda:catalogo' %}"><i class="bi bi-vinyl" aria-hidden="true"></i> Ir a la disquería</a>
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}

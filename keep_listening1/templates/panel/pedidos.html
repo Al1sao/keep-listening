@@ -1,0 +1,73 @@
+{% extends "panel/base_panel.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Pedidos{% endblock %}
+
+{% block panel %}
+<header class="kl-coleccion__cabeza">
+    <div>
+        <span class="kl-eyebrow">Disquería</span>
+        <h1>Pedidos<br>en la prensa</h1>
+    </div>
+    <ul class="kl-coleccion__cifras" aria-label="Resumen">
+        <li><strong>{{ facturado|moneda }}</strong><span>facturado</span></li>
+    </ul>
+</header>
+
+<nav class="kl-filtros" aria-label="Estado">
+    <a class="kl-filtros__item {% if not estado %}activo{% endif %}" href="{% url 'panel:pedidos' %}">Todos</a>
+    {% for valor, etiqueta in estados %}
+        <a class="kl-filtros__item {% if estado == valor %}activo{% endif %}" href="?estado={{ valor }}">{{ etiqueta }}</a>
+    {% endfor %}
+</nav>
+
+<div class="kl-panel__cola">
+    {% for pedido in pedidos %}
+        <article class="kl-pedido">
+            <header class="kl-pedido__cabecera">
+                <div>
+                    <span class="kl-pedido__numero">Matriz {{ pedido.numero }}</span>
+                    <span class="kl-texto-suave">{{ pedido.usuario.username }} · <time datetime="{{ pedido.fecha|date:'c' }}">{{ pedido.fecha|date:"d/m/Y H:i" }}</time></span>
+                </div>
+                <strong>{{ pedido.total|moneda }}</strong>
+            </header>
+            <ol class="kl-recorrido {% if pedido.estado == 'CANCELADO' %}cancelado{% endif %}" aria-label="Estado del pedido">
+                {% for etapa in pedido.recorrido %}
+                    <li class="{% if etapa.hecha %}hecha{% endif %} {% if etapa.actual %}actual{% endif %}" {% if etapa.actual %}aria-current="step"{% endif %}>{{ etapa.nombre }}</li>
+                {% endfor %}
+            </ol>
+            <ul class="kl-ticket__lista">
+                {% for item in pedido.items.all %}
+                    <li>
+                        <span><strong>{{ item.nombre_album }}</strong><small>{{ item.get_formato_display }} · ×{{ item.cantidad }}</small></span>
+                        <span>{{ item.subtotal|moneda }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <footer class="kl-pedido__pie">
+                <span class="kl-texto-suave">
+                    {% if pedido.pago %}<i class="bi bi-credit-card" aria-hidden="true"></i> {{ pedido.pago.marca }} <span class="kl-mono">{{ pedido.pago.tarjeta_enmascarada }}</span>{% else %}Sin pago registrado{% endif %}
+                </span>
+                <form class="kl-pedido__estado" method="post" action="{% url 'panel:cambiar_estado_pedido' pedido.numero %}">
+                    {% csrf_token %}
+                    <label class="visually-hidden" for="estado-{{ pedido.numero }}">Estado de {{ pedido.numero }}</label>
+                    <select class="kl-input" name="estado" id="estado-{{ pedido.numero }}">
+                        {% for valor, etiqueta in estados %}
+                            <option value="{{ valor }}" {% if pedido.estado == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                        {% endfor %}
+                    </select>
+                    <button class="kl-btn kl-btn--sm" type="submit"><i class="bi bi-check-lg" aria-hidden="true"></i> Pasar</button>
+                </form>
+            </footer>
+        </article>
+    {% empty %}
+        <div class="kl-coleccion__vacia">
+            <div class="kl-vinilo" data-estilo="3" aria-hidden="true"><div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div></div>
+            <div><h2>Sin pedidos</h2><p>No hay pedidos en este estado.</p></div>
+        </div>
+    {% endfor %}
+</div>
+
+{% query_sin_pagina as querystring %}
+{% include "partials/_paginacion.html" with pagina=pagina querystring=querystring %}
+{% endblock %}

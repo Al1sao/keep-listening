@@ -1,0 +1,798 @@
+// ---------------------------------------------------------------------------
+// Fondo vivo y "Ahora suena": la hoja que sube con la portada en grande
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+
+// El lienzo está detrás de todo. La app se vuelve translúcida mientras suena.
+.kl-ambiente {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+
+  // Sin WebGL: un degradado quieto con los mismos colores.
+  &[data-fallback] {
+    opacity: var(--kl-ambiente);
+    background:
+      radial-gradient(circle at 20% 30%, tema(1, .45), transparent 45%),
+      radial-gradient(circle at 80% 70%, tema(2, .4), transparent 50%),
+      radial-gradient(circle at 60% 20%, tema(3, .3), transparent 40%),
+      #050606;
+    transition: opacity .8s ease;
+  }
+}
+
+.kl-shell {
+  position: relative;
+  z-index: 1;
+}
+
+// Con la hoja abierta el fondo vivo pasa adelante de la app (y detrás de la hoja).
+body.kl-estudio-abierto .kl-ambiente {
+  z-index: 1150;
+  background: #050606;
+}
+
+.kl-shell,
+.kl-rail,
+.kl-workspace,
+.kl-stage,
+.kl-top,
+.kl-player {
+  transition: background-color .8s ease, border-color .8s ease;
+}
+
+body.kl-ambiente-vivo {
+  .kl-shell,
+  .kl-rail { background: transparent; }
+
+  // El fondo vivo es la idea de la página: mientras suena, la app se vuelve
+  // un vidrio oscuro y deja verlo. Las tarjetas mantienen su superficie, así
+  // el texto se sigue leyendo.
+  .kl-workspace { background: rgba(10, 12, 11, .36); }
+  .kl-stage { background: rgba(10, 12, 11, .26); }
+  .kl-stage__lienzo { background: transparent; }
+  .kl-top { background: rgba(10, 12, 11, .4); }
+
+  // La sala del inicio no tapa el fondo con su propia noche: las portadas
+  // flotan directamente sobre él. Abajo queda una sombra para el saludo.
+  .kl-espacio {
+    background: transparent;
+
+    &::after { background: linear-gradient(transparent, rgba($kl-noche, .6) 78%); }
+  }
+
+  .kl-player {
+    background: rgba(5, 6, 6, .82);
+    border-top-color: tema(1, .22);
+  }
+
+  .kl-player__boton--principal { background: tema(1); }
+  .kl-pulso { opacity: .35; }
+}
+
+// ---------------------------------------------------------------------------
+// Hoja
+// ---------------------------------------------------------------------------
+$ahora-curva: cubic-bezier(.2, .9, .15, 1);
+
+.kl-ahora {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  color: #fff;
+
+  &[hidden] { display: none; }
+
+  &__velo {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 40%, transparent 0%, rgba(0, 0, 0, .35) 70%),
+      linear-gradient(180deg, rgba(0, 0, 0, .15), rgba(0, 0, 0, .55));
+    opacity: 0;
+    transition: opacity .5s ease;
+  }
+
+  &__hoja {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden auto;
+    transform: translateY(100%);
+    transition: transform .56s $ahora-curva;
+    @include scrollbar(8px, rgba(#fff, .25));
+
+    &.tirando { transition: none; }
+  }
+
+  &.entrando &__hoja { transition: none; }
+
+  &.abierto {
+    .kl-ahora__hoja { transform: translateY(0); }
+    .kl-ahora__velo { opacity: 1; }
+  }
+
+  &.saliendo {
+    .kl-ahora__hoja { transform: translateY(100%); transition-duration: .44s; transition-timing-function: cubic-bezier(.4, 0, .6, 1); }
+    .kl-ahora__velo { opacity: 0; }
+  }
+
+  // ---- Cabecera -----------------------------------------------------------
+  &__top {
+    position: relative;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    align-items: center;
+    gap: .75rem;
+    padding: max(.9rem, env(safe-area-inset-top)) clamp(1rem, 3vw, 2rem) .5rem;
+    touch-action: none;
+    cursor: grab;
+  }
+
+  &__agarre {
+    position: absolute;
+    top: .4rem;
+    left: 50%;
+    width: 42px;
+    height: 5px;
+    border-radius: 99px;
+    background: rgba(#fff, .35);
+    transform: translateX(-50%);
+
+    @include desde("lg") { display: none; }
+  }
+
+  &__origen {
+    margin: 0;
+    text-align: center;
+    line-height: 1.2;
+
+    span {
+      display: block;
+      font-size: .68rem;
+      font-weight: 800;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: rgba(#fff, .65);
+    }
+
+    strong { font-size: .9rem; @include lineas(1); }
+  }
+
+  &__icono {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(#fff, .1);
+    color: #fff;
+    font-size: 1.15rem;
+    cursor: pointer;
+    transition: background $kl-transicion, transform $kl-transicion;
+
+    &:hover { background: rgba(#fff, .2); }
+    &:active { transform: scale(.92); }
+    &[aria-pressed="true"] { background: #fff; color: #000; }
+  }
+
+  // ---- Cuerpo -------------------------------------------------------------
+  &__cuerpo {
+    flex: 1 0 auto;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: clamp(1.2rem, 3vh, 2rem);
+    width: min(100%, 1180px);
+    margin-inline: auto;
+    padding: .5rem clamp(1.25rem, 4vw, 3rem) max(1.5rem, env(safe-area-inset-bottom));
+
+    @include desde("lg") {
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      align-items: center;
+      gap: clamp(2rem, 5vw, 5rem);
+    }
+  }
+
+  // ---- Portada con dos caras -----------------------------------------------
+  &__escena {
+    position: relative;
+    width: min(100%, 44vh, 540px);
+    perspective: 1400px;
+
+    @include desde("lg") { width: min(100%, 64vh, 560px); }
+  }
+
+  &__tarjeta {
+    z-index: 1;
+    --tx: 0deg;
+    --ty: 0deg;
+    --gx: 50%;
+    --gy: 50%;
+    --arrastre: 0px;
+    --latido: 1;
+    position: relative;
+    aspect-ratio: 1;
+    transform-style: preserve-3d;
+    transform:
+      translateX(var(--arrastre))
+      rotateY(calc(var(--tx) + var(--arrastre) * .08))
+      rotateX(var(--ty))
+      scale(var(--latido));
+    transition: transform .08s linear;
+
+    &.sale-izq { animation: kl-ahora-izq .5s $ahora-curva; }
+    &.sale-der { animation: kl-ahora-der .5s $ahora-curva; }
+    &.en-vuelo .kl-ahora__cara--frente { opacity: 0; }
+  }
+
+  &__cara {
+    position: absolute;
+    inset: 0;
+    border: 0;
+    border-radius: 22px;
+    overflow: hidden;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow:
+      0 40px 90px rgba(0, 0, 0, .55),
+      0 0 calc(40px + var(--kl-pulso, 0) * 80px) rgba(var(--kl-c1), calc(.18 + var(--kl-pulso, 0) * .35));
+
+    &--frente {
+      padding: 0;
+      background: rgba(#fff, .06);
+      cursor: pointer;
+      touch-action: pan-y;
+    }
+  }
+
+  &__portada {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  &__vacia {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    height: 100%;
+    font-size: 5rem;
+    color: rgba(#fff, .25);
+
+    &[hidden] { display: none; }
+  }
+
+  // Reflejo de luz que sigue al puntero.
+  &__brillo {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at var(--gx) var(--gy), rgba(#fff, .28), transparent 45%);
+    mix-blend-mode: soft-light;
+  }
+
+  // ---- Vinilo que sale de la funda -------------------------------------------
+  // Detrás de la portada; mientras suena se asoma y gira (33⅓ rpm ≈ 1,8 s por vuelta).
+  &__disco {
+    --portada: none;
+    --disco-a: var(--kl-c1);
+    --disco-b: var(--kl-c2);
+    position: absolute;
+    top: 4%;
+    left: 4%;
+    width: 92%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    transform: translateX(0) rotate(0);
+    transition: transform .9s cubic-bezier(.22, 1, .36, 1), opacity .4s ease;
+    filter: drop-shadow(0 18px 40px rgba(0, 0, 0, .55));
+
+    // Brillo fijo del disco (no gira): la luz se queda y el surco pasa por debajo.
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background:
+        conic-gradient(from 25deg, transparent 0 8%, rgba(#fff, .16) 12%, transparent 17% 55%, rgba(#fff, .1) 60%, transparent 66%);
+      mix-blend-mode: screen;
+      pointer-events: none;
+    }
+  }
+
+  &__disco-giro {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .045) 0 1px, transparent 1px 3px),
+      $kl-sup-2;
+    box-shadow: inset 0 0 0 2px rgba(#fff, .08);
+    // El giro lo maneja ahora.js (33⅓ rpm + empujón de los graves).
+    will-change: transform;
+  }
+
+  &__disco-sello {
+    position: absolute;
+    inset: 33%;
+    border-radius: 50%;
+    background: var(--portada) center / cover, $kl-sup-3;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, .35);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 45%;
+      border-radius: 50%;
+      background: #050606;
+    }
+  }
+
+
+  &.sonando &__disco { transform: translateX(34%); }
+
+  // En el celular la portada ocupa todo el ancho: se achica y se corre para que asome el disco.
+  @include hasta("lg") {
+    &__escena { transition: transform .9s cubic-bezier(.22, 1, .36, 1); }
+    &.sonando &__escena { transform: translateX(-11%) scale(.86); }
+  }
+
+  // En escritorio la portada se corre a la izquierda para dejarle lugar al disco.
+  @include desde("lg") {
+    &__escena { transition: transform .9s cubic-bezier(.22, 1, .36, 1); }
+    &.sonando &__escena { transform: translateX(-9%); }
+    &.sonando &__disco { transform: translateX(30%); }
+  }
+
+
+
+  // Diseños (el número lo elige KLDisco en escena.js).
+  &__disco[data-estilo="1"] &__disco-giro {
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .06) 0 1px, transparent 1px 3px),
+      radial-gradient(circle, rgba(var(--disco-a), .55), rgba(var(--disco-a), .95));
+    box-shadow: inset 0 0 40px rgba(#fff, .18), inset 0 0 0 2px rgba(#fff, .2);
+  }
+
+  &__disco[data-estilo="2"] &__disco-giro {
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .05) 0 1px, transparent 1px 3px),
+      radial-gradient(ellipse at 30% 40%, rgba(#fff, .35), transparent 30%),
+      conic-gradient(from 40deg,
+        rgb(var(--disco-a)), rgb(var(--disco-b)) 18%, rgba(#fff, .7) 22%, rgb(var(--disco-a)) 30%,
+        rgb(var(--disco-b)) 52%, rgb(var(--disco-a)) 68%, rgba(#fff, .55) 72%, rgb(var(--disco-b)) 80%, rgb(var(--disco-a)));
+  }
+
+  &__disco[data-estilo="3"] &__disco-giro {
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .04) 0 1px, transparent 1px 3px),
+      radial-gradient(circle at 22% 30%, rgb(var(--disco-a)) 0 5%, transparent 5.5%),
+      radial-gradient(circle at 70% 22%, rgb(var(--disco-b)) 0 3.5%, transparent 4%),
+      radial-gradient(circle at 80% 64%, rgb(var(--disco-a)) 0 6%, transparent 6.5%),
+      radial-gradient(circle at 30% 78%, rgb(var(--disco-b)) 0 4.5%, transparent 5%),
+      radial-gradient(circle at 55% 88%, rgb(var(--disco-a)) 0 2.5%, transparent 3%),
+      radial-gradient(circle at 12% 58%, rgb(var(--disco-a)) 0 2%, transparent 2.5%),
+      radial-gradient(circle at 88% 40%, rgb(var(--disco-b)) 0 2%, transparent 2.5%),
+      $kl-sup-2;
+  }
+
+  &__disco[data-estilo="4"] &__disco-giro {
+    background:
+      repeating-radial-gradient(circle, rgba(#fff, .035) 0 1px, transparent 1px 3px),
+      var(--portada) center / cover,
+      $kl-sup-3;
+  }
+
+  &__disco[data-estilo="4"] &__disco-sello {
+    inset: 43%;
+    background: rgb(var(--disco-b));
+  }
+
+  &__disco[data-estilo="5"] &__disco-giro {
+    background:
+      repeating-radial-gradient(circle, transparent 0 7px, rgba(var(--disco-a), .9) 7px 8px),
+      #050505;
+    box-shadow:
+      inset 0 0 0 2px rgba(var(--disco-a), .6),
+      0 0 calc(18px + var(--kl-pulso, 0) * 40px) rgba(var(--disco-a), .55);
+  }
+
+  // Sombra de color sobre el "piso".
+  &__reflejo {
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: -9%;
+    height: 18%;
+    border-radius: 50%;
+    background: tema(1, .45);
+    filter: blur(38px);
+    opacity: calc(.35 + var(--kl-pulso, 0) * .6);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  // ---- Modo letra ----------------------------------------------------------
+  // La portada se encoge hasta ser la etiqueta del disco (y se vuelve redonda),
+  // el disco queda solo al costado y la letra ocupa el resto de la pantalla.
+  &__letras {
+    display: none;
+    grid-area: letras;
+    min-width: 0;
+    width: 100%;
+  }
+
+  // El túnel lo dibuja el karaoke (_letra.scss); acá solo el marco.
+  &__letra {
+    height: 100%;
+    -webkit-mask-image: linear-gradient(transparent, #000 7%, #000 90%, transparent);
+    mask-image: linear-gradient(transparent, #000 7%, #000 90%, transparent);
+
+    &.libre { padding: 1rem .5rem 0; }
+  }
+
+  &__disco-aro {
+    --verso: 0;
+    position: absolute;
+    inset: -4%;
+    border-radius: 50%;
+    background: conic-gradient(tema(1) calc(var(--verso) * 360deg), rgba(#fff, .08) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 2px));
+    opacity: 0;
+    transition: opacity .5s ease;
+    filter: drop-shadow(0 0 8px tema(1, .7));
+  }
+
+  &.modo-letra {
+    .kl-ahora__letras { display: block; }
+    .kl-ahora__siguen,
+    .kl-ahora__pista,
+    .kl-ahora__nota,
+    .kl-ahora__completa { display: none; }
+
+    // Portada → etiqueta: se achica al centro del disco y se vuelve círculo.
+    .kl-ahora__tarjeta {
+      transform: scale(.36) !important;
+      transition: transform .8s $ahora-curva;
+    }
+
+    .kl-ahora__cara {
+      border-radius: 50%;
+      box-shadow: 0 0 0 6px rgba(0, 0, 0, .35);
+      transition: border-radius .8s $ahora-curva;
+    }
+
+    .kl-ahora__brillo,
+    .kl-ahora__reflejo { opacity: 0; }
+
+    .kl-ahora__escena { transform: none !important; }
+
+    .kl-ahora__disco {
+      transform: none;
+      opacity: 1;
+    }
+
+    .kl-ahora__disco-aro { opacity: 1; }
+
+    .kl-ahora__meta h2 { font-size: clamp(1.2rem, 2.2vw, 1.7rem); }
+  }
+
+  &__cara { transition: border-radius .8s $ahora-curva; }
+
+  @include desde("lg") {
+    &.modo-letra &__cuerpo {
+      width: min(100%, 1600px);
+      grid-template-columns: minmax(260px, .55fr) minmax(0, 1.45fr);
+      grid-template-areas:
+        "escena letras"
+        "panel letras";
+      align-content: center;
+      row-gap: 2rem;
+    }
+
+    &.modo-letra &__escena {
+      grid-area: escena;
+      width: min(100%, 36vh, 360px);
+    }
+
+    &.modo-letra &__panel { grid-area: panel; }
+
+    &.modo-letra &__letras { height: calc(100dvh - 96px); }
+  }
+
+  // Celular: disco arriba, letra en el medio, controles abajo.
+  @include hasta("lg") {
+    &.modo-letra &__cuerpo {
+      grid-template-areas: "escena" "letras" "panel";
+      gap: .75rem;
+      align-content: start;
+    }
+
+    &.modo-letra &__escena { grid-area: escena; width: min(52vw, 24vh); }
+    &.modo-letra &__panel { grid-area: panel; }
+    &.modo-letra &__letras { height: 50vh; }
+  }
+
+  // ---- Panel de datos y controles -----------------------------------------
+  &__panel {
+    display: grid;
+    gap: 1rem;
+    width: min(100%, 540px);
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-width: 0;
+
+    > div { min-width: 0; }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.5rem, 3.6vw, 2.6rem);
+      line-height: 1.05;
+      letter-spacing: -.035em;
+      @include lineas(2);
+    }
+
+    p {
+      margin: .35rem 0 0;
+      font-size: 1.05rem;
+      color: rgba(#fff, .78);
+      @include lineas(1);
+    }
+  }
+
+  &__nota {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem .75rem;
+    margin: -.4rem 0 0;
+    font-size: .85rem;
+    color: rgba(#fff, .7);
+  }
+
+  &__edicion {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .2rem .65rem;
+    border: 1px solid tema(1, .45);
+    border-radius: 99px;
+    background: tema(1, .12);
+    color: tema(1);
+    font-size: .74rem;
+    font-weight: 800;
+
+    &[hidden] { display: none; }
+  }
+
+  &__completa {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    justify-self: start;
+    margin-top: -.5rem;
+    color: tema(1);
+    font-weight: 700;
+
+    &[hidden] { display: none; }
+    &:hover { color: #fff; }
+  }
+
+  // Barra con espectro: lo ya escuchado se pinta con el color de la portada.
+  &__progreso {
+    position: relative;
+    display: grid;
+    gap: .35rem;
+
+    input[type="range"] {
+      --avance: 0%;
+      position: absolute;
+      inset: 0 0 auto;
+      width: 100%;
+      height: 46px;
+      margin: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    input[type="range"]:focus-visible + .kl-ahora__tiempos { text-decoration: underline; }
+    &:has(input:focus-visible) .kl-ahora__espectro { outline: 2px solid rgba(#fff, .8); outline-offset: 4px; border-radius: 6px; }
+  }
+
+  &__espectro {
+    display: block;
+    width: 100%;
+    height: 46px;
+  }
+
+  &__tiempos {
+    display: flex;
+    justify-content: space-between;
+    font-size: .78rem;
+    color: rgba(#fff, .7);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__controles {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    max-width: 420px;
+
+    button {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: rgba(#fff, .88);
+      font-size: 1.55rem;
+      cursor: pointer;
+      transition: transform $kl-transicion, background $kl-transicion, color $kl-transicion;
+
+      &:hover { background: rgba(#fff, .1); color: #fff; }
+      &:active { transform: scale(.9); }
+      &.activo { color: tema(1); }
+      &[data-ahora-aleatorio],
+      &[data-ahora-repetir] { font-size: 1.15rem; }
+    }
+  }
+
+  &__play {
+    width: 74px !important;
+    height: 74px !important;
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 2rem !important;
+    box-shadow: 0 10px 40px tema(1, .45);
+    transform: scale(calc(1 + var(--kl-pulso, 0) * .07));
+
+    &:hover { transform: scale(1.06); }
+  }
+
+  // ---- Próximos temas -------------------------------------------------------
+  &__siguen {
+    margin-top: .5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(#fff, .14);
+
+    &[hidden] { display: none; }
+
+    h3 {
+      margin: 0 0 .5rem;
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: rgba(#fff, .65);
+    }
+
+    > div { display: grid; gap: .25rem; }
+  }
+
+  &__sigue {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    align-items: center;
+    gap: .75rem;
+    padding: .35rem;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: #fff;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover { background: rgba(#fff, .08); }
+
+    img {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: rgba(#fff, .08);
+    }
+
+    strong, small { display: block; @include lineas(1); }
+    strong { font-size: .9rem; }
+    small { font-size: .78rem; color: rgba(#fff, .65); }
+  }
+
+  &__pista {
+    margin: 0;
+    font-size: .74rem;
+    color: rgba(#fff, .55);
+
+    @include hasta("md") { display: none; }
+  }
+
+  // Pantallas bajas: la portada se achica para que entren los controles.
+  @media (max-height: 700px) and (max-width: 991.98px) {
+    &__escena { width: min(100%, 36vh); }
+    &__siguen { display: none; }
+  }
+}
+
+// Portada en vuelo (clon que viaja entre el reproductor y la hoja).
+.kl-ahora__vuelo {
+  position: fixed;
+  z-index: 1300;
+  object-fit: cover;
+  pointer-events: none;
+  transform-origin: top left;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .5);
+  will-change: transform;
+}
+
+@keyframes kl-ahora-izq {
+  0% { transform: translateX(0) rotateY(0); opacity: 1; }
+  45% { transform: translateX(-30%) rotateY(18deg); opacity: 0; }
+  55% { transform: translateX(30%) rotateY(-18deg); opacity: 0; }
+  100% { transform: translateX(0) rotateY(0); opacity: 1; }
+}
+
+@keyframes kl-ahora-der {
+  0% { transform: translateX(0) rotateY(0); opacity: 1; }
+  45% { transform: translateX(30%) rotateY(-18deg); opacity: 0; }
+  55% { transform: translateX(-30%) rotateY(18deg); opacity: 0; }
+  100% { transform: translateX(0) rotateY(0); opacity: 1; }
+}
+
+body.kl-estudio-abierto { overflow: hidden; }
+
+// Cola del reproductor (antes con estilos en línea).
+.kl-cola {
+  &__item {
+    img {
+      flex: 0 0 auto;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    &[aria-current="true"] { background: tema(1, .12); }
+  }
+
+  &__texto {
+    min-width: 0;
+    text-align: left;
+
+    strong { display: block; font-size: .9rem; @include lineas(1); }
+    small { color: rgba(#fff, .7); @include lineas(1); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-ahora__hoja,
+  .kl-ahora__velo,
+  .kl-ahora__tarjeta,
+
+  .kl-ahora__tarjeta.sale-izq,
+  .kl-ahora__tarjeta.sale-der { animation: none; }
+}
+
+.kl-ahora__gusta {
+  &.guardada { color: $kl-rosa; }
+  &[hidden] { display: none; }
+}
+
+.kl-ahora__meta > .kl-ahora__gusta { margin-left: auto; }

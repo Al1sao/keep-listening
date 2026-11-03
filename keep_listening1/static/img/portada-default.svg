@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Portada por defecto">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#446b47"/>
+      <stop offset="100%" stop-color="#223626"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#g)"/>
+  <circle cx="200" cy="190" r="96" fill="none" stroke="#c6d7bd" stroke-width="6" opacity=".7"/>
+  <circle cx="200" cy="190" r="58" fill="none" stroke="#c6d7bd" stroke-width="4" opacity=".5"/>
+  <circle cx="200" cy="190" r="16" fill="#f5e6cd"/>
+  <path d="M258 128v96a26 26 0 1 1-14-23v-52l-52 14v66a26 26 0 1 1-14-23V150z" fill="#f5e6cd" opacity=".92"/>
+  <text x="200" y="342" font-family="Nunito, sans-serif" font-size="26" font-weight="700"
+        fill="#dde7d3" text-anchor="middle">Keep listening</text>
+</svg>

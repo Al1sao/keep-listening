@@ -1,0 +1,23 @@
+{
+  "name": "keep_listening1",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Keep Listening - estilos SCSS compilados con Dart Sass sobre Bootstrap 5",
+  "scripts": {
+    "vendor": "node tools/copiar-vendor.mjs",
+    "css": "sass --load-path=node_modules --style=expanded --quiet-deps static/scss/styles.scss static/css/styles.css",
+    "css:min": "sass --load-path=node_modules --style=compressed --no-source-map --quiet-deps static/scss/styles.scss static/css/styles.min.css",
+    "css:watch": "sass --watch --load-path=node_modules --style=expanded --quiet-deps static/scss/styles.scss static/css/styles.css",
+    "build": "npm run vendor && npm run css && npm run css:min",
+    "iconos": "node tools/iconos.mjs"
+  },
+  "dependencies": {
+    "@fontsource/nunito": "^5.3.0",
+    "@fontsource/syne": "^5.3.0",
+    "bootstrap": "^5.3.8",
+    "bootstrap-icons": "^1.13.1"
+  },
+  "devDependencies": {
+    "sass": "^1.83.0"
+  }
+}

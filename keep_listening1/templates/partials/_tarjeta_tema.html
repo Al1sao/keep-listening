@@ -1,0 +1,27 @@
+{# Tarjeta de cancion. Parametros: cancion, clase_extra (opcional) #}
+<article class="kl-tema {{ clase_extra }}" data-tema="{{ cancion.id }}">
+    <div class="kl-tema__portada">
+        <img src="{{ cancion.portada_url }}" alt="" width="300" height="300" loading="lazy" decoding="async">
+        <button class="kl-play kl-play--flotante" type="button" data-reproducir="{{ cancion.id }}"
+                aria-label="Reproducir {{ cancion.titulo }}">
+            <i class="bi bi-play-fill" aria-hidden="true"></i>
+        </button>
+    </div>
+    <a class="kl-tema__titulo" href="{{ cancion.get_absolute_url }}">{{ cancion.titulo }}</a>
+    <a class="kl-tema__artista" href="{% url 'usuarios:perfil_publico' cancion.artista.username %}">{{ cancion.artista.username }}</a>
+    <div class="kl-tema__meta">
+        <span>{% if cancion.genero %}{{ cancion.genero.nombre }}{% else %}Sin género{% endif %}</span>
+        {% if user.is_authenticated %}
+            <button class="kl-fav kl-fav--sm {% if cancion.id in favoritos_ids %}guardada{% endif %}"
+                    type="button" data-favorito="{{ cancion.id }}"
+                    aria-pressed="{% if cancion.id in favoritos_ids %}true{% else %}false{% endif %}"
+                    aria-label="Guardar {{ cancion.titulo }} en mi lista">
+                <i class="bi {% if cancion.id in favoritos_ids %}bi-heart-fill{% else %}bi-heart{% endif %}" aria-hidden="true"></i>
+            </button>
+        {% else %}
+            <a class="kl-fav kl-fav--sm" href="{% url 'usuarios:login' %}" aria-label="Iniciá sesión para guardar {{ cancion.titulo }}">
+                <i class="bi bi-heart" aria-hidden="true"></i>
+            </a>
+        {% endif %}
+    </div>
+</article>

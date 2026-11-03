@@ -1,0 +1,15 @@
+**/__pycache__/
+**/*.pyc
+**/node_modules/
+**/mi_entorno/
+**/.venv/
+**/db.sqlite3
+**/media/
+**/staticfiles/
+**/.git/
+**/*.log
+**/.secret_key
+**/.env
+**/.vscode/
+**/.idea/
+**/.cache/

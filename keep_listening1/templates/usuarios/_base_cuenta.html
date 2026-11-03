@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% comment %}
+    Páginas de cuenta (entrar, registrarse, cambiar contraseña): mismo lenguaje
+    que el panel de sesión. A la izquierda una escena, a la derecha el formulario.
+{% endcomment %}
+{% block contenido %}
+<div class="kl-cuenta">
+    <div class="kl-cuenta__caja">
+        <aside class="kl-cuenta__escena" aria-hidden="true">
+            {% block escena %}{% endblock %}
+        </aside>
+        <div class="kl-cuenta__form">
+            {% block formulario %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

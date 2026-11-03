@@ -1,0 +1,78 @@
+// ---------------------------------------------------------------------------
+// Bootstrap 5 configurado con la identidad de Keep Listening.
+//
+// Con el sistema de modulos las variables del framework no se "pisan" antes
+// de importarlo: se le pasan al cargarlo con `with (...)`. Este archivo es el
+// unico lugar donde se configura Bootstrap.
+// ---------------------------------------------------------------------------
+@use "variables" as kl;
+
+@forward "bootstrap-base" with (
+  $primary: kl.$kl-verde-700,
+  $secondary: kl.$kl-verde-500,
+  $success: kl.$kl-exito,
+  $info: kl.$kl-verde-500,
+  $warning: kl.$kl-ambar,
+  $danger: kl.$kl-error,
+  $light: kl.$kl-crema-300,
+  $dark: kl.$kl-verde-900,
+
+  $body-bg: kl.$kl-noche,
+  $body-color: kl.$kl-tinta,
+
+  $font-family-sans-serif: kl.$kl-fuente,
+  $headings-font-family: kl.$kl-fuente-display,
+  $headings-font-weight: 700,
+  $headings-color: kl.$kl-tinta,
+
+  $border-radius: kl.$kl-radio-sm,
+  $border-radius-sm: 8px,
+  $border-radius-lg: kl.$kl-radio,
+  $border-radius-xl: kl.$kl-radio-lg,
+  $border-radius-pill: kl.$kl-radio-pill,
+
+  $link-color: kl.$kl-menta,
+  $link-hover-color: #fff,
+  $link-decoration: none,
+
+  $card-bg: kl.$kl-crema-100,
+  $card-border-color: rgba(kl.$kl-menta, .14),
+  $card-border-radius: kl.$kl-radio,
+  $card-color: kl.$kl-tinta,
+
+  $input-bg: kl.$kl-sup-2,
+  $input-color: kl.$kl-tinta,
+  $input-border-color: rgba(kl.$kl-menta, .22),
+  $input-focus-border-color: kl.$kl-menta,
+  $input-btn-focus-color: rgba(kl.$kl-menta, .28),
+  $input-placeholder-color: rgba(kl.$kl-tinta, .45),
+
+  $dropdown-bg: kl.$kl-sup-2,
+  $dropdown-color: kl.$kl-tinta,
+  $dropdown-link-color: kl.$kl-tinta,
+  $dropdown-link-hover-color: kl.$kl-noche,
+  $dropdown-link-hover-bg: kl.$kl-menta,
+  $dropdown-border-color: rgba(kl.$kl-menta, .16),
+
+  $modal-content-bg: kl.$kl-crema-100,
+  $offcanvas-bg-color: kl.$kl-verde-800,
+  $offcanvas-color: kl.$kl-texto-claro,
+
+  $table-hover-bg: rgba(kl.$kl-verde-300, .18),
+  $table-border-color: rgba(kl.$kl-verde-700, .14),
+
+  $pagination-color: kl.$kl-tinta,
+  $pagination-bg: kl.$kl-crema-100,
+  $pagination-hover-color: kl.$kl-noche,
+  $pagination-hover-bg: kl.$kl-menta,
+  $pagination-active-color: kl.$kl-noche,
+  $pagination-active-bg: kl.$kl-menta,
+  $pagination-border-color: rgba(kl.$kl-menta, .2),
+
+  $progress-bg: rgba(kl.$kl-verde-700, .18),
+  $progress-bar-bg: kl.$kl-verde-600,
+
+  $tooltip-bg: kl.$kl-verde-900,
+  $popover-bg: kl.$kl-crema-100,
+  $badge-font-weight: 600
+);

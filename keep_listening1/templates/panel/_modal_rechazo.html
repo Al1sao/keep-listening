@@ -1,0 +1,23 @@
+{# Motivo del rechazo: lo lee quien subió el tema en "Mis publicaciones". #}
+<div class="modal fade kl-modal" id="modalRechazo" tabindex="-1" aria-hidden="true" aria-labelledby="modal-rechazo-titulo">
+    <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" method="post" id="form-rechazo">
+            {% csrf_token %}
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="modal-rechazo-titulo">Devolver la prueba</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="kl-texto-suave" id="modal-rechazo-texto">Indicá el motivo del rechazo.</p>
+                <div class="kl-flotante">
+                    <input class="kl-input" type="text" name="motivo" id="modal-rechazo-motivo" required maxlength="250" placeholder=" ">
+                    <label for="modal-rechazo-motivo">Motivo (lo va a leer el artista)</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="kl-btn kl-btn--fantasma" type="button" data-bs-dismiss="modal">Cancelar</button>
+                <button class="kl-btn kl-btn--peligro" type="submit"><i class="bi bi-x-lg" aria-hidden="true"></i> Rechazar</button>
+            </div>
+        </form>
+    </div>
+</div>

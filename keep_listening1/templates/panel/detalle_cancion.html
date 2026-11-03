@@ -1,0 +1,97 @@
+{% extends "panel/base_panel.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Revisar {{ cancion.titulo }}{% endblock %}
+
+{% block panel %}
+<nav class="kl-migas" aria-label="Migas">
+    <a href="{% url 'panel:dashboard' %}">Consola</a>
+    <span><a href="{% url 'panel:canciones' %}">Pruebas de prensa</a></span>
+    <span aria-current="page">{{ cancion.titulo }}</span>
+</nav>
+
+{% comment %}
+La sala de escucha: la prueba gira en el plato mientras suena (panel.js),
+con la hoja de corte al lado y el veredicto abajo.
+{% endcomment %}
+<div class="kl-escucha">
+    <section class="kl-escucha__plato" aria-label="Escuchar la prueba">
+        <div class="kl-vinilo" data-estilo="0" id="kl-escucha-disco" style="--portada: url('{{ cancion.portada_url }}');">
+            <div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div>
+        </div>
+        <audio class="kl-audio-preview" id="kl-escucha-audio" controls preload="metadata" src="{{ cancion.archivo_audio.url }}"></audio>
+
+        <div class="kl-escucha__veredicto">
+            <form method="post" action="{% url 'panel:aprobar_cancion' cancion.slug %}">
+                {% csrf_token %}
+                <button class="kl-btn kl-btn--bloque" type="submit" {% if cancion.estado == 'APROBADA' %}disabled{% endif %}>
+                    <i class="bi bi-check-lg" aria-hidden="true"></i> {% if cancion.estado == 'APROBADA' %}Ya está en la sala{% else %}Aprobar y prensar{% endif %}
+                </button>
+            </form>
+            {% if cancion.estado != 'RECHAZADA' %}
+                <button class="kl-btn kl-btn--fantasma kl-btn--bloque" type="button"
+                        data-rechazar="{% url 'panel:rechazar_cancion' cancion.slug %}" data-titulo="{{ cancion.titulo }}">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i> Devolver con motivo
+                </button>
+            {% endif %}
+            <form method="post" action="{% url 'panel:eliminar_cancion' cancion.slug %}"
+                  data-confirmar="¿Eliminar definitivamente &quot;{{ cancion.titulo }}&quot;?">
+                {% csrf_token %}
+                <button class="kl-btn kl-btn--peligro kl-btn--bloque" type="submit"><i class="bi bi-trash" aria-hidden="true"></i> Eliminar</button>
+            </form>
+        </div>
+    </section>
+
+    <div class="kl-escucha__hoja">
+        <span class="kl-badge kl-badge--{{ cancion.estado|clase_estado }}">{{ cancion.get_estado_display }}</span>
+        <h1>{{ cancion.titulo }}</h1>
+        <p class="kl-escucha__artista">
+            <a href="{% url 'usuarios:perfil_publico' cancion.artista.username %}"><i class="bi bi-person-circle" aria-hidden="true"></i> {{ cancion.artista.username }}</a>
+            <span>{{ cancion.artista.email }}</span>
+            <span>{{ otras_del_artista }} otra{{ otras_del_artista|pluralize }} publicación{{ otras_del_artista|pluralize:"es" }}</span>
+        </p>
+
+        {# La hoja de corte: los datos técnicos que acompañan a la prueba. #}
+        <dl class="kl-hoja">
+            <div><dt>Género</dt><dd>{{ cancion.genero.nombre|default:"Sin género" }}</dd></div>
+            <div><dt>Tipo</dt><dd>{{ cancion.get_tipo_display }}</dd></div>
+            <div><dt>Álbum</dt><dd>{% if cancion.album %}{{ cancion.album.titulo }}{% else %}Sencillo{% endif %}</dd></div>
+            <div><dt>Subida</dt><dd>{{ cancion.fecha_subida|date:"d/m/Y H:i" }}</dd></div>
+            <div><dt>Escuchas</dt><dd>{{ cancion.reproducciones }}</dd></div>
+            <div><dt>Guardada por</dt><dd>{{ favoritos }} usuario{{ favoritos|pluralize }}</dd></div>
+            {% if cancion.revisada_por %}
+                <div><dt>Revisada por</dt><dd>{{ cancion.revisada_por.username }} · {{ cancion.fecha_revision|date:"d/m/Y H:i" }}</dd></div>
+            {% endif %}
+            {% if cancion.motivo_rechazo %}
+                <div class="kl-hoja__ancho"><dt>Motivo del rechazo</dt><dd>{{ cancion.motivo_rechazo }}</dd></div>
+            {% endif %}
+        </dl>
+
+        <details class="kl-panel-caja kl-escucha__editar" {% if form.errors %}open{% endif %}>
+            <summary><i class="bi bi-pencil" aria-hidden="true"></i> Retocar los datos</summary>
+            <form class="kl-form" method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="formulario" value="editar">
+                {% for campo in form %}
+                    <div class="kl-campo">
+                        <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+                        {{ campo }}
+                        {% for error in campo.errors %}<p class="kl-form__error">{{ error }}</p>{% endfor %}
+                    </div>
+                {% endfor %}
+                <div class="kl-form__acciones">
+                    <a class="kl-btn kl-btn--fantasma" href="{% url 'panel:canciones' %}">Volver</a>
+                    <button class="kl-btn" type="submit"><i class="bi bi-save" aria-hidden="true"></i> Guardar cambios</button>
+                </div>
+            </form>
+        </details>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block fuera_de_consola %}{% include "panel/_modal_rechazo.html" %}{% endblock %}
+
+{% block js_extra %}
+<script src="{% estatico 'js/panel.js' %}" data-pagina></script>
+{% endblock %}

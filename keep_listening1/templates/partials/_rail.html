@@ -1,0 +1,75 @@
+{% with nombre=request.resolver_match.url_name app=request.resolver_match.app_name %}
+<aside class="kl-rail" aria-label="Biblioteca">
+    <a class="kl-rail__marca" href="{% url 'musica:home' %}" aria-label="Keep Listening, inicio">
+        {% include "partials/_logo.html" with sufijo="rail" %}
+        <span class="kl-marca"><span>keep</span> listening</span>
+    </a>
+
+    <nav class="kl-rail__nav" aria-label="Secciones">
+        <a class="kl-rail__link {% if nombre == 'home' %}activo{% endif %}" {% if nombre == 'home' %}aria-current="page"{% endif %} href="{% url 'musica:home' %}">
+            <i aria-hidden="true" class="bi bi-house-door-fill"></i> Inicio
+        </a>
+        <a class="kl-rail__link {% if nombre == 'explorar' %}activo{% endif %}" {% if nombre == 'explorar' %}aria-current="page"{% endif %} href="{% url 'musica:explorar' %}">
+            <i aria-hidden="true" class="bi bi-compass"></i> Explorar
+        </a>
+        <a class="kl-rail__link {% if app == 'tienda' and nombre == 'catalogo' %}activo{% endif %}" {% if app == 'tienda' and nombre == 'catalogo' %}aria-current="page"{% endif %} href="{% url 'tienda:catalogo' %}">
+            <i aria-hidden="true" class="bi bi-shop"></i> Tienda
+        </a>
+        <button class="kl-rail__link" type="button" data-abrir-estudio>
+            <i aria-hidden="true" class="bi bi-soundwave"></i> Ahora suena
+        </button>
+    </nav>
+
+    {% if user.is_authenticated %}
+        {# Estante: tus me gusta como lomos de discos. Un toque y suena. #}
+        <section class="kl-estante" aria-labelledby="kl-estante-titulo" data-lista="kl-estante">
+            <p class="kl-rail__titulo" id="kl-estante-titulo">Tu estante</p>
+            {{ estante|json_script:"kl-estante" }}
+            <div class="kl-estante__fila" id="kl-estante-fila">
+                {% for pista in estante %}
+                    <button class="kl-estante__lomo" type="button" data-catalogo="{{ pista.id }}" data-tema="{{ pista.id }}"
+                            style="--portada: url('{{ pista.portada }}');"
+                            aria-label="Reproducir {{ pista.titulo }}, de {{ pista.artista }}">
+                        <span class="kl-estante__nombre" aria-hidden="true">{{ pista.titulo }}</span>
+                        <span class="kl-estante__tapa" aria-hidden="true"></span>
+                    </button>
+                {% empty %}
+                    <p class="kl-estante__vacio">Marcá temas con <i class="bi bi-heart-fill" aria-hidden="true"></i> y van quedando acá.</p>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    <div class="kl-rail__biblioteca">
+        <p class="kl-rail__titulo">Tu biblioteca</p>
+        {% if user.is_authenticated %}
+            <a class="kl-rail__link {% if nombre == 'mi_musica' %}activo{% endif %}" {% if nombre == 'mi_musica' %}aria-current="page"{% endif %} href="{% url 'musica:mi_musica' %}">
+                <i aria-hidden="true" class="bi bi-music-note-list"></i> Mi música
+            </a>
+            <a class="kl-rail__link {% if nombre == 'subir_cancion' %}activo{% endif %}" {% if nombre == 'subir_cancion' %}aria-current="page"{% endif %} href="{% url 'musica:subir_cancion' %}">
+                <i aria-hidden="true" class="bi bi-cloud-arrow-up"></i> Subir canción
+            </a>
+            <a class="kl-rail__link {% if nombre == 'mis_publicaciones' %}activo{% endif %}" {% if nombre == 'mis_publicaciones' %}aria-current="page"{% endif %} href="{% url 'musica:mis_publicaciones' %}">
+                <i aria-hidden="true" class="bi bi-collection"></i> Publicaciones
+            </a>
+            <a class="kl-rail__link {% if nombre == 'carrito' %}activo{% endif %}" {% if nombre == 'carrito' %}aria-current="page"{% endif %} href="{% url 'tienda:carrito' %}">
+                <i aria-hidden="true" class="bi bi-cart3"></i> Carrito
+                <span class="kl-rail__badge" data-carrito-contador data-cantidad="{{ carrito_cantidad }}">{{ carrito_cantidad }}</span>
+            </a>
+            <a class="kl-rail__link {% if nombre == 'perfil' %}activo{% endif %}" {% if nombre == 'perfil' %}aria-current="page"{% endif %} href="{% url 'usuarios:perfil' %}"><i aria-hidden="true" class="bi bi-person"></i> Perfil</a>
+            {% if user.es_admin %}
+                <a class="kl-rail__link {% if app == 'panel' %}activo{% endif %}" {% if app == 'panel' %}aria-current="page"{% endif %} href="{% url 'panel:dashboard' %}">
+                    <i aria-hidden="true" class="bi bi-shield-check"></i> Panel
+                </a>
+            {% endif %}
+        {% else %}
+            <a class="kl-rail__link {% if nombre == 'login' %}activo{% endif %}" {% if nombre == 'login' %}aria-current="page"{% endif %} href="{% url 'usuarios:login' %}">
+                <i aria-hidden="true" class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+            </a>
+            <a class="kl-rail__link {% if nombre == 'registro' %}activo{% endif %}" {% if nombre == 'registro' %}aria-current="page"{% endif %} href="{% url 'usuarios:registro' %}">
+                <i aria-hidden="true" class="bi bi-person-plus"></i> Crear cuenta
+            </a>
+        {% endif %}
+    </div>
+</aside>
+{% endwith %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block contenido %}
+{% comment %}
+El panel es la consola de la sala: cada sección es un canal con su LED.
+El LED encendido marca dónde estás; el ámbar titilando, lo que espera revisión.
+{% endcomment %}
+{% with nombre=request.resolver_match.url_name %}
+<div class="kl-consola"><div class="kl-consola__marco">
+    <aside class="kl-consola__canales" aria-label="Secciones del panel">
+        <p class="kl-consola__marca"><span aria-hidden="true"></span> Consola</p>
+        <nav class="kl-consola__nav">
+            <a class="kl-consola__canal {% if nombre == 'dashboard' %}activo{% endif %}" {% if nombre == 'dashboard' %}aria-current="page"{% endif %}
+               href="{% url 'panel:dashboard' %}"><i class="bi bi-speedometer2" aria-hidden="true"></i> Resumen</a>
+            <a class="kl-consola__canal {% if 'cancion' in nombre %}activo{% endif %}" {% if 'cancion' in nombre %}aria-current="page"{% endif %}
+               href="{% url 'panel:canciones' %}">
+                <i class="bi bi-disc" aria-hidden="true"></i> Pruebas de prensa
+                {% if canciones_pendientes_nav %}<span class="kl-badge kl-badge--pendiente">{{ canciones_pendientes_nav }}<span class="kl-solo-lectores"> pendientes</span></span>{% endif %}
+            </a>
+            <a class="kl-consola__canal {% if nombre == 'usuarios' %}activo{% endif %}" {% if nombre == 'usuarios' %}aria-current="page"{% endif %}
+               href="{% url 'panel:usuarios' %}"><i class="bi bi-people" aria-hidden="true"></i> Cuentas</a>
+            <a class="kl-consola__canal {% if 'album' in nombre %}activo{% endif %}" {% if 'album' in nombre %}aria-current="page"{% endif %}
+               href="{% url 'panel:albumes' %}"><i class="bi bi-vinyl" aria-hidden="true"></i> Catálogo</a>
+            <a class="kl-consola__canal {% if 'pedido' in nombre %}activo{% endif %}" {% if 'pedido' in nombre %}aria-current="page"{% endif %}
+               href="{% url 'panel:pedidos' %}"><i class="bi bi-box-seam" aria-hidden="true"></i> Pedidos</a>
+            <a class="kl-consola__canal {% if 'genero' in nombre %}activo{% endif %}" {% if 'genero' in nombre %}aria-current="page"{% endif %}
+               href="{% url 'panel:generos' %}"><i class="bi bi-sliders" aria-hidden="true"></i> Géneros</a>
+            <span class="kl-consola__separador" aria-hidden="true"></span>
+            <a class="kl-consola__canal kl-consola__canal--aux" href="{% url 'admin:index' %}"><i class="bi bi-gear" aria-hidden="true"></i> Django admin</a>
+            <a class="kl-consola__canal kl-consola__canal--aux" href="{% url 'musica:home' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a la sala</a>
+        </nav>
+    </aside>
+
+    <div class="kl-consola__mesa">
+        {% block panel %}{% endblock %}
+    </div>
+</div></div>
+{% endwith %}
+{# Fuera de la consola: su contención de tamaño encerraría a los modales (position: fixed). #}
+{% block fuera_de_consola %}{% endblock %}
+{% endblock %}

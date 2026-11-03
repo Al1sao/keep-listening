@@ -1,0 +1,24 @@
+{# Pie: el "lado B" del sitio. También reconoce de dónde vienen los adelantos y las letras. #}
+<footer class="kl-pie">
+    <div class="kl-pie__lado">
+        <span class="kl-pie__disco" aria-hidden="true"><span>B</span></span>
+        <div>
+            <strong>Lado B</strong>
+            <span>Keep Listening · escuchá, guardá, publicá y comprá música independiente.</span>
+        </div>
+    </div>
+    <nav class="kl-pie__links" aria-label="Enlaces del pie">
+        <a href="{% url 'musica:explorar' %}">Explorar</a>
+        <a href="{% url 'tienda:catalogo' %}">Disquería</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'musica:mi_musica' %}">Tu colección</a>
+            <a href="{% url 'musica:subir_cancion' %}">Subir un tema</a>
+        {% else %}
+            <a href="{% url 'usuarios:registro' %}">Crear cuenta</a>
+        {% endif %}
+    </nav>
+    <p class="kl-pie__creditos">
+        Adelantos de <a href="https://music.apple.com" target="_blank" rel="noopener">Apple Music</a> ·
+        letras de <a href="https://lrclib.net" target="_blank" rel="noopener">LRCLIB</a>
+    </p>
+</footer>

@@ -1,0 +1,28 @@
+// ---------------------------------------------------------------------------
+// Tipografia Nunito servida desde el propio proyecto (static/fonts/).
+// No se usa ningun CDN externo: el sitio funciona igual sin internet.
+// Los archivos los copia `npm run vendor` desde node_modules/@fontsource/nunito.
+// Solo woff2: lo leen todos los navegadores actuales (el .woff nunca se bajaba).
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+@each $peso in (400, 600, 700, 800) {
+  @font-face {
+    font-family: "Nunito";
+    font-style: normal;
+    font-weight: $peso;
+    font-display: swap;
+    src: url("/static/fonts/nunito-latin-#{$peso}-normal.woff2") format("woff2");
+  }
+}
+
+@each $peso in (600, 700, 800) {
+  @font-face {
+    font-family: "Syne";
+    font-style: normal;
+    font-weight: $peso;
+    font-display: swap;
+    src: url("/static/fonts/syne-latin-#{$peso}-normal.woff2") format("woff2");
+  }
+}

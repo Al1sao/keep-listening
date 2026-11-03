@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block titulo %}Se rayó el disco{% endblock %}
+
+{% block contenido %}
+{% comment %}
+404 "se rayó el disco": el vinilo gira y cada vuelta salta hacia atrás en el
+mismo punto, y el título se repite como un surco rayado. Levantar la púa
+(el botón) es volver a un lugar que existe.
+{% endcomment %}
+<section class="kl-rayado" aria-labelledby="titulo-rayado">
+    <div class="kl-rayado__disco" aria-hidden="true">
+        <div class="kl-vinilo" data-estilo="4">
+            <div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span><span class="kl-rayado__marca"></span></div>
+        </div>
+        <span class="kl-rayado__brazo"></span>
+    </div>
+
+    <div class="kl-rayado__texto">
+        <span class="kl-eyebrow">Error 404</span>
+        <h1 id="titulo-rayado">
+            <span class="kl-rayado__bucle" aria-hidden="true">Esta página no—</span>
+            <span class="kl-rayado__real">Esta página no existe</span>
+        </h1>
+        <p>Se rayó el disco: el enlace está roto o el tema ya no está en la sala.</p>
+        <div class="kl-batea__acciones">
+            <a class="kl-btn" href="{% url 'musica:home' %}"><i class="bi bi-house-door" aria-hidden="true"></i> Levantar la púa</a>
+            <a class="kl-btn kl-btn--fantasma" href="{% url 'musica:explorar' %}"><i class="bi bi-compass" aria-hidden="true"></i> Explorar</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

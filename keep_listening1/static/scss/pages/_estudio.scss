@@ -1,0 +1,43 @@
+// ---------------------------------------------------------------------------
+// Estudio 3D: hero con vinilo, pantalla completa y visualizador
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+.kl-vinilo-css {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  perspective: 900px;
+
+  &__disco {
+    width: min(240px, 68%);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 30%, rgba(#fff, .35), transparent 18%),
+      radial-gradient(circle at 50% 50%, #1a1a1a 0 18%, $kl-sup-2 19% 22%, transparent 23%),
+      repeating-radial-gradient(circle at 50% 50%, $kl-sup-4 0 1px, $kl-sup-2 2px 5px);
+    box-shadow:
+      0 28px 50px rgba(0, 0, 0, .5),
+      inset 0 0 0 1px rgba(#fff, .18);
+    animation: kl-vinilo-plano 9s linear infinite;
+  }
+}
+
+@keyframes kl-vinilo-plano {
+  to { transform: rotateX(62deg) rotateZ(360deg); }
+}
+
+.kl-tema.sonando {
+  background: $kl-sup-4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-vinilo-css__disco {
+    animation: none;
+    transform: rotateX(62deg);
+  }
+}

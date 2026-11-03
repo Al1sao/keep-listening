@@ -1,0 +1,288 @@
+// ---------------------------------------------------------------------------
+// Inicio: la sala. Portadas flotando, luz y suelo que siguen el pulso.
+// ---------------------------------------------------------------------------
+
+@use "sass:list";
+@use "../abstracts" as *;
+
+// x, y, tam, dx, dy, z, escala, dur, empuje, giro, capa
+$nube: (
+  (3%, 2%, 104px, 14px, -10px, 36px, 1.02, 18, 26, 1.1, 6),
+  (29%, 0%, 118px, -16px, 12px, 48px, 1.06, 16, 32, 1.3, 8),
+  (55%, 4%, 96px, 12px, -14px, 18px, .94, 21, 22, -1, 5),
+  (78%, 1%, 88px, -10px, 10px, -12px, .84, 24, 16, .7, 3),
+  (2%, 38%, 92px, 16px, 8px, 10px, .9, 19, 20, -1.2, 4),
+  (27%, 36%, 108px, -14px, -12px, 28px, .98, 17, 28, 1, 7),
+  (53%, 40%, 86px, 10px, 14px, -20px, .8, 23, 14, .6, 2),
+  (76%, 34%, 100px, -18px, 8px, 22px, .95, 20, 24, -1.4, 5),
+  (6%, 72%, 74px, 8px, -8px, -30px, .72, 26, 12, .5, 1),
+  (30%, 70%, 92px, -12px, 10px, 8px, .88, 18, 18, 1.2, 4),
+  (54%, 74%, 80px, 14px, -10px, -16px, .78, 22, 14, -.8, 2),
+  (77%, 68%, 86px, -8px, 12px, 6px, .86, 19, 16, 1.5, 3)
+);
+
+.kl-sala {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+.kl-espacio {
+  position: relative;
+  // El panel lateral solo existe desde lg: debajo, la sala ocupa todo el alto.
+  height: calc(100vh - var(--kl-dock) - #{$kl-header-alto} - 16px);
+  height: calc(100dvh - var(--kl-dock) - #{$kl-header-alto} - 16px);
+
+  @include desde("lg") {
+    height: calc(100dvh - var(--kl-dock) - 150px - #{$kl-header-alto} - 24px);
+  }
+  min-height: 420px;
+  margin: -.4rem 0 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 50% 18%, #161816 0%, $kl-noche 58%);
+  perspective: 1100px;
+
+  @include desde("xl") {
+    height: calc(100dvh - var(--kl-dock) - #{$kl-header-alto});
+    max-height: 760px;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 48%;
+    background: linear-gradient(transparent, rgba($kl-noche, .92) 72%);
+    pointer-events: none;
+    z-index: 4;
+  }
+
+  &__luz,
+  &__halo,
+  &__suelo {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  &__luz {
+    left: 18%;
+    right: 18%;
+    top: 8%;
+    height: 58%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(#fff, calc(.03 + var(--kl-pulso, 0) * .07)) 0%, transparent 68%);
+    transform: scale(calc(1 + var(--kl-pulso, 0) * .22));
+    filter: blur(2px);
+  }
+
+  &__halo {
+    left: 38%;
+    top: 22%;
+    width: 46%;
+    height: 42%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(#fff, calc(var(--kl-medio, 0) * .08)) 0%, transparent 70%);
+    transform: scale(calc(1 + var(--kl-medio, 0) * .28));
+    filter: blur(8px);
+  }
+
+  &__suelo {
+    left: 50%;
+    bottom: -22%;
+    width: 150%;
+    height: 52%;
+    border-radius: 50%;
+    background:
+      radial-gradient(ellipse at center, rgba(#fff, calc(.035 + var(--kl-pulso, 0) * .08)), transparent 68%);
+    transform: translateX(-50%) scaleY(calc(.9 + var(--kl-pulso, 0) * .16));
+  }
+
+  &__motas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+
+    span {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: rgba(#fff, .7);
+      left: calc(6% + var(--i) * 11%);
+      top: calc(10% + var(--i) * 7%);
+      opacity: calc(.25 + var(--i) * .04);
+    }
+  }
+
+  &__campo {
+    position: absolute;
+    inset: 0 0 18% 0;
+    transform-style: preserve-3d;
+    z-index: 3;
+    // Las portadas "lejanas" (z negativo) quedan detrás del plano del campo:
+    // si el campo recibiera clics, se los robaría a ellas.
+    pointer-events: none;
+  }
+
+  &__vacio {
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    top: 28%;
+    margin: 0;
+    color: $kl-texto-suave;
+  }
+
+  &__pie {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    padding: 5rem 1.25rem 1.35rem;
+    // Las portadas flotan por detrás: un velo desde abajo mantiene el texto legible.
+    background: linear-gradient(0deg, rgba(0, 0, 0, .88) 0%, rgba(0, 0, 0, .6) 55%, transparent 100%);
+    pointer-events: none;
+
+    > * { pointer-events: auto; }
+
+    @include desde("lg") { padding-inline: 1.75rem; }
+
+    h1 {
+      margin: 0 0 .35rem;
+      font-size: clamp(2rem, 4vw, 3.1rem);
+    }
+
+    p {
+      margin: 0;
+      max-width: 42ch;
+      color: rgba(#fff, .82);
+      text-shadow: 0 1px 12px rgba(0, 0, 0, .6);
+    }
+  }
+
+  &__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    margin-top: .9rem;
+  }
+}
+
+.kl-flota {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: var(--capa);
+  width: min(var(--tam), 34vw);
+  display: grid;
+  gap: .35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  will-change: transform;
+
+  img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 14px;
+    background: $kl-sup-3;
+    box-shadow: 0 18px 40px rgba(#000, .5);
+  }
+
+  &__ficha {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% - 1.7rem);
+    display: grid;
+    min-width: 0;
+    padding: .28rem .4rem .32rem;
+    border-radius: 8px;
+    background: rgba($kl-noche, .82);
+    opacity: 0;
+    pointer-events: none;
+
+    strong,
+    small {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    strong {
+      font-size: .74rem;
+      font-weight: 700;
+    }
+
+    small {
+      font-size: .66rem;
+      color: $kl-texto-suave;
+    }
+  }
+
+  &:hover &__ficha,
+  &:focus-visible &__ficha,
+  &.is-sonando &__ficha {
+    opacity: 1;
+  }
+
+  &:hover img,
+  &:focus-visible img {
+    box-shadow:
+      0 0 0 1px rgba(#fff, .7),
+      0 18px 40px rgba(#000, .5);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $kl-menta;
+    outline-offset: 3px;
+  }
+
+  &.is-sonando {
+    z-index: 12;
+
+    img {
+      box-shadow:
+        0 0 0 2px $kl-menta,
+        0 22px 48px rgba(#000, .55),
+        0 0 calc(16px + var(--kl-pulso, 0) * 36px) rgba($kl-menta, .4);
+    }
+  }
+}
+
+@for $n from 1 through list.length($nube) {
+  $p: list.nth($nube, $n);
+
+  .kl-flota:nth-child(#{$n}) {
+    --x: #{list.nth($p, 1)};
+    --y: #{list.nth($p, 2)};
+    --tam: #{list.nth($p, 3)};
+    --dx: #{list.nth($p, 4)};
+    --dy: #{list.nth($p, 5)};
+    --z: #{list.nth($p, 6)};
+    --escala: #{list.nth($p, 7)};
+    --dur: #{list.nth($p, 8)};
+    --empuje: #{list.nth($p, 9)};
+    --giro: #{list.nth($p, 10)};
+    --capa: #{list.nth($p, 11)};
+    --i: #{$n - 1};
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-espacio__luz,
+  .kl-espacio__halo,
+  .kl-espacio__suelo {
+    transform: none;
+  }
+}

@@ -1,0 +1,18 @@
+# Normaliza los finales de linea en el repositorio.
+* text=auto
+
+# Estos archivos los ejecuta Linux dentro del contenedor: siempre LF.
+# Con CRLF el shebang queda como "#!/bin/sh\r" y el contenedor no arranca.
+*.sh text eol=lf
+Dockerfile text eol=lf
+entrypoint.sh text eol=lf
+*.yml text eol=lf
+*.mjs text eol=lf
+
+# Binarios: sin conversion.
+*.woff binary
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.svg text
+*.sqlite3 binary

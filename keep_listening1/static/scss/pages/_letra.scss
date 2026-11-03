@@ -1,0 +1,470 @@
+// ---------------------------------------------------------------------------
+// Pulso del audio, resultados de afuera y la letra (karaoke)
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+:root { --kl-pulso: 0; }
+
+.kl-pulso {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 1035;
+  height: 42vh;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba($kl-menta, calc(var(--kl-pulso) * .34)),
+    transparent 68%
+  );
+}
+
+.kl-player.reproduciendo .kl-player__boton--principal {
+  transform: scale(calc(1 + var(--kl-pulso) * .14));
+}
+
+body.kl-en-vivo .kl-stage {
+  box-shadow:
+    inset 0 0 0 1px rgba($kl-menta, calc(.12 + var(--kl-pulso) * .55)),
+    0 0 calc(10px + var(--kl-pulso) * 42px) rgba($kl-menta, calc(var(--kl-pulso) * .4));
+}
+
+.kl-catalogo {
+  display: grid;
+  gap: .45rem;
+
+  &__tema {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .75rem;
+    width: 100%;
+    padding: .45rem .7rem;
+    border: 0;
+    border-radius: 12px;
+    background: $kl-sup-3;
+    color: $kl-tinta;
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+
+    &:hover { background: $kl-sup-3; }
+
+    img {
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    strong, small { display: block; }
+    strong { @include lineas(1); }
+    small { color: $kl-texto-suave; font-size: .8rem; @include lineas(1); }
+    i { color: $kl-menta; font-size: 1.15rem; }
+  }
+}
+
+button.kl-buscador__item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+// ---------------------------------------------------------------------------
+// Karaoke: el túnel del surco (static/js/karaoke.js).
+// Con letra sincronizada (.tunel) los versos viven en profundidad: el punto de
+// fuga es el disco (--fx / --fy), los que vienen esperan al fondo y el que
+// suena queda al frente, grande como un afiche. Sin sincronía (.libre) la letra
+// es una página en columnas.
+// ---------------------------------------------------------------------------
+$karaoke-curva: cubic-bezier(.22, 1, .36, 1);
+
+.kl-karaoke {
+  --fx: 50%;
+  --fy: 28%;
+  position: relative;
+  overflow: hidden;
+  container-type: inline-size;
+  outline: none;
+
+  &:focus-visible {
+    border-radius: 18px;
+    box-shadow: inset 0 0 0 2px tema(1, .5);
+  }
+
+  &__pista { position: relative; }
+
+  // El fondo y el mapa solo existen en el túnel.
+  &__fondo,
+  &__mapa { display: none; }
+
+  &__linea {
+    position: relative;
+    margin: 0;
+  }
+
+  &__texto { display: inline-block; }
+
+  // Cada palabra se pinta de izquierda a derecha según --p (0 a 1).
+  &__palabra {
+    --p: 0;
+    display: inline-block;
+    transition: transform .35s $karaoke-curva, text-shadow .4s ease, color .3s ease;
+  }
+
+  &__nota,
+  &__aviso {
+    margin: 0 0 1rem;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(#fff, .55);
+  }
+
+  &__aviso {
+    margin: 2rem 0;
+    font-size: 1.1rem;
+    letter-spacing: 0;
+    text-transform: none;
+    color: rgba(#fff, .72);
+  }
+
+  &__chispas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  // Interludio: tres puntos que respiran y se van encendiendo.
+  &__puntos {
+    --avance: 0;
+    position: absolute;
+    display: flex;
+    gap: .55rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .4s ease, transform .75s $karaoke-curva;
+
+    &.visible { opacity: 1; }
+
+    span {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: rgba(#fff, .3);
+      animation: kl-respirar 1.6s ease-in-out infinite;
+
+      &:nth-child(1) { background: rgba(#fff, calc(.3 + min(var(--avance) * 3, 1) * .7)); }
+      &:nth-child(2) { background: rgba(#fff, calc(.3 + clamp(0, var(--avance) * 3 - 1, 1) * .7)); animation-delay: .2s; }
+      &:nth-child(3) { background: rgba(#fff, calc(.3 + clamp(0, var(--avance) * 3 - 2, 1) * .7)); animation-delay: .4s; }
+    }
+  }
+
+  // Estribillo repetido: fantasmas del verso que se alejan.
+  &__eco {
+    position: absolute;
+    inset: 0;
+    color: tema(1, .55);
+    pointer-events: none;
+    animation: kl-e-eco 1.1s ease-out both;
+  }
+}
+
+// --- El túnel -----------------------------------------------------------------
+.kl-karaoke.tunel {
+  touch-action: pan-x;
+
+  // Los surcos del disco se abren desde el punto de fuga y laten con los graves.
+  .kl-karaoke__fondo {
+    display: block;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at var(--fx) var(--fy), rgba(var(--kl-c1), calc(.1 + var(--kl-pulso, 0) * .2)), transparent 34%),
+      repeating-radial-gradient(circle at var(--fx) var(--fy), rgba(#fff, .05) 0 1px, transparent 1px 36px);
+    -webkit-mask-image: radial-gradient(circle at var(--fx) var(--fy), #000 15%, transparent 80%);
+    mask-image: radial-gradient(circle at var(--fx) var(--fy), #000 15%, transparent 80%);
+  }
+
+  // La palabra más larga del verso, gigante y calada, detrás de todo.
+  .kl-karaoke__fantasma {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    font-family: $kl-fuente-display;
+    font-size: clamp(4.5rem, 24cqi, 17rem);
+    font-weight: 800;
+    line-height: .8;
+    letter-spacing: -.05em;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1.5px tema(1, .2);
+    transform: translate(-50%, -50%) scale(calc(1 + var(--kl-pulso, 0) * .06));
+
+    &.cambia { animation: kl-fantasma-entra 1.3s $karaoke-curva both; }
+  }
+
+  .kl-karaoke__pista {
+    position: absolute;
+    inset: 0;
+    perspective: 1000px; // el punto de fuga (perspective-origin) lo mueve karaoke.js
+  }
+
+  .kl-karaoke__linea {
+    position: absolute;
+    top: 42%;
+    left: 7%;
+    right: 9%;
+    font-family: $kl-fuente-display;
+    // Tipografía de afiche: cuanto más corto el verso, más grande.
+    font-size: clamp(1.9rem, calc(290cqi / (var(--largo, 20) + 8)), 7.2rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -.04em;
+    text-align: center;
+    text-wrap: balance;
+    color: rgba(#fff, .55);
+    transform-origin: 50% 50%;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    cursor: pointer;
+    user-select: none;
+    transition: color .5s ease;
+
+    &:hover { color: rgba(#fff, .85); }
+    &.estribillo:not(.activa) { color: tema(2, .7); }
+
+    &.activa {
+      color: rgba(#fff, .3);
+      cursor: default;
+      // Respira con los graves.
+      text-shadow: 0 0 calc(var(--kl-pulso, 0) * 34px) tema(1, .35);
+    }
+
+    @container (max-width: 520px) {
+      left: 4%;
+      right: 12%;
+      font-size: clamp(1.45rem, calc(250cqi / (var(--largo, 20) + 6)), 3.6rem);
+    }
+  }
+
+  .kl-karaoke__linea.activa .kl-karaoke__palabra {
+    background: linear-gradient(
+      90deg,
+      #fff calc(var(--p) * 100% - 4%),
+      rgba(#fff, .3) calc(var(--p) * 100% + 4%)
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+
+    // La palabra que se está cantando se levanta.
+    &.cantando { transform: translateY(-.06em) scale(1.08); }
+    &.dicha { text-shadow: 0 0 22px tema(1, .45); }
+  }
+
+  .kl-karaoke__puntos {
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%) scale(.6);
+
+    &.visible { transform: translate(-50%, -50%) scale(1.5); }
+  }
+
+  // El mapa de la letra: una marca por verso; los estribillos en otro color.
+  .kl-karaoke__mapa {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 3px;
+    position: absolute;
+    top: 8%;
+    right: .35rem;
+    bottom: 8%;
+    z-index: 4;
+    width: 46px;
+    opacity: .55;
+    transition: opacity .3s ease;
+
+    &:hover { opacity: 1; }
+
+    @container (max-width: 520px) { width: 16px; right: .15rem; }
+  }
+
+  .kl-karaoke__marca {
+    flex: 0 1 4px;
+    min-height: 2px;
+    width: calc(8px + var(--largo, 20) * .7px);
+    border-radius: 3px;
+    background: rgba(#fff, .18);
+    cursor: pointer;
+    transform-origin: right center;
+    transition: background .3s ease, transform .3s $karaoke-curva, box-shadow .3s ease;
+
+    @container (max-width: 520px) { width: calc(4px + var(--largo, 20) * .2px); }
+
+    &.estribillo { background: tema(2, .45); }
+    &.pasada { background: rgba(#fff, .45); }
+    &.pasada.estribillo { background: tema(2, .85); }
+    &:hover { background: #fff; transform: scaleX(1.3); }
+
+    &.activa {
+      background: tema(1);
+      box-shadow: 0 0 10px tema(1, .8);
+      transform: scaleX(1.35);
+    }
+  }
+}
+
+// Entradas por verso: cada línea llega distinto según lo que dice.
+.kl-karaoke.tunel .kl-karaoke__linea.activa.entra {
+  &[data-entrada="sube"] .kl-karaoke__palabra {
+    animation: kl-e-sube .7s $karaoke-curva both;
+    animation-delay: calc(var(--k) * 55ms);
+  }
+
+  &[data-entrada="tinta"] .kl-karaoke__palabra {
+    animation: kl-e-tinta .6s cubic-bezier(.65, 0, .35, 1) both;
+    animation-delay: calc(var(--k) * 70ms);
+  }
+
+  &[data-entrada="ola"] .kl-karaoke__palabra {
+    animation: kl-e-ola .9s cubic-bezier(.34, 1.56, .64, 1) both;
+    animation-delay: calc(var(--k) * 45ms);
+  }
+
+  &[data-entrada="desliza"] .kl-karaoke__palabra {
+    animation: kl-e-desliza .65s $karaoke-curva both;
+    animation-delay: calc(var(--k) * 50ms);
+  }
+
+  // Golpe: el verso cae grande y se asienta (y la pantalla se sacude).
+  &[data-entrada="impacto"] .kl-karaoke__texto {
+    animation: kl-e-impacto .6s cubic-bezier(.34, 1.56, .64, 1) both;
+  }
+}
+
+.kl-karaoke.sacudida { animation: kl-sacudida .38s cubic-bezier(.36, .07, .19, .97); }
+
+// Palabras "con imagen": se tiñen cuando se cantan.
+.kl-karaoke.tunel .kl-karaoke__linea.activa .kl-karaoke__palabra.clave.dicha {
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+
+  &[data-motivo="fuego"] { color: #ff9a3c; text-shadow: 0 0 22px rgba(255, 120, 40, .8); }
+  &[data-motivo="corazon"] { color: #ff6f9c; text-shadow: 0 0 22px rgba(255, 92, 138, .7); }
+  &[data-motivo="estrella"] { color: #fff6c8; text-shadow: 0 0 24px rgba(255, 240, 180, .9); }
+  &[data-motivo="gota"] { color: #9fd3ff; text-shadow: 0 0 20px rgba(140, 200, 255, .8); }
+  &[data-motivo="dinero"] { color: #8ff08f; text-shadow: 0 0 20px rgba(120, 230, 120, .7); }
+}
+
+// --- La página (letra sin sincronía) -------------------------------------------
+.kl-karaoke.libre {
+  overflow: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar { display: none; }
+
+  // Como la hoja de un disco: hasta tres columnas anchas, en la letra de
+  // texto (la display es muy ancha para leer de corrido).
+  .kl-karaoke__pista {
+    max-width: 72rem;
+    columns: 19rem 3;
+    column-gap: clamp(2rem, 5cqi, 4rem);
+    padding: .5rem 0 24vh;
+  }
+
+  .kl-karaoke__nota,
+  .kl-karaoke__aviso { column-span: all; }
+
+  .kl-karaoke__linea {
+    margin-bottom: .3em;
+    break-inside: avoid;
+    font-family: $kl-fuente;
+    font-size: clamp(1.05rem, 1.9cqi, 1.4rem);
+    font-weight: 800;
+    line-height: 1.3;
+    letter-spacing: -.005em;
+    text-wrap: pretty;
+    color: rgba(#fff, .86);
+    animation: kl-e-sube .7s $karaoke-curva both;
+    animation-delay: calc(min(var(--i), 40) * 28ms);
+
+    // En la página también se ve la forma del tema: el estribillo resalta.
+    &.estribillo { color: tema(1); }
+    &.estrofa { margin-top: 1.1em; }
+  }
+}
+
+@keyframes kl-respirar {
+  0%, 100% { transform: scale(.85); }
+  50% { transform: scale(1.15); }
+}
+
+@keyframes kl-fantasma-entra {
+  from { opacity: 0; letter-spacing: .12em; transform: translate(-50%, -46%) scale(1.25); }
+  to { opacity: 1; }
+}
+
+@keyframes kl-e-sube {
+  from { opacity: 0; transform: translateY(.75em); filter: blur(10px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes kl-e-tinta {
+  from { clip-path: inset(0 100% 0 0); transform: translateX(-.15em); }
+  to { clip-path: inset(0 0 0 0); transform: none; }
+}
+
+@keyframes kl-e-ola {
+  0% { opacity: 0; transform: translateY(.5em) scale(.8); }
+  40% { opacity: 1; transform: translateY(-.28em) scale(1.06); }
+  70% { transform: translateY(.06em) scale(.99); }
+  100% { transform: none; }
+}
+
+@keyframes kl-e-desliza {
+  from { opacity: 0; transform: translateX(-.9em) skewX(-16deg); filter: blur(4px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes kl-e-impacto {
+  0% { opacity: 0; transform: scale(1.5); letter-spacing: .08em; filter: blur(6px); }
+  55% { opacity: 1; transform: scale(.95); letter-spacing: -.05em; filter: none; }
+  100% { transform: none; }
+}
+
+@keyframes kl-e-eco {
+  from { opacity: .6; transform: scale(1) translateY(0); filter: blur(0); }
+  to { opacity: 0; transform: scale(1.18) translateY(-.35em); filter: blur(6px); }
+}
+
+@keyframes kl-sacudida {
+  10%, 90% { transform: translate(-1px, 0); }
+  20%, 80% { transform: translate(3px, -1px); }
+  30%, 50%, 70% { transform: translate(-5px, 1px); }
+  40%, 60% { transform: translate(5px, -1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-karaoke .kl-karaoke__linea,
+  .kl-karaoke .kl-karaoke__palabra,
+  .kl-karaoke .kl-karaoke__texto,
+  .kl-karaoke .kl-karaoke__fantasma,
+  .kl-karaoke.sacudida,
+  .kl-karaoke__eco,
+  .kl-karaoke__puntos span { animation: none !important; }
+  .kl-karaoke__puntos { transition: none; }
+}

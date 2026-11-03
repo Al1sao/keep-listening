@@ -1,0 +1,28 @@
+{# Fila de cancion para listas. Parametros: cancion, indice (opcional) #}
+<div class="kl-fila-tema" data-tema="{{ cancion.id }}">
+    <span class="kl-fila-tema__indice">{{ indice|default:"" }}</span>
+    <img class="kl-fila-tema__portada" src="{{ cancion.portada_url }}" alt="" loading="lazy">
+    <div class="kl-fila-tema__datos">
+        <a class="kl-fila-tema__titulo" href="{{ cancion.get_absolute_url }}">{{ cancion.titulo }}</a>
+        <div class="kl-fila-tema__sub">
+            <a href="{% url 'usuarios:perfil_publico' cancion.artista.username %}">{{ cancion.artista.username }}</a>
+            {% if cancion.genero %}· {{ cancion.genero.nombre }}{% endif %}
+            {% if cancion.album %}· {{ cancion.album.titulo }}{% endif %}
+        </div>
+    </div>
+    <div class="kl-fila-tema__acciones">
+        <span class="kl-texto-suave d-none d-md-inline">{{ cancion.duracion }}</span>
+        {% if user.is_authenticated %}
+            <button class="kl-fav kl-fav--sm {% if cancion.id in favoritos_ids %}guardada{% endif %}"
+                    type="button" data-favorito="{{ cancion.id }}"
+                    aria-pressed="{% if cancion.id in favoritos_ids %}true{% else %}false{% endif %}"
+                    aria-label="Guardar {{ cancion.titulo }} en mi lista">
+                <i class="bi {% if cancion.id in favoritos_ids %}bi-heart-fill{% else %}bi-heart{% endif %}" aria-hidden="true"></i>
+            </button>
+        {% endif %}
+        <button class="kl-play kl-play--sm" type="button" data-reproducir="{{ cancion.id }}"
+                aria-label="Reproducir {{ cancion.titulo }}">
+            <i class="bi bi-play-fill" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>

@@ -1,0 +1,68 @@
+// ---------------------------------------------------------------------------
+// Utilidades propias generadas con bucles (SCSS dinamico)
+// ---------------------------------------------------------------------------
+
+@use "sass:map";
+@use "../abstracts" as *;
+
+// Espaciados propios: solo los que usan los templates (si hace falta otro, va acá).
+.kl-mt-2 { margin-top: 1rem !important; }
+.kl-mt-4 { margin-top: 2rem !important; }
+.kl-mt-6 { margin-top: 3rem !important; }
+.kl-mb-2 { margin-bottom: 1rem !important; }
+
+.kl-solo-lectores { @include oculto-visualmente; }
+
+.kl-grilla { @include grilla(180px); }
+.kl-grilla-ancha { @include grilla(240px); }
+
+.kl-vacio {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: $kl-texto-suave;
+
+  svg, .kl-vacio-icono {
+    font-size: 2.5rem;
+    opacity: .5;
+    margin-bottom: .75rem;
+  }
+}
+
+// Animaciones
+@keyframes kl-aparecer {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes kl-pulso {
+  0%, 100% { transform: scaleY(.35); }
+  50% { transform: scaleY(1); }
+}
+
+
+// ---------------------------------------------------------------------------
+// Salto al contenido: invisible hasta que se navega con el teclado.
+// No se usa display:none ni width:0 porque eso lo sacaria del orden de foco.
+// ---------------------------------------------------------------------------
+.kl-saltar {
+  position: absolute;
+  left: .5rem;
+  top: -5rem;            // fuera de la vista, pero dentro del orden de foco
+  z-index: 2000;
+  padding: .7rem 1.1rem;
+  border-radius: $kl-radio-sm;
+  background: $kl-verde-800;
+  color: $kl-texto-claro;
+  font-weight: 700;
+  box-shadow: $kl-sombra;
+  transition: top $kl-transicion;
+
+  &:focus,
+  &:focus-visible {
+    top: .5rem;
+    color: $kl-texto-claro;
+  }
+}
+
+// El <main> recibe foco al saltar, pero no debe dibujar un recuadro.
+.kl-main:focus { outline: none; }

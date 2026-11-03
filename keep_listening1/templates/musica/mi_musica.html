@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Tu colección{% endblock %}
+
+{% block contenido %}
+<header class="kl-coleccion__cabeza">
+    <div>
+        <span class="kl-eyebrow">Tu colección</span>
+        <h1>{{ user.username }}, esto es<br>lo que guardaste</h1>
+    </div>
+    <ul class="kl-coleccion__cifras" aria-label="Resumen">
+        <li><strong>{{ total_discos }}</strong><span>disco{{ total_discos|pluralize }}</span></li>
+        <li><strong>{{ publicaciones|length }}</strong><span>publicados</span></li>
+        {% if pendientes %}<li><strong>{{ pendientes }}</strong><span>en revisión</span></li>{% endif %}
+    </ul>
+</header>
+
+<div class="kl-tabs" role="tablist" aria-label="Secciones de tu colección">
+    <button class="kl-tabs__item activo" type="button" data-tab="batea" role="tab" aria-selected="true" aria-controls="tab-batea">
+        <i class="bi bi-vinyl" aria-hidden="true"></i> La batea
+    </button>
+    {% if favoritos or historial %}
+        <button class="kl-tabs__item" type="button" data-tab="propios" role="tab" aria-selected="false" aria-controls="tab-propios">
+            <i class="bi bi-music-note-list" aria-hidden="true"></i> De la comunidad
+        </button>
+    {% endif %}
+    <button class="kl-tabs__item" type="button" data-tab="publicaciones" role="tab" aria-selected="false" aria-controls="tab-publicaciones">
+        <i class="bi bi-cloud-arrow-up" aria-hidden="true"></i> Tus publicaciones
+        {% if pendientes %}<span class="kl-badge kl-badge--pendiente">{{ pendientes }}</span>{% endif %}
+    </button>
+</div>
+
+{# ---- La batea: los discos parados, se hojean ---- #}
+<section class="kl-tab-panel activo" id="tab-batea" role="tabpanel" aria-label="La batea">
+    {% if coleccion %}
+        {{ coleccion|json_script:"kl-coleccion" }}
+        <div class="kl-batea" id="kl-batea" data-lista="kl-coleccion">
+            <div class="kl-batea__cajon" id="kl-batea-cajon" role="listbox" tabindex="0"
+                 aria-label="Tus discos. Flechas para hojear, Enter para escuchar."
+                 aria-activedescendant="kl-disco-0">
+                {% for pista in coleccion %}
+                    <button class="kl-batea__disco" type="button" role="option" id="kl-disco-{{ forloop.counter0 }}"
+                            data-catalogo="{{ pista.id }}" data-tema="{{ pista.id }}" data-indice="{{ forloop.counter0 }}"
+                            tabindex="-1" aria-label="{{ pista.titulo }}, de {{ pista.artista }}">
+                        <img src="{{ pista.portada }}" alt="" width="300" height="300" loading="lazy" decoding="async">
+                    </button>
+                {% endfor %}
+            </div>
+            <div class="kl-batea__ficha" aria-live="polite">
+                <p class="kl-batea__contador"><span id="kl-batea-numero">1</span> / {{ coleccion|length }}</p>
+                <h2 id="kl-batea-titulo">{{ coleccion.0.titulo }}</h2>
+                <p id="kl-batea-artista">{{ coleccion.0.artista }}</p>
+                <div class="kl-batea__acciones">
+                    <button class="kl-btn" type="button" id="kl-batea-play"><i class="bi bi-play-fill" aria-hidden="true"></i> Escuchar</button>
+                    <button class="kl-btn kl-btn--fantasma" type="button" data-reproducir-escena="kl-coleccion">
+                        <i class="bi bi-collection-play" aria-hidden="true"></i> Toda la batea
+                    </button>
+                </div>
+                <p class="kl-batea__ayuda">Rueda del mouse, arrastrar o flechas para hojear</p>
+            </div>
+        </div>
+    {% else %}
+        <div class="kl-coleccion__vacia">
+            <div class="kl-vinilo" data-estilo="0" aria-hidden="true"><div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div></div>
+            <div>
+                <h2>La batea está vacía</h2>
+                <p>Mientras suena un tema, tocá el <i class="bi bi-heart-fill" aria-hidden="true"></i> y queda guardado acá.</p>
+                <a class="kl-btn" href="{% url 'musica:explorar' %}"><i class="bi bi-compass" aria-hidden="true"></i> Ir a Explorar</a>
+            </div>
+        </div>
+    {% endif %}
+</section>
+
+{# ---- Temas de la comunidad guardados + historial ---- #}
+{% if favoritos or historial %}
+<section class="kl-tab-panel" id="tab-propios" role="tabpanel" aria-label="De la comunidad">
+    {% if favoritos %}
+        <div class="kl-titulo-seccion">
+            <h2>Guardados</h2>
+            <button class="kl-btn kl-btn--sm" type="button" data-reproducir-todo><i class="bi bi-play-fill" aria-hidden="true"></i> Reproducir</button>
+        </div>
+        {% for favorito in favoritos %}
+            {% include "partials/_fila_tema.html" with cancion=favorito.cancion indice=forloop.counter %}
+        {% endfor %}
+    {% endif %}
+    {% if historial %}
+        <h2 class="kl-mt-4">Lo que sonó</h2>
+        <ol class="kl-surco-historial">
+            {% for reproduccion in historial %}
+                <li data-tema="{{ reproduccion.cancion.id }}">
+                    <img src="{{ reproduccion.cancion.portada_url }}" alt="" width="40" height="40" loading="lazy">
+                    <span><a href="{{ reproduccion.cancion.get_absolute_url }}">{{ reproduccion.cancion.titulo }}</a>
+                        <small>{{ reproduccion.cancion.artista.username }}</small></span>
+                    <time datetime="{{ reproduccion.fecha|date:'c' }}">{{ reproduccion.fecha|timesince }}</time>
+                    <button class="kl-play kl-play--sm" type="button" data-reproducir="{{ reproduccion.cancion.id }}" aria-label="Reproducir {{ reproduccion.cancion.titulo }}">
+                        <i class="bi bi-play-fill" aria-hidden="true"></i>
+                    </button>
+                </li>
+            {% endfor %}
+        </ol>
+    {% endif %}
+</section>
+{% endif %}
+
+{# ---- Publicaciones ---- #}
+<section class="kl-tab-panel" id="tab-publicaciones" role="tabpanel" aria-label="Tus publicaciones">
+    <div class="kl-titulo-seccion">
+        <h2>Tus publicaciones</h2>
+        <a class="kl-btn kl-btn--sm" href="{% url 'musica:subir_cancion' %}"><i class="bi bi-plus-lg" aria-hidden="true"></i> Subir un tema</a>
+    </div>
+    {% for cancion in publicaciones %}
+        <div class="kl-publicacion kl-mb-2">
+            <img class="kl-publicacion__portada" src="{{ cancion.portada_url }}" alt="" width="56" height="56" loading="lazy">
+            <div>
+                <a class="kl-fila-tema__titulo" href="{{ cancion.get_absolute_url }}">{{ cancion.titulo }}</a>
+                <div class="kl-fila-tema__sub">
+                    {{ cancion.genero.nombre|default:"Sin género" }} · {{ cancion.get_tipo_display }} · {{ cancion.fecha_subida|date:"d/m/Y" }}
+                </div>
+            </div>
+            <div class="kl-fila-tema__acciones">
+                <span class="kl-badge kl-badge--{{ cancion.estado|clase_estado }}">{{ cancion.get_estado_display }}</span>
+                <a class="kl-btn kl-btn--fantasma kl-btn--sm" href="{% url 'musica:editar_cancion' cancion.slug %}" aria-label="Editar {{ cancion.titulo }}">
+                    <i class="bi bi-pencil" aria-hidden="true"></i>
+                </a>
+            </div>
+            {% if cancion.motivo_rechazo %}
+                <p class="kl-publicacion__motivo"><i class="bi bi-exclamation-circle" aria-hidden="true"></i> {{ cancion.motivo_rechazo }}</p>
+            {% endif %}
+        </div>
+    {% empty %}
+        <div class="kl-coleccion__vacia">
+            <div class="kl-vinilo" data-estilo="1" aria-hidden="true"><div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div></div>
+            <div>
+                <h2>Todavía no publicaste</h2>
+                <p>Subí tu tema: lo revisamos y queda para que lo escuche todo el mundo.</p>
+                <a class="kl-btn" href="{% url 'musica:subir_cancion' %}"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i> Publicar mi primer tema</a>
+            </div>
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}
+
+{% block js_extra %}
+<script src="{% estatico 'js/coleccion.js' %}" data-pagina></script>
+{% endblock %}

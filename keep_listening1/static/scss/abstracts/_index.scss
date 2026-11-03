@@ -1,0 +1,9 @@
+// ---------------------------------------------------------------------------
+// Fachada de los abstracts.
+//
+// Los parciales escriben `@use "../abstracts" as *;` y con eso tienen las
+// variables, funciones y mixins de la marca. No emite ningun CSS.
+// ---------------------------------------------------------------------------
+@forward "variables";
+@forward "funciones";
+@forward "mixins";

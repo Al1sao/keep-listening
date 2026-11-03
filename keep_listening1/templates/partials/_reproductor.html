@@ -1,0 +1,113 @@
+{% comment %}
+    "La bandeja": el reproductor fijo.
+      - Plato: la tapa es la etiqueta de un vinilo que se agarra y se gira para
+        adelantar o retroceder (con el tono, como un tocadiscos). Un toque abre
+        "Ahora suena".
+      - Mapa del tema: la huella real del audio, con marcas donde empieza cada
+        verso y los estribillos resaltados. Al pasar se ve el verso de ese punto.
+      - Perilla de volumen y la bandeja con los próximos discos.
+    Los ids kl-player-* los usa reproductor.js; lo nuevo vive en bandeja.js.
+{% endcomment %}
+<div class="kl-player kl-bandeja" id="kl-player">
+    <div class="kl-bandeja__fila">
+
+        {# ---- Plato ---- #}
+        <div class="kl-bandeja__tema">
+            <div class="kl-bandeja__plato">
+                <button class="kl-bandeja__disco" id="kl-bandeja-disco" type="button" data-abrir-estudio
+                        aria-label="Abrir Ahora suena. Arrastrá el disco en círculo para adelantar o retroceder.">
+                    <span class="kl-vinilo kl-bandeja__vinilo" id="kl-bandeja-vinilo" data-estilo="0" aria-hidden="true">
+                        <span class="kl-vinilo__giro" id="kl-bandeja-giro">
+                            <img class="kl-bandeja__sello" id="kl-player-portada" alt="" width="52" height="52" crossorigin="anonymous"
+                                 src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+                        </span>
+                    </span>
+                </button>
+                <svg class="kl-bandeja__brazo" viewBox="0 0 40 60" aria-hidden="true" focusable="false">
+                    <circle cx="30" cy="8" r="6"/>
+                    <path d="M30 8 L30 34 Q30 42 22 48" fill="none" stroke-width="3" stroke-linecap="round"/>
+                    <rect x="16" y="45" width="10" height="7" rx="2" transform="rotate(35 21 48)"/>
+                </svg>
+            </div>
+            <button class="kl-player__datos" type="button" data-abrir-estudio aria-describedby="kl-player-datos-ayuda">
+                <strong id="kl-player-titulo">Nada en reproducción</strong>
+                <span id="kl-player-artista">Elegí un tema</span>
+            </button>
+            <span class="kl-solo-lectores" id="kl-player-datos-ayuda">Abre Ahora suena</span>
+            <button class="kl-fav kl-fav--sm d-none d-sm-grid" id="kl-player-fav" type="button" aria-label="Me gusta">
+                <i aria-hidden="true" class="bi bi-heart"></i>
+            </button>
+        </div>
+
+        {# ---- Controles + mapa ---- #}
+        <div class="kl-bandeja__centro">
+            <div class="kl-player__botones">
+                <button class="kl-player__boton" id="kl-player-aleatorio" type="button" aria-pressed="false" aria-label="Aleatorio">
+                    <i aria-hidden="true" class="bi bi-shuffle"></i>
+                </button>
+                <button class="kl-player__boton" id="kl-player-anterior" type="button" aria-label="Anterior">
+                    <i aria-hidden="true" class="bi bi-skip-start-fill"></i>
+                </button>
+                <button class="kl-player__boton kl-player__boton--principal" id="kl-player-play" type="button" aria-label="Reproducir">
+                    <i aria-hidden="true" class="bi bi-play-fill"></i>
+                </button>
+                <button class="kl-player__boton" id="kl-player-siguiente" type="button" aria-label="Siguiente">
+                    <i aria-hidden="true" class="bi bi-skip-end-fill"></i>
+                </button>
+                <button class="kl-player__boton" id="kl-player-repetir" type="button" aria-pressed="false" aria-label="Repetir">
+                    <i aria-hidden="true" class="bi bi-repeat"></i>
+                </button>
+            </div>
+
+            <div class="kl-mapa" id="kl-mapa">
+                <span class="kl-mapa__tiempo" id="kl-player-actual">0:00</span>
+                <div class="kl-mapa__pista">
+                    <canvas class="kl-mapa__lienzo" id="kl-mapa-lienzo" aria-hidden="true"></canvas>
+                    {# El range queda encima (invisible): teclado, lectores de pantalla y arrastre nativo. #}
+                    <input type="range" class="kl-mapa__barra" id="kl-player-barra" value="0" min="0" max="100" step="0.1"
+                           aria-label="Progreso de la canción">
+                    <div class="kl-mapa__globo" id="kl-mapa-globo" aria-hidden="true">
+                        <strong></strong><span></span>
+                    </div>
+                </div>
+                <span class="kl-mapa__tiempo" id="kl-player-total">0:00</span>
+                <button class="kl-mapa__estribillo" id="kl-mapa-estribillo" type="button" hidden>
+                    <i class="bi bi-arrow-return-right" aria-hidden="true"></i> Estribillo
+                </button>
+            </div>
+        </div>
+
+        {# ---- Perilla, letra, bandeja de próximos ---- #}
+        <div class="kl-bandeja__extras">
+            <button class="kl-player__boton" id="kl-player-letra" type="button" data-abrir-letra aria-label="Ver la letra">
+                <i aria-hidden="true" class="bi bi-chat-quote"></i>
+            </button>
+            <div class="kl-perilla" id="kl-perilla" role="slider" tabindex="0" aria-label="Volumen"
+                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="80" aria-valuetext="80 %">
+                <span class="kl-perilla__aro" aria-hidden="true"></span>
+                <span class="kl-perilla__tapa" aria-hidden="true"><span class="kl-perilla__marca"></span></span>
+                <span class="kl-perilla__valor" aria-hidden="true">80%</span>
+            </div>
+            <button class="kl-player__boton kl-bandeja__silencio" id="kl-player-silencio" type="button" aria-pressed="false" aria-label="Silenciar">
+                <i aria-hidden="true" class="bi bi-volume-up-fill"></i>
+            </button>
+            {# El range de volumen sigue existiendo: la perilla lo mueve y reproductor.js lo escucha. #}
+            <input type="range" class="kl-solo-lectores" id="kl-player-volumen" min="0" max="1" step="0.01" value="0.8"
+                   tabindex="-1" aria-hidden="true">
+            <button class="kl-bandeja__siguen" id="kl-bandeja-siguen" type="button" data-bs-toggle="offcanvas" data-bs-target="#klCola"
+                    aria-label="Ver cola de reproducción">
+                <span class="kl-bandeja__pila" id="kl-bandeja-pila" aria-hidden="true"></span>
+                <i aria-hidden="true" class="bi bi-music-note-list"></i>
+            </button>
+        </div>
+    </div>
+    <audio id="kl-audio" preload="metadata"></audio>
+</div>
+
+<div class="offcanvas offcanvas-end kl-offcanvas" tabindex="-1" id="klCola" aria-labelledby="klColaTitulo">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title h5" id="klColaTitulo">Cola de reproducción</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar"></button>
+    </div>
+    <div class="offcanvas-body kl-player__cola" id="kl-cola-lista"></div>
+</div>

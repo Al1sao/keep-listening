@@ -1,0 +1,71 @@
+{% extends "usuarios/_base_cuenta.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Entrar{% endblock %}
+
+{% block escena %}
+    <div class="kl-cuenta__plato">
+        <div class="kl-vinilo girando kl-cuenta__vinilo" data-estilo="5">
+            <div class="kl-vinilo__giro"><span class="kl-vinilo__sello kl-cuenta__sello">{% include "partials/_logo.html" with sufijo="cuenta" %}</span></div>
+        </div>
+        <svg class="kl-cuenta__brazo" viewBox="0 0 40 60" focusable="false">
+            <circle cx="30" cy="8" r="6"/>
+            <path d="M30 8 L30 34 Q30 42 22 48" fill="none" stroke-width="3" stroke-linecap="round"/>
+            <rect x="16" y="45" width="10" height="7" rx="2" transform="rotate(35 21 48)"/>
+        </svg>
+    </div>
+    <div class="kl-cuenta__leyenda">
+        <small>Lado A</small>
+        <strong>Tu colección te espera</strong>
+        <span>Tus me gusta, tu estante y la letra en vivo, donde los dejaste.</span>
+    </div>
+{% endblock %}
+
+{% block formulario %}
+    <p class="kl-sesion__eyebrow">Tu cuenta</p>
+    <h1>Entrá y<br>seguí escuchando</h1>
+    <p class="kl-sesion__bajada">Con tu usuario o tu correo.</p>
+
+    <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <p class="kl-sesion__error" role="alert">{% for error in form.non_field_errors %}{{ error }}{% endfor %}</p>
+        {% endif %}
+
+        <div class="kl-flotante">
+            {{ form.username|flotante }}
+            <label for="{{ form.username.id_for_label }}">Usuario o correo</label>
+            <i class="bi bi-person" aria-hidden="true"></i>
+        </div>
+        {% for error in form.username.errors %}<p class="kl-form__error" id="{{ form.username.auto_id }}-error">{{ error }}</p>{% endfor %}
+
+        <div class="kl-flotante">
+            {{ form.password|flotante }}
+            <label for="{{ form.password.id_for_label }}">Contraseña</label>
+            <button class="kl-flotante__ver" type="button" data-ver-password aria-label="Mostrar contraseña" aria-pressed="false">
+                <i class="bi bi-eye" aria-hidden="true"></i>
+            </button>
+        </div>
+        {% for error in form.password.errors %}<p class="kl-form__error" id="{{ form.password.auto_id }}-error">{{ error }}</p>{% endfor %}
+
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+
+        <button class="kl-sesion__entrar" type="submit">
+            <span class="kl-sesion__entrar-icono"><i class="bi bi-play-fill" aria-hidden="true"></i></span>
+            <span>Entrar</span>
+        </button>
+    </form>
+
+    <div class="kl-sesion__o"><span>o poné otro disco</span></div>
+    {% url 'musica:home' as inicio %}
+    {% include "partials/_plataformas.html" with siguiente=next|default:inicio texto="Entrar" %}
+
+    <div class="kl-sesion__o"><span>¿Primera vez?</span></div>
+    <a class="kl-sesion__registro" href="{% url 'usuarios:registro' %}{% if next %}?next={{ next|urlencode }}{% endif %}">
+        Crear una cuenta gratis <i class="bi bi-arrow-right" aria-hidden="true"></i>
+    </a>
+
+    {% if debug %}
+        <p class="kl-sesion__demo">Cuentas de prueba: <code>sophia</code> · <code>Usuario1234</code> — admin: <code>admin</code> · <code>Admin1234</code></p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,107 @@
+// ---------------------------------------------------------------------------
+// Barra superior: avatar y contador del carrito (la barra en sí es .kl-top,
+// en _shell.scss) y el menú lateral del celular.
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+.kl-header {
+  &__avatar {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: $kl-verde-600;
+    color: $kl-noche;
+    font-size: .78rem;
+    font-weight: 800;
+    object-fit: cover;
+  }
+
+  &__contador {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 19px;
+    height: 19px;
+    padding-inline: 4px;
+    display: grid;
+    place-items: center;
+    font-size: .68rem;
+    font-weight: 800;
+    color: $kl-verde-900;
+    background: $kl-ambar;
+    border-radius: $kl-radio-pill;
+
+    &[data-cantidad="0"] { display: none; }
+  }
+}
+
+.kl-offcanvas {
+  background: $kl-verde-800;
+  color: $kl-texto-claro;
+
+  .offcanvas-title { color: $kl-texto-claro; font-weight: 800; }
+  .btn-close { filter: invert(1) grayscale(1) brightness(2); }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    width: 100%;
+    padding: .7rem .9rem;
+    border: 0;
+    border-radius: $kl-radio-sm;
+    background: none;
+    color: rgba($kl-texto-claro, .9);
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+
+    &:hover,
+    &.activo {
+      background: rgba(#fff, .12);
+      color: #fff;
+    }
+  }
+
+  &__seccion {
+    margin: 1.25rem 0 .5rem;
+    font-size: .72rem;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: rgba($kl-texto-claro, .55);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Buscador dentro del menu lateral (unico acceso a la busqueda en mobile)
+// ---------------------------------------------------------------------------
+.kl-offcanvas__buscar {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: 1.2rem;
+  padding: .55rem .9rem;
+  border-radius: $kl-radio-pill;
+  background: rgba(#fff, .12);
+  color: $kl-texto-claro;
+
+  &:focus-within {
+    outline: 3px solid rgba($kl-verde-300, .7);
+    outline-offset: 2px;
+  }
+
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    color: $kl-texto-claro;
+    font-size: .92rem;
+
+    &:focus { outline: none; }
+    &::placeholder { color: rgba($kl-texto-claro, .65); }
+  }
+}

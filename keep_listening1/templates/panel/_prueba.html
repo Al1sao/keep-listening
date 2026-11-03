@@ -1,0 +1,48 @@
+{% comment %}
+Una canción en revisión como "test pressing": el disco de prueba en su
+funda blanca que el sello aprueba antes de prensar. Al aprobar o rechazar,
+app.js estampa el sello sobre la funda.
+Parámetros: cancion, completo (muestra álbum, estado, motivo, rechazar y eliminar).
+{% endcomment %}
+{% load kl_extras %}
+<article class="kl-revision" data-revision="{{ cancion.slug }}">
+    <a class="kl-revision__funda" href="{% url 'panel:detalle_cancion' cancion.slug %}" tabindex="-1" aria-hidden="true">
+        <span class="kl-revision__disco"><img src="{{ cancion.portada_url }}" alt="" loading="lazy" width="72" height="72"></span>
+        <span class="kl-revision__rotulo">Test<br>pressing</span>
+    </a>
+    <div class="kl-revision__datos">
+        <a class="kl-revision__titulo" href="{% url 'panel:detalle_cancion' cancion.slug %}">{{ cancion.titulo }}</a>
+        <div class="kl-revision__meta">
+            <span><i class="bi bi-person" aria-hidden="true"></i> {{ cancion.artista.username }}</span>
+            <span><i class="bi bi-music-note-beamed" aria-hidden="true"></i> {{ cancion.genero.nombre|default:"Sin género" }}</span>
+            {% if completo %}<span><i class="bi bi-disc" aria-hidden="true"></i> {% if cancion.album %}{{ cancion.album.titulo }}{% else %}Sencillo{% endif %}</span>{% endif %}
+            <span><i class="bi bi-clock" aria-hidden="true"></i> <time datetime="{{ cancion.fecha_subida|date:'c' }}">{{ cancion.fecha_subida|date:"d/m/Y H:i" }}</time></span>
+            {% if completo %}<span class="kl-badge kl-badge--{{ cancion.estado|clase_estado }}">{{ cancion.get_estado_display }}</span>{% endif %}
+        </div>
+        {% if completo and cancion.motivo_rechazo %}<p class="kl-publicacion__motivo">Motivo: {{ cancion.motivo_rechazo }}</p>{% endif %}
+    </div>
+    <div class="kl-revision__acciones">
+        <a class="kl-btn kl-btn--fantasma kl-btn--sm" href="{% url 'panel:detalle_cancion' cancion.slug %}">
+            <i class="bi bi-headphones" aria-hidden="true"></i> Escuchar
+        </a>
+        {% if cancion.estado != 'APROBADA' %}
+            <button class="kl-btn kl-btn--sm" type="button" data-aprobar="{% url 'panel:aprobar_cancion' cancion.slug %}">
+                <i class="bi bi-check-lg" aria-hidden="true"></i> Aprobar
+            </button>
+        {% endif %}
+        {% if completo and cancion.estado != 'RECHAZADA' %}
+            <button class="kl-btn kl-btn--fantasma kl-btn--sm" type="button"
+                    data-rechazar="{% url 'panel:rechazar_cancion' cancion.slug %}" data-titulo="{{ cancion.titulo }}">
+                <i class="bi bi-x-lg" aria-hidden="true"></i> Rechazar
+            </button>
+        {% endif %}
+        {% if completo %}
+            <form method="post" action="{% url 'panel:eliminar_cancion' cancion.slug %}"
+                  data-confirmar="¿Eliminar definitivamente &quot;{{ cancion.titulo }}&quot;?">
+                {% csrf_token %}
+                <button class="kl-btn kl-btn--peligro kl-btn--sm" type="submit" aria-label="Eliminar {{ cancion.titulo }}"><i class="bi bi-trash" aria-hidden="true"></i></button>
+            </form>
+        {% endif %}
+    </div>
+    <span class="kl-revision__sello" aria-hidden="true"></span>
+</article>

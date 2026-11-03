@@ -1,0 +1,28 @@
+{# Paginacion conservando los filtros activos de la query string #}
+{% if pagina.paginator.num_pages > 1 %}
+<nav class="kl-paginacion" aria-label="Paginación">
+    {% if pagina.has_previous %}
+        <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ pagina.previous_page_number }}" aria-label="Anterior">
+            <i class="bi bi-chevron-left" aria-hidden="true"></i>
+        </a>
+    {% else %}
+        <span class="deshabilitada" aria-hidden="true"><i class="bi bi-chevron-left" aria-hidden="true"></i></span>
+    {% endif %}
+
+    {% for numero in pagina.paginator.page_range %}
+        {% if numero == pagina.number %}
+            <span class="activa" aria-current="page">{{ numero }}</span>
+        {% elif numero > pagina.number|add:"-3" and numero < pagina.number|add:"3" %}
+            <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ numero }}">{{ numero }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if pagina.has_next %}
+        <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ pagina.next_page_number }}" aria-label="Siguiente">
+            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+        </a>
+    {% else %}
+        <span class="deshabilitada" aria-hidden="true"><i class="bi bi-chevron-right" aria-hidden="true"></i></span>
+    {% endif %}
+</nav>
+{% endif %}

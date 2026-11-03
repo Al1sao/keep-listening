@@ -1,0 +1,990 @@
+// ---------------------------------------------------------------------------
+// Panel de administración: "la consola".
+// La sala se administra como una mesa de mezcla: cada sección es un canal con
+// su LED, las métricas son medidores (que además laten con lo que suena), la
+// actividad es el bus master y cada tema en revisión es un test pressing que
+// se aprueba con un sello, como en una disquería de verdad.
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+$consola-curva: cubic-bezier(.22, 1, .36, 1);
+$led-verde: #7dffb2;
+$led-ambar: #f3c14b;
+$led-rojo: #ff6b5b;
+
+// La consola vive entre la barra de la app y el panel "Ahora": su ancho real
+// no depende de la ventana. Todo el panel responde al ancho de su contenedor.
+@mixin consola-desde($ancho) {
+  @container consola (min-width: #{$ancho}) { @content; }
+}
+
+// --- Estructura -------------------------------------------------------------
+// Angosta: los canales son una fila desplazable arriba. Ancha: una tira al costado.
+.kl-consola {
+  container: consola / inline-size;
+
+  &__marco {
+    display: grid;
+    gap: 1.5rem;
+
+    > * { min-width: 0; }
+
+    @include consola-desde(880px) {
+      grid-template-columns: 220px minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  &__canales {
+    padding: .6rem;
+    border-radius: 22px;
+    background: linear-gradient(180deg, $kl-sup-2, $kl-sup-1);
+    box-shadow: inset 0 0 0 1px $kl-linea;
+
+    @include consola-desde(880px) {
+      position: sticky;
+      top: calc(#{$kl-header-alto} + 1rem);
+      padding: 1rem .75rem;
+    }
+  }
+
+  &__marca {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    margin: 0 .5rem .9rem;
+    font-family: $kl-fuente-display;
+    font-size: .72rem;
+    font-weight: 800;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    color: $kl-texto-suave;
+
+    span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: $led-rojo;
+      box-shadow: 0 0 10px $led-rojo;
+    }
+
+    display: none;
+
+    @include consola-desde(880px) { display: flex; }
+  }
+
+  &__nav {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    gap: .2rem;
+    overflow-x: auto;
+    padding-bottom: .2rem;
+    @include scrollbar(4px);
+
+    @include consola-desde(880px) {
+      grid-auto-flow: row;
+      grid-auto-columns: auto;
+      overflow: visible;
+      padding-bottom: 0;
+    }
+  }
+
+  &__canal {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .6rem .75rem .6rem 1.6rem;
+    border-radius: 12px;
+    color: $kl-texto-suave;
+    font-size: .9rem;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: background $kl-transicion, color $kl-transicion;
+
+    // El LED del canal.
+    &::before {
+      content: "";
+      position: absolute;
+      left: .7rem;
+      top: 50%;
+      width: 6px;
+      height: 6px;
+      margin-top: -3px;
+      border-radius: 50%;
+      background: $kl-sup-4;
+      transition: background $kl-transicion, box-shadow $kl-transicion;
+    }
+
+    i { width: 18px; text-align: center; }
+
+    &:hover { background: rgba(#fff, .05); color: $kl-tinta; }
+
+    &.activo {
+      background: tema(1, .1);
+      color: $kl-tinta;
+
+      &::before {
+        background: tema(1);
+        box-shadow: 0 0 10px tema(1);
+      }
+    }
+
+    .kl-badge { margin-left: auto; }
+
+    // Algo espera revisión: el LED titila en ámbar.
+    &:has(.kl-badge--pendiente)::before {
+      background: $led-ambar;
+      box-shadow: 0 0 8px $led-ambar;
+      animation: kl-led-titila 1.6s steps(2, jump-none) infinite;
+    }
+
+    &--aux { font-weight: 600; font-size: .84rem; }
+  }
+
+  &__separador {
+    width: 1px;
+    margin: .3rem .2rem;
+    background: $kl-linea;
+
+    @include consola-desde(880px) { width: auto; height: 1px; margin: .6rem .5rem; }
+  }
+
+  &__mesa > * + * { margin-top: 0; }
+
+  // Filtros + búsqueda en una sola línea.
+  &__barra {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 1.25rem;
+
+    .kl-filtros { margin-bottom: 0; }
+  }
+
+  &__buscar {
+    position: relative;
+    flex: 1 1 220px;
+    max-width: 340px;
+
+    i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: $kl-texto-suave;
+      pointer-events: none;
+    }
+
+    .kl-input { padding-left: 2.6rem; border-radius: $kl-radio-pill; }
+  }
+
+  &__grilla {
+    display: grid;
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+
+    @include consola-desde(640px) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    &--lateral {
+      @include consola-desde(640px) { grid-template-columns: 1fr; }
+      @include consola-desde(1000px) { grid-template-columns: minmax(0, 1fr) 320px; align-items: start; }
+    }
+  }
+}
+
+@keyframes kl-led-titila {
+  50% { opacity: .25; }
+}
+
+// --- Canales: una tira de LEDs por métrica --------------------------------
+.kl-canales {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: .75rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.kl-canal {
+  a {
+    display: grid;
+    grid-template-columns: 14px 1fr;
+    gap: .85rem;
+    height: 100%;
+    padding: 1rem .95rem;
+    border-radius: 18px;
+    background: $kl-sup-1;
+    box-shadow: inset 0 0 0 1px $kl-linea;
+    color: inherit;
+    transition: transform $kl-transicion, box-shadow $kl-transicion;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: inset 0 0 0 1px tema(1, .35);
+    }
+  }
+
+  // El medidor: 8 LEDs de abajo hacia arriba. Se encienden hasta el nivel del
+  // canal y el de arriba "respira" con el audio que esté sonando.
+  &__medidor {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 3px;
+
+    span {
+      flex: 1;
+      min-height: 6px;
+      border-radius: 2px;
+      background: $led-verde;
+      opacity: clamp(.1, calc((var(--nivel, 0) + var(--kl-pulso, 0) * .15) * 8 - var(--i) + 1), 1);
+      transition: opacity 90ms linear;
+
+      @for $i from 1 through 8 {
+        &:nth-child(#{$i}) { --i: #{$i}; }
+      }
+
+      &:nth-child(n + 6) { background: $led-ambar; }
+      &:nth-child(8) { background: $led-rojo; }
+    }
+  }
+
+  &__datos {
+    display: grid;
+    align-content: start;
+    gap: .1rem;
+    min-width: 0;
+
+    i { font-size: 1rem; color: $kl-texto-suave; margin-bottom: .35rem; }
+
+    strong {
+      font-family: $kl-fuente-display;
+      font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+      line-height: 1.05;
+      letter-spacing: -.02em;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    > span { font-weight: 800; font-size: .86rem; }
+    small { color: $kl-texto-suave; font-size: .74rem; }
+  }
+
+  &.alerta a { box-shadow: inset 0 0 0 1px rgba($led-ambar, .45); }
+  &.alerta i { color: $led-ambar; }
+
+  &--master strong { font-size: clamp(1.1rem, 2vw, 1.35rem); }
+
+  &--master a {
+    grid-template-columns: 1fr;
+    background:
+      radial-gradient(120% 100% at 100% 0%, tema(1, .16), transparent 60%),
+      $kl-sup-1;
+  }
+}
+
+// --- Bus master: actividad de los últimos 14 días ----------------------------
+$bus-colores: (
+  escuchas: $led-verde,
+  me_gusta: #ff7aa8,
+  cuentas: #7ab8ff,
+  pedidos: $led-ambar,
+);
+
+.kl-bus {
+  margin-bottom: 2.25rem;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border-radius: 22px;
+  background: $kl-sup-1;
+  box-shadow: inset 0 0 0 1px $kl-linea;
+
+  &__cabeza {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: .5rem 1rem;
+    margin-bottom: 1rem;
+
+    h2 { margin: 0; font-size: 1.05rem; }
+  }
+
+  &__leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem .9rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: .76rem;
+    color: $kl-texto-suave;
+
+    li::before {
+      content: "";
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: .35rem;
+      border-radius: 2px;
+    }
+  }
+
+  &__dias {
+    display: grid;
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+    gap: clamp(3px, 1vw, 10px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li { display: grid; gap: .45rem; }
+  }
+
+  &__barra {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+    height: clamp(90px, 16vw, 150px);
+    border-radius: 6px;
+    background: repeating-linear-gradient(0deg, rgba(#fff, .04) 0 1px, transparent 1px 12px);
+    overflow: hidden;
+
+    // La barra entera crece hasta el nivel del día; adentro se reparte por tipo.
+    &::before {
+      content: "";
+      flex: 0 0 calc((1 - var(--nivel, 0)) * 100%);
+      order: 99;
+    }
+
+    span {
+      flex-basis: 0;
+      min-height: 0;
+      transform-origin: bottom;
+      animation: kl-bus-sube .8s $consola-curva both;
+    }
+  }
+
+  @each $tipo, $color in $bus-colores {
+    .#{$tipo} { background: $color; }
+    &__leyenda .#{$tipo} { background: none; }
+    &__leyenda .#{$tipo}::before { background: $color; }
+  }
+
+  &__dia {
+    display: grid;
+    justify-items: center;
+    font-size: .68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: $kl-texto-suave;
+
+    small { font-weight: 600; opacity: .7; }
+  }
+
+  // El día de hoy, marcado como el canal activo.
+  &__dias li:last-child &__dia { color: tema(1); }
+}
+
+@keyframes kl-bus-sube {
+  from { transform: scaleY(0); }
+}
+
+// --- Pruebas de prensa (cola de moderación) ---------------------------------
+.kl-panel__cola {
+  display: grid;
+  gap: .75rem;
+  margin-bottom: 1.5rem;
+}
+
+.kl-revision {
+  position: relative;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.1rem;
+  padding: .85rem 1.1rem .85rem .85rem;
+  border-radius: 20px;
+  background: $kl-sup-1;
+  box-shadow: inset 0 0 0 1px $kl-linea;
+  overflow: hidden;
+  transition: opacity .3s ease, transform .3s $consola-curva;
+
+  // La funda blanca del test pressing, con el disco asomando.
+  &__funda {
+    position: relative;
+    display: block;
+    width: 96px;
+    aspect-ratio: 1;
+  }
+
+  &__disco {
+    position: absolute;
+    inset: 6% 0 6% 22%;
+    border-radius: 50%;
+    background: repeating-radial-gradient(circle, #151515 0 2px, #0b0b0b 2px 4px);
+    display: grid;
+    place-items: center;
+    transition: transform .5s $consola-curva;
+
+    img {
+      width: 40%;
+      height: 40%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+
+  &__rotulo {
+    position: absolute;
+    inset: 0 34% 0 0;
+    display: grid;
+    align-content: end;
+    padding: .45rem;
+    border-radius: 6px;
+    background: #f1efe8;
+    color: #1b1d1c;
+    font-family: $kl-fuente-display;
+    font-size: .6rem;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    box-shadow: 6px 0 14px -6px rgba(#000, .6);
+  }
+
+  &:hover &__disco { transform: translateX(10%) rotate(40deg); }
+
+  &__titulo {
+    display: block;
+    font-weight: 800;
+    font-size: 1.02rem;
+    color: $kl-tinta;
+    @include lineas(1);
+  }
+
+  &__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem .85rem;
+    margin-top: .2rem;
+    font-size: .8rem;
+    color: $kl-texto-suave;
+  }
+
+  .kl-publicacion__motivo { margin: .5rem 0 0; }
+
+  &__acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .4rem;
+  }
+
+  // El sello: aparece al aprobar o rechazar, antes de que la tarjeta se vaya.
+  &__sello {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    padding: .35rem 1.1rem;
+    border: 3px solid currentColor;
+    border-radius: 10px;
+    font-family: $kl-fuente-display;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate(-50%, -50%) rotate(-12deg) scale(2.2);
+  }
+
+  &[data-veredicto] &__sello {
+    animation: kl-sello-cae .45s cubic-bezier(.3, 1.6, .5, 1) forwards;
+  }
+
+  &[data-veredicto="si"] &__sello { color: $led-verde; }
+  &[data-veredicto="no"] &__sello { color: $led-rojo; }
+
+  &[data-veredicto] > :not(.kl-revision__sello) {
+    opacity: .35;
+    transition: opacity .3s ease;
+  }
+
+  &.resuelta { opacity: 0; transform: translateX(24px); }
+
+  // Angosta: las acciones bajan a su propia línea.
+  @container consola (max-width: 699px) {
+    grid-template-columns: 72px minmax(0, 1fr);
+
+    &__funda { width: 72px; }
+    &__acciones { grid-column: 1 / -1; }
+  }
+}
+
+@keyframes kl-sello-cae {
+  to { opacity: 1; transform: translate(-50%, -50%) rotate(-12deg) scale(1); }
+}
+
+// Encabezado con enlace dentro de una caja: mismo tamaño que el h2 de la caja.
+.kl-panel-caja > .kl-titulo-seccion {
+  align-items: baseline;
+  margin-bottom: 1.1rem;
+
+  h2 { margin: 0; font-size: 1.15rem; letter-spacing: -.02em; }
+  a { font-size: .84rem; white-space: nowrap; }
+}
+
+// --- Rankings (más escuchadas, más guardadas, pedidos) ----------------------
+.kl-ranking {
+  display: grid;
+  gap: .15rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: puesto;
+
+  li {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: .8rem;
+    padding: .45rem .35rem;
+    border-radius: 12px;
+    transition: background $kl-transicion;
+
+    &:hover { background: rgba(#fff, .04); }
+  }
+
+  img,
+  &__sin,
+  &__matriz {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: $kl-sup-3;
+  }
+
+  &__matriz {
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: $kl-texto-suave;
+  }
+
+  li > span:not([class]) {
+    min-width: 0;
+    font-weight: 700;
+    @include lineas(1);
+
+    small {
+      display: block;
+      font-weight: 600;
+      font-size: .78rem;
+      color: $kl-texto-suave;
+    }
+  }
+
+  li > strong {
+    font-variant-numeric: tabular-nums;
+    font-size: .9rem;
+
+    i { color: #ff7aa8; font-size: .75rem; }
+  }
+
+  &__fin {
+    display: grid;
+    justify-items: end;
+    gap: .2rem;
+    font-size: .9rem;
+  }
+
+  &__vacio {
+    display: block !important;
+    color: $kl-texto-suave;
+    font-size: .9rem;
+  }
+}
+
+// --- Ecualizador de géneros --------------------------------------------------
+.kl-eq {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: .5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: grid;
+    justify-items: center;
+    gap: .4rem;
+    min-width: 0;
+  }
+
+  strong { font-size: .82rem; font-variant-numeric: tabular-nums; }
+
+  // La banda: un riel con la perilla a la altura del nivel.
+  &__banda {
+    position: relative;
+    width: 6px;
+    height: 140px;
+    border-radius: 6px;
+    background: $kl-sup-3;
+
+    span {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: calc(var(--nivel, 0) * 100%);
+      border-radius: inherit;
+      background: linear-gradient(to top, tema(1, .25), tema(1));
+      transform-origin: bottom;
+      animation: kl-bus-sube .9s $consola-curva both;
+
+      &::after {
+        // La perilla del fader.
+        content: "";
+        position: absolute;
+        top: -7px;
+        left: 50%;
+        width: 26px;
+        height: 12px;
+        border-radius: 4px;
+        background: linear-gradient(#e9ecea, #9aa09d);
+        box-shadow: 0 3px 8px rgba(#000, .5);
+        transform: translateX(-50%);
+      }
+    }
+  }
+
+  &__nombre {
+    max-width: 100%;
+    font-size: .7rem;
+    font-weight: 700;
+    color: $kl-texto-suave;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    max-height: 7rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+// --- Patchera: los atajos de las tres áreas ----------------------------------
+.kl-patchera {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  @include consola-desde(700px) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  > div {
+    display: grid;
+    align-content: start;
+    gap: .35rem;
+    padding: 1.1rem;
+    border-radius: 20px;
+    background: $kl-sup-1;
+    box-shadow: inset 0 0 0 1px $kl-linea;
+  }
+
+  h2 {
+    margin: 0 0 .5rem;
+    font-size: .72rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: $kl-texto-suave;
+  }
+
+  a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .55rem .7rem .55rem 1.9rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: .88rem;
+    color: $kl-tinta;
+    transition: background $kl-transicion;
+
+    // El jack de la patchera.
+    &::before {
+      content: "";
+      position: absolute;
+      left: .65rem;
+      top: 50%;
+      width: 12px;
+      height: 12px;
+      margin-top: -6px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #000 0 35%, $kl-sup-4 40%);
+      box-shadow: inset 0 0 0 1px rgba(#fff, .12);
+      transition: background $kl-transicion;
+    }
+
+    &:hover {
+      background: rgba(#fff, .05);
+
+      &::before { background: radial-gradient(circle, tema(1) 0 35%, $kl-sup-4 40%); }
+    }
+  }
+}
+
+// --- Tablas ------------------------------------------------------------------
+.kl-tabla {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 20px;
+  background: $kl-sup-1;
+  box-shadow: inset 0 0 0 1px $kl-linea;
+  overflow: hidden;
+
+  th, td {
+    padding: .75rem 1rem;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid $kl-linea;
+  }
+
+  th {
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: $kl-texto-suave;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    transition: background $kl-transicion;
+
+    &:hover { background: rgba(#fff, .03); }
+    &:last-child td { border-bottom: 0; }
+    &.apagada > td:not(:last-child) { opacity: .5; }
+  }
+
+  &__quien {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    min-width: 0;
+    color: inherit;
+
+    span:last-child { display: grid; min-width: 0; }
+    small { color: $kl-texto-suave; font-size: .78rem; }
+  }
+
+  &__avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 36px;
+    height: 36px;
+    overflow: hidden;
+    border-radius: 50%;
+    background: tema(1, .16);
+    color: tema(1);
+    font-weight: 800;
+
+    img { width: 100%; height: 100%; object-fit: cover; }
+  }
+
+  &__tapa {
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  &__num { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+  &__vacia {
+    padding: 2rem 1rem !important;
+    text-align: center !important;
+    color: $kl-texto-suave;
+  }
+
+  &__acciones {
+    display: flex;
+    gap: .35rem;
+    justify-content: flex-end;
+  }
+}
+
+.kl-tabla-scroll {
+  overflow-x: auto;
+  @include scrollbar(8px);
+}
+
+// LED de estado en tablas: activo, sin stock, poco stock.
+.kl-led {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .84rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+
+  &::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $led-verde;
+    box-shadow: 0 0 8px $led-verde;
+  }
+
+  &--ambar::before { background: $led-ambar; box-shadow: 0 0 8px $led-ambar; }
+  &--apagado { color: $kl-texto-suave; }
+  &--apagado::before { background: $led-rojo; box-shadow: 0 0 8px $led-rojo; }
+}
+
+// --- Sala de escucha (detalle de una prueba) ---------------------------------
+.kl-escucha {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+
+  @include consola-desde(640px) {
+    grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  &__plato {
+    display: grid;
+    gap: 1rem;
+
+    @include consola-desde(640px) {
+      position: sticky;
+      top: calc(#{$kl-header-alto} + 1rem);
+    }
+
+    .kl-vinilo { width: 100%; }
+  }
+
+  &__veredicto {
+    display: grid;
+    gap: .5rem;
+
+    form { display: grid; }
+  }
+
+  &__hoja h1 {
+    margin: .6rem 0 .4rem;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+
+  &__artista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem 1rem;
+    margin-bottom: 1.5rem;
+    color: $kl-texto-suave;
+    font-size: .9rem;
+
+    a { color: $kl-tinta; font-weight: 700; }
+  }
+
+  &__editar {
+    summary {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      cursor: pointer;
+      font-weight: 800;
+      list-style: none;
+
+      &::-webkit-details-marker { display: none; }
+
+      &::after {
+        content: "";
+        margin-left: auto;
+        width: 8px;
+        height: 8px;
+        border-right: 2px solid currentColor;
+        border-bottom: 2px solid currentColor;
+        transform: rotate(45deg);
+        transition: transform $kl-transicion;
+      }
+    }
+
+    &[open] summary { margin-bottom: 1rem; }
+    &[open] summary::after { transform: rotate(-135deg); }
+
+    .kl-form { display: grid; gap: .9rem; }
+  }
+}
+
+// .kl-hoja (la hoja de corte) vive en pages/_musica: la comparte la ficha pública.
+
+.kl-audio-preview {
+  width: 100%;
+  border-radius: $kl-radio-pill;
+}
+
+// --- Formularios del panel ---------------------------------------------------
+.kl-interruptor {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  padding: .7rem 1rem;
+  border-radius: 14px;
+  background: $kl-sup-2;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: .92rem;
+
+  input { accent-color: tema(1); width: 1.1rem; height: 1.1rem; }
+}
+
+// En el formulario de álbum el plato muestra un vinilo en vez del lienzo.
+.kl-torno__plato > .kl-vinilo { width: 100%; }
+
+// Pie de cada pedido en el panel: pago y cambio de estado.
+.kl-pedido__pie {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-top: 1rem;
+  padding-top: .9rem;
+  border-top: 1px dashed $kl-linea;
+  font-size: .86rem;
+}
+
+.kl-pedido__estado {
+  display: flex;
+  gap: .4rem;
+
+  select.kl-input {
+    width: auto;
+    min-height: 0;
+    padding: .35rem 2.2rem .35rem .9rem;
+    border-radius: $kl-radio-pill;
+    font-size: .86rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-consola__canal:has(.kl-badge--pendiente)::before,
+  .kl-bus__barra span,
+  .kl-eq__banda span,
+  .kl-revision[data-veredicto] .kl-revision__sello { animation: none; }
+  .kl-revision[data-veredicto] .kl-revision__sello { opacity: 1; transform: translate(-50%, -50%) rotate(-12deg); }
+  .kl-canal__medidor span { transition: none; }
+}

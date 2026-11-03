@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Pagar{% endblock %}
+
+{% block contenido %}
+{% include "tienda/_pasos.html" with paso=2 %}
+
+<div class="kl-bolsa kl-bolsa--pago">
+    <section class="kl-panel-caja" aria-labelledby="titulo-pago">
+        <h1 id="titulo-pago" class="kl-bolsa__titulo">Datos de la tarjeta</h1>
+
+        {# Tarjeta en vivo: se completa mientras escribís. #}
+        <div class="kl-tarjeta-visual" aria-hidden="true">
+            <span class="kl-tarjeta-visual__surcos"></span>
+            <div class="kl-tarjeta-visual__cabeza">
+                <span class="kl-tarjeta-visual__chip"></span>
+                <span class="kl-tarjeta-visual__marca" data-tarjeta-marca></span>
+            </div>
+            <div class="kl-tarjeta-visual__numero" data-tarjeta-numero>#### #### #### ####</div>
+            <div class="kl-tarjeta-visual__fila">
+                <span data-tarjeta-titular>Nombre del titular</span>
+                <span data-tarjeta-vencimiento>MM/AA</span>
+            </div>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <p class="kl-sesion__error" role="alert">{% for error in form.non_field_errors %}{{ error }}{% endfor %}</p>
+            {% endif %}
+
+            <div class="kl-perfil-grilla__par">
+                <div>
+                    <div class="kl-flotante">
+                        {{ form.nombre_titular|flotante }}
+                        <label for="{{ form.nombre_titular.id_for_label }}">Nombre</label>
+                    </div>
+                    {% for error in form.nombre_titular.errors %}<p class="kl-form__error" id="{{ form.nombre_titular.auto_id }}-error">{{ error }}</p>{% endfor %}
+                </div>
+                <div>
+                    <div class="kl-flotante">
+                        {{ form.apellido_titular|flotante }}
+                        <label for="{{ form.apellido_titular.id_for_label }}">Apellido</label>
+                    </div>
+                    {% for error in form.apellido_titular.errors %}<p class="kl-form__error" id="{{ form.apellido_titular.auto_id }}-error">{{ error }}</p>{% endfor %}
+                </div>
+            </div>
+
+            <div class="kl-flotante">
+                {{ form.numero_tarjeta|flotante }}
+                <label for="{{ form.numero_tarjeta.id_for_label }}">Número de tarjeta</label>
+                <i class="bi bi-credit-card" aria-hidden="true"></i>
+            </div>
+            {% for error in form.numero_tarjeta.errors %}<p class="kl-form__error" id="{{ form.numero_tarjeta.auto_id }}-error">{{ error }}</p>{% endfor %}
+
+            <div class="kl-perfil-grilla__par">
+                <div>
+                    <div class="kl-flotante">
+                        {{ form.vencimiento|flotante }}
+                        <label for="{{ form.vencimiento.id_for_label }}">Vencimiento (MM/AA)</label>
+                    </div>
+                    {% for error in form.vencimiento.errors %}<p class="kl-form__error" id="{{ form.vencimiento.auto_id }}-error">{{ error }}</p>{% endfor %}
+                </div>
+                <div>
+                    <div class="kl-flotante">
+                        {{ form.codigo_seguridad|flotante }}
+                        <label for="{{ form.codigo_seguridad.id_for_label }}">Código (CVV)</label>
+                        <i class="bi bi-shield-lock" aria-hidden="true"></i>
+                    </div>
+                    {% for error in form.codigo_seguridad.errors %}<p class="kl-form__error" id="{{ form.codigo_seguridad.auto_id }}-error">{{ error }}</p>{% endfor %}
+                </div>
+            </div>
+
+            <button class="kl-sesion__entrar kl-mt-2" type="submit">
+                <span class="kl-sesion__entrar-icono"><i class="bi bi-lock-fill" aria-hidden="true"></i></span>
+                <span>Pagar {{ total|moneda }}</span>
+            </button>
+            <p class="kl-checkout__seguro">
+                <i class="bi bi-shield-check" aria-hidden="true"></i>
+                Pago simulado: solo se guardan los últimos 4 dígitos.{% if debug %} Prueba: 4111 1111 1111 1111 · 12/30 · 123.{% endif %}
+            </p>
+        </form>
+    </section>
+
+    <aside class="kl-ticket" aria-labelledby="titulo-ticket">
+        <h2 id="titulo-ticket">Tu pedido</h2>
+        <ul class="kl-ticket__lista">
+            {% for item in items %}
+                <li>
+                    <img src="{{ item.album.portada_url }}" alt="" width="44" height="44" loading="lazy">
+                    <span><strong>{{ item.album.titulo }}</strong>
+                        <small>{% if item.es_digital %}Digital{% else %}Vinilo{% endif %} · ×{{ item.cantidad }}</small></span>
+                    <span>{{ item.subtotal|moneda }}</span>
+                </li>
+            {% endfor %}
+        </ul>
+        <div class="kl-ticket__total">
+            <span>Total</span>
+            <strong>{{ total|moneda }}</strong>
+        </div>
+        <a class="kl-ticket__volver" href="{% url 'tienda:carrito' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a la bolsa</a>
+        <span class="kl-ticket__codigo" aria-hidden="true"></span>
+    </aside>
+</div>
+{% endblock %}

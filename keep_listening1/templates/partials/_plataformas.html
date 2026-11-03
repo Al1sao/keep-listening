@@ -1,0 +1,39 @@
+{% comment %}
+Entrar con una plataforma (Google, Apple, ...), en el idioma del sitio: una
+batea de simples de 7". Cada plataforma es un disco con su logo en la etiqueta
+y el color de la marca; al pasar el puntero sale de la funda y gira. Cada disco
+es un formulario POST (con CSRF) que lleva a la plataforma y vuelve a `siguiente`.
+Las que no tienen claves no aparecen; en DEBUG se ven como discos "sin prensar"
+con la variable de entorno que les falta (usuarios/sociales.py).
+Parámetros: siguiente (a dónde volver), texto ("Entrar" o "Registrarte").
+{% endcomment %}
+{% load socialaccount %}
+{% if plataformas_activas or debug %}
+<div class="kl-simples" role="group" aria-label="{{ texto|default:'Entrar' }} con una plataforma">
+    {% for p in plataformas %}
+        {% if p.activo %}
+            <form method="post" action="{% provider_login_url p.id process='login' next=siguiente %}">
+                {% csrf_token %}
+                <button class="kl-simples__disco kl-simples__disco--{{ p.id }}" type="submit"
+                        aria-label="{{ texto|default:'Entrar' }} con {{ p.nombre }}">
+                    <span class="kl-simples__funda" aria-hidden="true">
+                        <span class="kl-simples__vinilo"><span class="kl-simples__sello"><i class="bi {{ p.icono }}"></i></span></span>
+                    </span>
+                    <span class="kl-simples__nombre">{{ p.nombre }}</span>
+                </button>
+            </form>
+        {% elif debug %}
+            <button class="kl-simples__disco kl-simples__disco--{{ p.id }}" type="button" disabled
+                    title="Sin prensar: falta {{ p.variable }} (ver .env.example)">
+                <span class="kl-simples__funda" aria-hidden="true">
+                    <span class="kl-simples__vinilo"><span class="kl-simples__sello"><i class="bi {{ p.icono }}"></i></span></span>
+                </span>
+                <span class="kl-simples__nombre">{{ p.nombre }}</span>
+            </button>
+        {% endif %}
+    {% endfor %}
+</div>
+{% if debug and not plataformas_activas %}
+    <p class="kl-simples__nota">Discos sin prensar: cargá las claves de cada plataforma en el <code>.env</code> (ver <code>.env.example</code>).</p>
+{% endif %}
+{% endif %}

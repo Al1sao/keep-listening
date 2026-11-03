@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Tienda{% endblock %}
+{% block meta_descripcion %}Disquería de Keep Listening: vinilos de edición limitada de artistas independientes.{% endblock %}
+
+{% block contenido %}
+{% if destacado %}
+    {% with p=destacado.paleta %}
+    <section class="kl-disqueria-hero" style="--disco-a: {{ p.acento_rgb }}; --disco-b: {{ p.fondo_rgb }}; --portada: url('{{ destacado.portada_url }}'); --hero-fondo: {{ p.fondo_rgb }};">
+        <div class="kl-disqueria-hero__texto">
+            <span class="kl-eyebrow">La disquería</span>
+            <h1>Vinilos que<br>se escuchan<br>con las manos.</h1>
+            <p>Ediciones cortas de artistas independientes. Cada disco tiene su color, su tapa y su lado B.</p>
+            <div class="kl-disqueria-hero__destacado">
+                <span>Edición de la semana</span>
+                <strong>{{ destacado.titulo }}</strong>
+                <small>{{ destacado.artista.username }} · Vinilo {{ destacado.nombre_estilo_vinilo|lower }}</small>
+            </div>
+            <a class="kl-btn kl-btn--lg" href="{{ destacado.get_absolute_url }}">
+                <i class="bi bi-vinyl" aria-hidden="true"></i> Ver el disco
+            </a>
+        </div>
+        <a class="kl-disqueria-hero__disco" href="{{ destacado.get_absolute_url }}" aria-label="Ver {{ destacado.titulo }}">
+            <div class="kl-vinilo girando" data-estilo="{{ destacado.estilo_de_vinilo }}" aria-hidden="true">
+                <div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div>
+            </div>
+            <img src="{{ destacado.portada_url }}" alt="" width="600" height="600">
+        </a>
+    </section>
+    {% endwith %}
+{% endif %}
+
+<div class="kl-disqueria-barra">
+    <form class="kl-disqueria-barra__buscar" method="get" role="search">
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <label class="kl-solo-lectores" for="tienda-q">Buscar en la tienda</label>
+        <input type="search" id="tienda-q" name="q" value="{{ q }}" placeholder="Disco o artista">
+        <input type="hidden" name="genero" value="{{ genero_activo }}">
+        <input type="hidden" name="orden" value="{{ orden }}">
+    </form>
+    <nav class="kl-filtros" aria-label="Géneros">
+        <a class="kl-filtros__item {% if not genero_activo %}activo{% endif %}" href="{% url 'tienda:catalogo' %}"
+           {% if not genero_activo %}aria-current="page"{% endif %}>Todo</a>
+        {% for genero in generos %}
+            <a class="kl-filtros__item {% if genero_activo == genero.slug %}activo{% endif %}" href="?genero={{ genero.slug }}"
+               {% if genero_activo == genero.slug %}aria-current="page"{% endif %}>{{ genero.nombre }}</a>
+        {% endfor %}
+    </nav>
+    <form method="get" class="kl-disqueria-barra__orden">
+        <label class="kl-solo-lectores" for="tienda-orden">Ordenar</label>
+        <select id="tienda-orden" name="orden" data-enviar-al-cambiar>
+            <option value="recientes" {% if orden == "recientes" %}selected{% endif %}>Más recientes</option>
+            <option value="precio" {% if orden == "precio" %}selected{% endif %}>Menor precio</option>
+            <option value="precio_desc" {% if orden == "precio_desc" %}selected{% endif %}>Mayor precio</option>
+            <option value="titulo" {% if orden == "titulo" %}selected{% endif %}>A - Z</option>
+        </select>
+        <input type="hidden" name="q" value="{{ q }}">
+        <input type="hidden" name="genero" value="{{ genero_activo }}">
+    </form>
+</div>
+
+<p class="kl-disqueria-cuenta">{{ total }} disco{{ total|pluralize }}{% if q %} para "{{ q }}"{% endif %}</p>
+
+{% if albumes %}
+    <div class="kl-disqueria-grilla">
+        {% for album in albumes %}
+            {% include "tienda/_producto.html" with album=album %}
+        {% endfor %}
+    </div>
+    {% query_sin_pagina as querystring %}
+    {% include "partials/_paginacion.html" with pagina=pagina querystring=querystring %}
+{% else %}
+    <div class="kl-vacio">
+        <div class="kl-vacio-icono"><i class="bi bi-vinyl" aria-hidden="true"></i></div>
+        <p>No encontramos discos con esa búsqueda.</p>
+        <a class="kl-btn kl-btn--fantasma" href="{% url 'tienda:catalogo' %}">Ver toda la disquería</a>
+    </div>
+{% endif %}
+{% endblock %}

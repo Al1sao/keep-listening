@@ -1,0 +1,25 @@
+{% load kl_extras %}
+{% with p=album.paleta %}
+<article class="kl-producto" style="--disco-a: {{ p.acento_rgb }}; --disco-b: {{ p.fondo_rgb }}; --portada: url('{{ album.portada_url }}');">
+    <a class="kl-producto__vitrina" href="{{ album.get_absolute_url }}" aria-label="{{ album.titulo }}, de {{ album.artista.username }}">
+        <div class="kl-vinilo kl-producto__disco" data-estilo="{{ album.estilo_de_vinilo }}" aria-hidden="true">
+            <div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div>
+        </div>
+        <img class="kl-producto__funda" src="{{ album.portada_url }}" alt="" width="600" height="600" loading="lazy" decoding="async">
+        {% if album.disponible_fisico and album.stock_fisico and album.stock_fisico <= 5 %}
+            <span class="kl-producto__aviso">Últimas {{ album.stock_fisico }}</span>
+        {% elif album.disponible_fisico and not album.stock_fisico %}
+            <span class="kl-producto__aviso kl-producto__aviso--agotado">Agotado</span>
+        {% endif %}
+    </a>
+    <div class="kl-producto__datos">
+        <a class="kl-producto__titulo" href="{{ album.get_absolute_url }}">{{ album.titulo }}</a>
+        <span class="kl-producto__artista">{{ album.artista.username }}</span>
+        <span class="kl-producto__edicion">
+            <span class="kl-producto__punto" aria-hidden="true"></span>
+            {{ album.get_tipo_disco_display }} · {{ album.nombre_estilo_vinilo }}
+        </span>
+        <span class="kl-producto__precio">desde {{ album.precio_desde|moneda }}</span>
+    </div>
+</article>
+{% endwith %}

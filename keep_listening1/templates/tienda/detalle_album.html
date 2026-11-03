@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load kl_extras static %}
+
+{% block titulo %}{{ album.titulo }}{% endblock %}
+{% block meta_descripcion %}{{ album.titulo }} de {{ album.artista.username }} en vinilo {{ album.nombre_estilo_vinilo|lower }}.{% endblock %}
+{% block og_tipo %}music.album{% endblock %}
+
+{% block migas %}
+<nav class="kl-migas" aria-label="Migas de pan">
+    <a href="{% url 'tienda:catalogo' %}">Disquería</a>
+    <span aria-current="page">{{ album.titulo }}</span>
+</nav>
+{% endblock %}
+
+{% block contenido %}
+{% with p=album.paleta %}
+<article class="kl-disco-ficha" style="--disco-a: {{ p.acento_rgb }}; --disco-b: {{ p.fondo_rgb }}; --tinta: {{ p.tinta_rgb }}; --fondo: {{ p.fondo_rgb }}; --portada: url('{{ album.portada_url }}');">
+
+    {# ---- Visor: 2D (funda y disco planos) o 3D (la funda como objeto) ---- #}
+    <div class="kl-visor" id="kl-visor" data-modo="2d">
+        <div class="kl-visor__modos" role="tablist" aria-label="Vista del vinilo">
+            <button type="button" role="tab" aria-selected="true" data-visor-modo="2d">2D</button>
+            <button type="button" role="tab" aria-selected="false" data-visor-modo="3d">3D</button>
+        </div>
+
+        <div class="kl-visor__plano" aria-hidden="false">
+            <img class="kl-visor__funda" src="{{ album.portada_url }}" alt="Tapa de {{ album.titulo }}" width="600" height="600">
+            <div class="kl-vinilo girando kl-visor__disco" data-estilo="{{ album.estilo_de_vinilo }}" aria-hidden="true">
+                <div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div>
+            </div>
+        </div>
+
+        <div class="kl-visor__escena" aria-hidden="true">
+            <div class="kl-visor__objeto" id="kl-visor-objeto">
+                {# El disco va adentro de la funda y sale por el lado abierto. #}
+                <div class="kl-visor__disco3d">
+                    <div class="kl-vinilo kl-visor__cara kl-visor__cara--a" data-estilo="{{ album.estilo_de_vinilo }}">
+                        <div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div>
+                    </div>
+                    <div class="kl-visor__canto"></div>
+                    <div class="kl-vinilo kl-visor__cara kl-visor__cara--b" data-estilo="{{ album.estilo_de_vinilo }}">
+                        <div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div>
+                    </div>
+                </div>
+                <div class="kl-visor__tapa" style="background-image: url('{{ album.portada_url }}');"></div>
+                <div class="kl-visor__contratapa">
+                    <strong>{{ album.titulo }}</strong>
+                    <span>{{ album.artista.username }}</span>
+                    <div class="kl-visor__lados">
+                        <ol>{% for tema in lados.0 %}<li>{{ tema.0 }}</li>{% endfor %}</ol>
+                        <ol start="{{ lados.0|length|add:1 }}">{% for tema in lados.1 %}<li>{{ tema.0 }}</li>{% endfor %}</ol>
+                    </div>
+                    <small>33⅓ RPM · 180 g · Keep Listening Records</small>
+                    <span class="kl-visor__codigo"></span>
+                </div>
+                <div class="kl-visor__lomo"><span>{{ album.artista.username }} — {{ album.titulo }}</span></div>
+                <div class="kl-visor__borde kl-visor__borde--arriba"></div>
+                <div class="kl-visor__borde kl-visor__borde--abajo"></div>
+            </div>
+            <div class="kl-visor__sombra"></div>
+        </div>
+
+        <div class="kl-visor__pie">
+            <span class="kl-visor__ayuda" data-solo-3d>Arrastrá para girarlo</span>
+            <button class="kl-visor__sacar" type="button" id="kl-visor-sacar" aria-pressed="true">
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i> <span>Guardar el disco</span>
+            </button>
+        </div>
+    </div>
+
+    {# ---- Datos y compra ---- #}
+    <div class="kl-disco-ficha__info">
+        <span class="kl-eyebrow">{{ album.get_tipo_disco_display }} 12" · Edición {{ album.nombre_estilo_vinilo|lower }}</span>
+        <h1>{{ album.titulo }}</h1>
+        <p class="kl-disco-ficha__artista">
+            <a href="{% url 'usuarios:perfil_publico' album.artista.username %}">{{ album.artista.username }}</a>
+            {% if album.genero %}<span>{{ album.genero.nombre }}</span>{% endif %}
+            <span>{{ album.fecha_lanzamiento|date:"Y" }}</span>
+        </p>
+        {% if album.descripcion %}<p class="kl-disco-ficha__descripcion">{{ album.descripcion }}</p>{% endif %}
+
+        <ul class="kl-disco-ficha__specs">
+            <li><span>Edición</span><strong><span class="kl-disco-ficha__muestra" aria-hidden="true"></span>{{ album.nombre_estilo_vinilo }}</strong></li>
+            <li><span>Velocidad</span><strong>33⅓ RPM</strong></li>
+            <li><span>Peso</span><strong>180 g</strong></li>
+            <li><span>Temas</span><strong>{{ total_temas }}</strong></li>
+        </ul>
+
+        <form method="post" action="{% url 'tienda:agregar_al_carrito' album.id %}" data-form-carrito="{{ album.id }}">
+            {% csrf_token %}
+            <fieldset class="kl-disco-ficha__formatos">
+                <legend class="kl-solo-lectores">Formato</legend>
+                {% if album.disponible_fisico %}
+                    <label class="kl-opcion {% if album.stock_fisico == 0 %}agotado{% endif %}">
+                        <input type="radio" name="formato" value="FISICO" {% if album.stock_fisico %}checked{% endif %}
+                               {% if album.stock_fisico == 0 %}disabled{% endif %}>
+                        <span class="kl-opcion__icono"><i class="bi bi-vinyl-fill" aria-hidden="true"></i></span>
+                        <span class="kl-opcion__texto">
+                            <strong>{{ album.get_tipo_disco_display }}</strong>
+                            <small>{% if album.stock_fisico %}{% if album.stock_fisico <= 5 %}Quedan {{ album.stock_fisico }}{% else %}En stock{% endif %} · envío a todo el país{% else %}Agotado{% endif %}</small>
+                        </span>
+                        <span class="kl-opcion__precio">{{ album.precio_fisico|moneda }}</span>
+                    </label>
+                {% endif %}
+                {% if album.disponible_digital %}
+                    <label class="kl-opcion">
+                        <input type="radio" name="formato" value="DIGITAL" {% if not album.disponible_fisico or not album.stock_fisico %}checked{% endif %}>
+                        <span class="kl-opcion__icono"><i class="bi bi-cloud-arrow-down" aria-hidden="true"></i></span>
+                        <span class="kl-opcion__texto">
+                            <strong>Digital</strong>
+                            <small>Descarga inmediata en alta calidad</small>
+                        </span>
+                        <span class="kl-opcion__precio">{{ album.precio_digital|moneda }}</span>
+                    </label>
+                {% endif %}
+            </fieldset>
+
+            <div class="kl-disco-ficha__comprar">
+                <div class="kl-cantidad">
+                    <button type="button" data-cantidad="-1" aria-label="Restar">−</button>
+                    <input type="number" name="cantidad" value="1" min="1" max="20" aria-label="Cantidad">
+                    <button type="button" data-cantidad="1" aria-label="Sumar">+</button>
+                </div>
+                {% if user.is_authenticated %}
+                    <button class="kl-btn kl-btn--lg kl-disco-ficha__agregar" type="submit">
+                        <i class="bi bi-bag-plus" aria-hidden="true"></i> Agregar al carrito
+                    </button>
+                {% else %}
+                    <button class="kl-btn kl-btn--lg kl-disco-ficha__agregar" type="button" data-pedir-sesion>
+                        <i class="bi bi-person" aria-hidden="true"></i> Entrá para comprar
+                    </button>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</article>
+
+{# ---- Contratapa: lado A y lado B ---- #}
+{% if lados.0 %}
+<section class="kl-seccion kl-lados" aria-labelledby="titulo-lados">
+    <h2 id="titulo-lados">En el disco</h2>
+    <div class="kl-lados__grilla">
+        {% for lado in lados %}
+            {% if lado %}
+                <div class="kl-lados__lado">
+                    <h3><span>Lado</span> {% if forloop.first %}A{% else %}B{% endif %}</h3>
+                    <ol {% if not forloop.first %}start="{{ lados.0|length|add:1 }}"{% endif %}>
+                        {% for tema in lado %}
+                            <li><span>{{ tema.0 }}</span><small>{{ tema.1 }}</small></li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% if canciones %}
+<section class="kl-seccion">
+    <div class="kl-titulo-seccion">
+        <h2>Escuchalo acá</h2>
+        <button class="kl-btn kl-btn--sm" type="button" data-reproducir-todo>
+            <i class="bi bi-play-fill" aria-hidden="true"></i> Reproducir
+        </button>
+    </div>
+    {% for cancion in canciones %}
+        {% include "partials/_fila_tema.html" with cancion=cancion indice=cancion.numero_pista %}
+    {% endfor %}
+</section>
+{% endif %}
+
+{% if otros %}
+<section class="kl-seccion">
+    <div class="kl-titulo-seccion"><h2>Más de {{ album.artista.username }}</h2></div>
+    <div class="kl-disqueria-grilla">
+        {% for otro in otros %}
+            {% include "tienda/_producto.html" with album=otro %}
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endwith %}
+{% endblock %}
+
+{% block js_extra %}
+<script src="{% estatico 'js/tienda.js' %}" data-pagina></script>
+{% endblock %}

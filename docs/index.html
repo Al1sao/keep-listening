@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keep Listening · Proyecto final</title>
+<link rel="stylesheet" href="estilo.css">
+</head>
+<body>
+<main>
+<section class="portada">
+  <p class="etiqueta">Taller de Construcción de Software · 6.º año · Entrega final</p>
+  <h1>Keep Listening</h1>
+  <p class="bajada">Plataforma web para escuchar, guardar, publicar y comprar música.</p>
+  <p><b>Integrantes:</b> Sophia Benitez y Alí Pérez · <b>Empresa:</b> TecnoPlus</p>
+</section>
+
+<figure><img src="capturas/05-reproduciendo.jpg" alt="Keep Listening reproduciendo un tema"></figure>
+
+<h2>Documentación</h2>
+<table class="datos">
+  <tr><th><a href="manual.html">Manual de usuario</a></th><td>Cómo usar la página. También en <a href="Manual_de_usuario_Keep_Listening.pdf">PDF</a>.</td></tr>
+  <tr><th><a href="informe.html">Informe del proyecto</a></th><td>Análisis, requisitos, casos de uso, diagramas, tecnologías y cambios. También en <a href="Informe_Keep_Listening.pdf">PDF</a>.</td></tr>
+  <tr><th><a href="https://github.com/Al1sao/keep-listening">Código fuente</a></th><td>El repositorio completo, con el README de instalación y la base de datos exportada (<code>base_de_datos/keep_listening.sql</code>).</td></tr>
+</table>
+
+<h2>Cómo probarlo</h2>
+<p>La aplicación es un proyecto Django y se ejecuta en la computadora (GitHub Pages solo publica esta documentación). Los pasos completos están en el <a href="https://github.com/Al1sao/keep-listening#readme">README</a>; en resumen:</p>
+<pre><code>git clone https://github.com/Al1sao/keep-listening.git
+cd keep-listening
+docker compose up --build</code></pre>
+<p>y abrir <code>http://localhost:8000</code>. Cuentas de prueba: <b>sophia</b> / <code>Usuario1234</code> y <b>admin</b> / <code>Admin1234</code>.</p>
+
+<p class="pie">Keep Listening · TecnoPlus · Sophia Benitez y Alí Pérez · 2026</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,99 @@
+{% load static kl_extras %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_descripcion %}Keep Listening - escuchá, guardá, publicá y comprá música independiente.{% endblock %}">
+    <meta name="theme-color" content="#070908">
+    <meta property="og:site_name" content="Keep Listening">
+    <meta property="og:title" content="{% block og_titulo %}{{ titulo|default:'Keep Listening' }}{% endblock %}">
+    <meta property="og:type" content="{% block og_tipo %}website{% endblock %}">
+    {% block og_extra %}{% endblock %}
+    <title>{% block titulo %}{{ titulo|default:"Inicio" }}{% endblock %} · Keep Listening</title>
+
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+    <!-- CSS compilado desde static/scss/styles.scss (Bootstrap 5 + SCSS propio) -->
+    {# En desarrollo el CSS legible (con mapa de fuentes); publicado, el minificado. #}
+    <link rel="stylesheet" href="{% if debug %}{% estatico 'css/styles.css' %}{% else %}{% estatico 'css/styles.min.css' %}{% endif %}">
+    <link rel="preload" href="{% static 'fonts/nunito-latin-400-normal.woff2' %}" as="font" type="font/woff2" crossorigin>
+    {% block css_extra %}{% endblock %}
+</head>
+<body data-autenticado="{{ user.is_authenticated|yesno:'1,0' }}">
+
+    {# Primer elemento enfocable: permite saltear la navegacion con el teclado. #}
+    <a class="kl-saltar" href="#contenido">Saltar al contenido</a>
+
+    {# Fondo vivo: lo dibuja static/js/ambiente.js con los colores de la portada. #}
+    <canvas class="kl-ambiente" id="kl-ambiente" aria-hidden="true"></canvas>
+    <div class="kl-pulso" aria-hidden="true"></div>
+    <div class="kl-shell">
+    {% include "partials/_rail.html" %}
+    <div class="kl-workspace">
+    {% include "partials/_header.html" %}
+    {% include "partials/_menu_lateral.html" %}
+
+    <div class="kl-alertas" id="kl-alertas" role="status" aria-live="polite">
+        {% for mensaje in messages %}
+            <div class="kl-alerta kl-alerta--{{ mensaje.tags|default:'info' }}">
+                <i class="bi bi-info-circle" aria-hidden="true"></i>
+                <div class="kl-alerta__texto">{{ mensaje }}</div>
+                <button type="button" class="kl-alerta__cerrar" aria-label="Cerrar">&times;</button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <main class="kl-main" id="contenido" tabindex="-1">
+        <div class="{% block contenedor %}kl-contenedor{% endblock %}">
+            {% block migas %}{% endblock %}
+            {% block contenido %}{% endblock %}
+        </div>
+        {% include "partials/_footer.html" %}
+    </main>
+    </div>
+    {% include "partials/_stage.html" %}
+    </div>
+    {% include "partials/_reproductor.html" %}
+    {% include "partials/_estudio.html" %}
+    {% if not user.is_authenticated %}{% include "partials/_sesion.html" %}{% endif %}
+
+    <script src="{% static 'js/vendor/bootstrap.bundle.min.js' %}"></script>
+    <script nonce="{{ csp_nonce }}">
+        window.KL = {
+            urls: {
+                buscar: "{% url 'musica:api_buscar' %}",
+                cola: "{% url 'musica:api_cola' %}",
+                {# Prefijos: el id se agrega en el JS ("/api/favorito/0/" -> "/api/favorito/"). #}
+                favorito: "{% url 'musica:toggle_favorito' 0 %}".slice(0, -2),
+                carritoItem: "{% url 'tienda:actualizar_item' 0 %}".slice(0, -2),
+                explorar: "{% url 'musica:explorar' %}",
+                reproducir: "{% url 'musica:registrar_reproduccion' 0 %}".slice(0, -2),
+                duracion: "{% url 'musica:actualizar_duracion' 0 %}".slice(0, -2),
+                letra: "{% url 'musica:api_letra' %}",
+                meGusta: "{% url 'musica:api_me_gusta' %}",
+                login: "{% url 'usuarios:login' %}"
+            },
+            autenticado: {{ user.is_authenticated|yesno:"true,false" }},
+            csrf: "{{ csrf_token }}"
+        };
+    </script>
+    {% comment %}
+        La cola del reproductor viaja como JSON escapado: json_script
+        neutraliza cualquier título que contenga etiquetas HTML.
+    {% endcomment %}
+    {{ pistas|json_script:"kl-pistas" }}
+    {{ me_gusta_ids|json_script:"kl-me-gusta-ids" }}
+    <script src="{% estatico 'js/nucleo.js' %}"></script>
+    <script src="{% estatico 'js/app.js' %}"></script>
+    <script src="{% estatico 'js/reproductor.js' %}"></script>
+    <script src="{% estatico 'js/bandeja.js' %}"></script>
+    <script src="{% estatico 'js/escena.js' %}"></script>
+    <script src="{% estatico 'js/karaoke.js' %}"></script>
+    <script src="{% estatico 'js/letra.js' %}"></script>
+    <script src="{% estatico 'js/ambiente.js' %}"></script>
+    <script src="{% estatico 'js/ahora.js' %}"></script>
+    <script src="{% estatico 'js/sesion.js' %}"></script>
+    <script src="{% estatico 'js/estante.js' %}"></script>
+    <script src="{% estatico 'js/navegar.js' %}"></script>
+    {% block js_extra %}{% endblock %}
+</body>
+</html>

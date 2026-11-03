@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block contenido %}
+<header class="kl-coleccion__cabeza">
+    <div>
+        <span class="kl-eyebrow">Tus álbumes</span>
+        <h1>{{ titulo }}</h1>
+        <p class="kl-texto-suave">Se publican en la disquería en digital, en vinilo o en los dos.</p>
+    </div>
+</header>
+
+{% url 'musica:mis_publicaciones' as volver %}
+{% include "partials/_form_album.html" with volver=volver %}
+{% endblock %}

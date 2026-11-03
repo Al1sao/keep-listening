@@ -1,0 +1,69 @@
+{% comment %}
+    Aparece al tocar un tema sin sesión. A la izquierda, el tema que se quiso
+    escuchar: su portada como funda y el vinilo asomando. Se entra ahí mismo
+    (sin recargar) y el tema arranca solo.
+{% endcomment %}
+<div class="kl-sesion" id="kl-sesion" hidden role="dialog" aria-modal="true" aria-labelledby="kl-sesion-titulo">
+    <div class="kl-sesion__velo" data-cerrar-sesion aria-hidden="true"></div>
+    <div class="kl-sesion__caja">
+        <aside class="kl-sesion__escena" aria-hidden="true">
+            <div class="kl-sesion__fondo" id="kl-sesion-fondo"></div>
+            <div class="kl-sesion__disco">
+                <div class="kl-vinilo girando" id="kl-sesion-vinilo" data-estilo="0">
+                    <div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div>
+                </div>
+                <div class="kl-sesion__funda" id="kl-sesion-funda">
+                    {% include "partials/_logo.html" with sufijo="sesion" %}
+                </div>
+            </div>
+            <div class="kl-sesion__tema" id="kl-sesion-tema">
+                <small>Para escuchar</small>
+                <strong id="kl-sesion-tema-titulo">Keep Listening</strong>
+                <span id="kl-sesion-tema-artista">Hip hop y pop, en adelantos</span>
+            </div>
+        </aside>
+
+        <div class="kl-sesion__form">
+            <button class="kl-sesion__cerrar" type="button" data-cerrar-sesion aria-label="Cerrar">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+            <p class="kl-sesion__eyebrow">Tu cuenta</p>
+            <h2 id="kl-sesion-titulo">Entrá y<br>seguí escuchando</h2>
+            <p class="kl-sesion__bajada">Tus me gusta, tu historial y la letra en vivo te esperan.</p>
+
+            <form id="kl-sesion-form" method="post" action="{% url 'usuarios:login' %}" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <div class="kl-flotante">
+                    <input type="text" name="username" id="kl-sesion-usuario" autocomplete="username" placeholder=" " required>
+                    <label for="kl-sesion-usuario">Usuario o correo</label>
+                    <i class="bi bi-person" aria-hidden="true"></i>
+                </div>
+                <div class="kl-flotante">
+                    <input type="password" name="password" id="kl-sesion-clave" autocomplete="current-password" placeholder=" " data-password="1" required>
+                    <label for="kl-sesion-clave">Contraseña</label>
+                    <button class="kl-flotante__ver" type="button" data-ver-password aria-pressed="false" aria-label="Mostrar contraseña">
+                        <i class="bi bi-eye" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <p class="kl-sesion__error" id="kl-sesion-error" role="alert" hidden></p>
+                <button class="kl-sesion__entrar" type="submit">
+                    <span class="kl-sesion__entrar-icono"><i class="bi bi-play-fill" aria-hidden="true"></i></span>
+                    <span>Entrar y escuchar</span>
+                </button>
+            </form>
+
+            <div class="kl-sesion__o"><span>o poné otro disco</span></div>
+            {% include "partials/_plataformas.html" with siguiente=request.get_full_path texto="Entrar" %}
+
+            <div class="kl-sesion__o"><span>¿Primera vez?</span></div>
+            <a class="kl-sesion__registro" href="{% url 'usuarios:registro' %}?next={{ request.get_full_path|urlencode }}">
+                Crear una cuenta gratis <i class="bi bi-arrow-right" aria-hidden="true"></i>
+            </a>
+
+            {% if debug %}
+                <p class="kl-sesion__demo">Cuenta de prueba: <code>sophia</code> · <code>Usuario1234</code></p>
+            {% endif %}
+        </div>
+    </div>
+</div>

@@ -1,0 +1,186 @@
+{% extends "panel/base_panel.html" %}
+{% load kl_extras humanize l10n %}
+
+{% block titulo %}Panel de administración{% endblock %}
+
+{% block panel %}
+<header class="kl-coleccion__cabeza">
+    <div>
+        <span class="kl-eyebrow">Resumen general</span>
+        <h1>La sala,<br>en la consola</h1>
+        <p class="kl-texto-suave">Hola {{ user.username }}. Cada canal mide qué parte de su total se movió esta semana.</p>
+    </div>
+    {% if canciones_pendientes %}
+        <a class="kl-btn kl-btn--ambar" href="{% url 'panel:canciones' %}?estado=PENDIENTE">
+            <i class="bi bi-hourglass-split" aria-hidden="true"></i> {{ canciones_pendientes }} prueba{{ canciones_pendientes|pluralize }} esperando
+        </a>
+    {% endif %}
+</header>
+
+{# Los canales: un medidor de LEDs por métrica, como una tira de consola. #}
+<ul class="kl-canales" aria-label="Métricas">
+    {% for canal in canales %}
+        <li class="kl-canal {% if canal.alerta %}alerta{% endif %}" style="--nivel: {{ canal.nivel|unlocalize }}">
+            <a href="{% url canal.url %}">
+                <span class="kl-canal__medidor" aria-hidden="true">{% for _ in "12345678" %}<span></span>{% endfor %}</span>
+                <span class="kl-canal__datos">
+                    <i class="bi bi-{{ canal.icono }}" aria-hidden="true"></i>
+                    <strong>{{ canal.valor|intcomma }}</strong>
+                    <span>{{ canal.nombre }}</span>
+                    <small>{{ canal.detalle }}</small>
+                </span>
+            </a>
+        </li>
+    {% endfor %}
+    <li class="kl-canal kl-canal--master">
+        <a href="{% url 'panel:pedidos' %}">
+            <span class="kl-canal__datos">
+                <i class="bi bi-cash-coin" aria-hidden="true"></i>
+                <strong>{{ facturado|moneda }}</strong>
+                <span>Facturado</span>
+                <small>pedidos cobrados</small>
+            </span>
+        </a>
+    </li>
+</ul>
+
+{# Bus master: todo lo que pasó en la sala en los últimos 14 días. #}
+<section class="kl-bus" aria-labelledby="titulo-bus">
+    <div class="kl-bus__cabeza">
+        <h2 id="titulo-bus">Bus master · 14 días</h2>
+        <ul class="kl-bus__leyenda" aria-hidden="true">
+            <li class="escuchas">Escuchas</li><li class="me_gusta">Me gusta</li><li class="cuentas">Cuentas</li><li class="pedidos">Pedidos</li>
+        </ul>
+    </div>
+    <ol class="kl-bus__dias">
+        {% for dia in actividad %}
+            <li style="--nivel: {{ dia.nivel|unlocalize }}" title="{{ dia.dia|date:'l d/m' }}: {{ dia.escuchas }} escuchas, {{ dia.me_gusta }} me gusta, {{ dia.cuentas }} cuentas nuevas, {{ dia.pedidos }} pedidos">
+                <span class="kl-bus__barra">
+                    {% if dia.total %}
+                        <span class="escuchas" style="flex-grow: {{ dia.escuchas }}"></span>
+                        <span class="me_gusta" style="flex-grow: {{ dia.me_gusta }}"></span>
+                        <span class="cuentas" style="flex-grow: {{ dia.cuentas }}"></span>
+                        <span class="pedidos" style="flex-grow: {{ dia.pedidos }}"></span>
+                    {% endif %}
+                </span>
+                <span class="kl-bus__dia">{{ dia.dia|date:"D"|slice:":2" }}<small>{{ dia.dia|date:"j" }}</small></span>
+                <span class="visually-hidden">{{ dia.dia|date:"l d/m" }}: {{ dia.total }} eventos</span>
+            </li>
+        {% endfor %}
+    </ol>
+</section>
+
+<section class="kl-seccion" aria-labelledby="titulo-cola">
+    <div class="kl-titulo-seccion">
+        <h2 id="titulo-cola">Pruebas de prensa</h2>
+        <a href="{% url 'panel:canciones' %}">Ver todas</a>
+    </div>
+    <div class="kl-panel__cola">
+        {% for cancion in cola %}
+            {% include "panel/_prueba.html" with cancion=cancion completo=False %}
+        {% empty %}
+            <div class="kl-coleccion__vacia">
+                <div class="kl-vinilo" data-estilo="1" aria-hidden="true"><div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div></div>
+                <div>
+                    <h3>Nada para revisar</h3>
+                    <p>Cuando alguien suba un tema, su prueba de prensa aparece acá.</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<div class="kl-consola__grilla">
+    <section class="kl-panel-caja" aria-labelledby="titulo-top">
+        <h2 id="titulo-top">Más escuchadas</h2>
+        <ol class="kl-ranking">
+            {% for cancion in top_canciones %}
+                <li>
+                    <img src="{{ cancion.portada_url }}" alt="" loading="lazy" width="44" height="44">
+                    <span><a href="{{ cancion.get_absolute_url }}">{{ cancion.titulo }}</a><small>{{ cancion.artista.username }}</small></span>
+                    <strong>{{ cancion.reproducciones|intcomma }}</strong>
+                </li>
+            {% empty %}
+                <li class="kl-ranking__vacio">Todavía nadie escuchó temas subidos.</li>
+            {% endfor %}
+        </ol>
+    </section>
+
+    <section class="kl-panel-caja" aria-labelledby="titulo-guardadas">
+        <h2 id="titulo-guardadas">Lo que más se guarda</h2>
+        <ol class="kl-ranking">
+            {% for tema in top_me_gusta %}
+                <li>
+                    {% if tema.portada %}<img src="{{ tema.portada }}" alt="" loading="lazy" width="44" height="44">{% else %}<span class="kl-ranking__sin"></span>{% endif %}
+                    <span>{{ tema.titulo }}<small>{{ tema.artista }}</small></span>
+                    <strong><i class="bi bi-heart-fill" aria-hidden="true"></i> {{ tema.n }}</strong>
+                </li>
+            {% empty %}
+                <li class="kl-ranking__vacio">Sin me gusta todavía.</li>
+            {% endfor %}
+        </ol>
+    </section>
+
+    {# Géneros como las bandas de un ecualizador. #}
+    <section class="kl-panel-caja" aria-labelledby="titulo-eq">
+        <h2 id="titulo-eq">Ecualizador de géneros</h2>
+        {% if top_generos %}
+            <ul class="kl-eq">
+                {% for genero in top_generos %}
+                    <li style="--nivel: {{ genero.nivel|unlocalize }}">
+                        <strong>{{ genero.n }}</strong>
+                        <span class="kl-eq__banda" aria-hidden="true"><span></span></span>
+                        <span class="kl-eq__nombre">{{ genero.nombre }}</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="kl-texto-suave">Sin géneros cargados.</p>
+        {% endif %}
+    </section>
+
+    <section class="kl-panel-caja" aria-labelledby="titulo-pedidos">
+        <div class="kl-titulo-seccion">
+            <h2 id="titulo-pedidos">Últimos pedidos</h2>
+            <a href="{% url 'panel:pedidos' %}">Ver todos</a>
+        </div>
+        <ul class="kl-ranking">
+            {% for pedido in ultimos_pedidos %}
+                <li>
+                    <span class="kl-ranking__matriz" aria-hidden="true"><i class="bi bi-vinyl" aria-hidden="true"></i></span>
+                    <span>{{ pedido.numero }}<small>{{ pedido.usuario.username }} · {{ pedido.fecha|date:"d/m H:i" }}</small></span>
+                    <span class="kl-ranking__fin">
+                        <strong>{{ pedido.total|moneda }}</strong>
+                        <span class="kl-badge kl-badge--{{ pedido.estado|clase_estado }}">{{ pedido.get_estado_display }}</span>
+                    </span>
+                </li>
+            {% empty %}
+                <li class="kl-ranking__vacio">Todavía no hay compras.</li>
+            {% endfor %}
+        </ul>
+    </section>
+</div>
+
+{# Patchera: los atajos de las tres áreas del administrador. #}
+<section class="kl-patchera" aria-label="Atajos">
+    <div>
+        <h2>Contenido</h2>
+        <a href="{% url 'panel:canciones' %}?estado=PENDIENTE">Cola de aprobación <span class="kl-badge kl-badge--pendiente">{{ canciones_pendientes }}</span></a>
+        <a href="{% url 'panel:canciones' %}?estado=APROBADA">Edición y corrección <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+        <a href="{% url 'panel:canciones' %}?estado=RECHAZADA">Rechazadas <span class="kl-badge kl-badge--rechazada">{{ canciones_rechazadas }}</span></a>
+        <a href="{% url 'panel:generos' %}">Géneros <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+    </div>
+    <div>
+        <h2>Cuentas</h2>
+        <a href="{% url 'panel:usuarios' %}">Todas <span class="kl-badge">{{ total_usuarios }}</span></a>
+        <a href="{% url 'panel:usuarios' %}?filtro=bloqueados">Sanciones <span class="kl-badge kl-badge--rechazada">{{ usuarios_bloqueados }}</span></a>
+        <a href="{% url 'panel:usuarios' %}?filtro=admins">Administradores <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+    </div>
+    <div>
+        <h2>Disquería</h2>
+        <a href="{% url 'panel:albumes' %}">Inventario <span class="kl-badge">{{ total_albumes }}</span></a>
+        <a href="{% url 'panel:pedidos' %}?estado=PAGADO">Pedidos por preparar <i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+        <a href="{% url 'panel:nuevo_album' %}">Nuevo producto <i class="bi bi-plus-lg" aria-hidden="true"></i></a>
+    </div>
+</section>
+{% endblock %}

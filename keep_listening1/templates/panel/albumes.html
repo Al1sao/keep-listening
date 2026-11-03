@@ -1,0 +1,78 @@
+{% extends "panel/base_panel.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Gestión de productos{% endblock %}
+
+{% block panel %}
+<header class="kl-coleccion__cabeza">
+    <div>
+        <span class="kl-eyebrow">Disquería</span>
+        <h1>El catálogo</h1>
+    </div>
+    <ul class="kl-coleccion__cifras" aria-label="Resumen">
+        <li><strong>{{ pagina.paginator.count }}</strong><span>álbum{{ pagina.paginator.count|pluralize:"es" }}</span></li>
+        <li><strong>{{ sin_stock }}</strong><span>sin stock</span></li>
+    </ul>
+</header>
+
+<div class="kl-consola__barra">
+    <form class="kl-consola__buscar" method="get" role="search">
+        <label class="visually-hidden" for="albumes-q">Buscar por álbum o artista</label>
+        <i class="bi bi-search" aria-hidden="true"></i>
+        <input class="kl-input" type="search" id="albumes-q" name="q" value="{{ q }}" placeholder="Álbum o artista">
+    </form>
+    <a class="kl-btn" href="{% url 'panel:nuevo_album' %}"><i class="bi bi-plus-lg" aria-hidden="true"></i> Nuevo producto</a>
+</div>
+
+<div class="kl-tabla-scroll">
+    <table class="kl-tabla">
+        <thead>
+            <tr>
+                <th scope="col">Álbum</th>
+                <th scope="col">Temas</th>
+                <th scope="col">Digital</th>
+                <th scope="col">Vinilo</th>
+                <th scope="col">Stock</th>
+                <th scope="col">Estado</th>
+                <th scope="col"><span class="visually-hidden">Acciones</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for album in albumes %}
+                <tr {% if not album.publicado %}class="apagada"{% endif %}>
+                    <td>
+                        <a class="kl-tabla__quien" href="{{ album.get_absolute_url }}">
+                            <img class="kl-tabla__tapa" src="{{ album.portada_url }}" alt="" width="44" height="44" loading="lazy">
+                            <span><strong>{{ album.titulo }}</strong><small>{{ album.artista.username }}</small></span>
+                        </a>
+                    </td>
+                    <td class="kl-tabla__num">{{ album.n_canciones }}</td>
+                    <td>{% if album.disponible_digital %}{{ album.precio_digital|moneda }}{% else %}<span class="kl-texto-suave">—</span>{% endif %}</td>
+                    <td>{% if album.disponible_fisico %}{{ album.precio_fisico|moneda }}{% else %}<span class="kl-texto-suave">—</span>{% endif %}</td>
+                    <td>
+                        {% if album.disponible_fisico %}
+                            <span class="kl-led {% if album.stock_fisico == 0 %}kl-led--apagado{% elif album.stock_fisico < 5 %}kl-led--ambar{% endif %}">{{ album.stock_fisico }}</span>
+                        {% else %}<span class="kl-texto-suave">—</span>{% endif %}
+                    </td>
+                    <td><span class="kl-badge {% if album.publicado %}kl-badge--aprobada{% else %}kl-badge--neutro{% endif %}">{% if album.publicado %}Publicado{% else %}Oculto{% endif %}</span></td>
+                    <td>
+                        <div class="kl-tabla__acciones">
+                            <a class="kl-btn kl-btn--fantasma kl-btn--sm" href="{% url 'panel:editar_album' album.slug %}" aria-label="Editar {{ album.titulo }}"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                            <form method="post" action="{% url 'panel:eliminar_album' album.slug %}"
+                                  data-confirmar="¿Eliminar &quot;{{ album.titulo }}&quot; de la tienda?">
+                                {% csrf_token %}
+                                <button class="kl-btn kl-btn--peligro kl-btn--sm" type="submit" aria-label="Eliminar {{ album.titulo }}"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="7" class="kl-tabla__vacia">No hay productos cargados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% query_sin_pagina as querystring %}
+{% include "partials/_paginacion.html" with pagina=pagina querystring=querystring %}
+{% endblock %}

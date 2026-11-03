@@ -1,0 +1,130 @@
+// ---------------------------------------------------------------------------
+// 404 "se rayó el disco": el vinilo gira a 33⅓, pasa por la raya y el brazo
+// salta; el título se escribe y vuelve a empezar como un surco trabado, hasta
+// que la frase completa aparece.
+// ---------------------------------------------------------------------------
+
+@use "../abstracts" as *;
+
+$rayado-vuelta: $kl-vuelta-disco; // el brazo salta una vez por vuelta
+
+.kl-rayado {
+  display: grid;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+  min-height: 60vh;
+  padding-block: clamp(1rem, 4vw, 3rem);
+
+  @include desde("md") { grid-template-columns: minmax(220px, 380px) 1fr; }
+
+  &__disco {
+    position: relative;
+    width: min(100%, 340px);
+    justify-self: center;
+
+    .kl-vinilo { width: 100%; }
+    .kl-vinilo__giro { animation: kl-girar $rayado-vuelta linear infinite; }
+  }
+
+  // La raya: gira con el disco y pasa bajo la púa una vez por vuelta.
+  &__marca {
+    position: absolute;
+    top: 14%;
+    left: 50%;
+    width: 2px;
+    height: 16%;
+    border-radius: 2px;
+    background: linear-gradient(transparent, rgba(#fff, .75), transparent);
+    transform: rotate(18deg);
+  }
+
+  &__brazo {
+    position: absolute;
+    top: -6%;
+    right: 8%;
+    width: 8px;
+    height: 44%;
+    border-radius: 8px;
+    background: linear-gradient(#d9dcdb, #7b807e);
+    transform-origin: 50% 0;
+    transform: rotate(24deg);
+    box-shadow: 0 10px 20px rgba(#000, .5);
+    animation: kl-brazo-salta $rayado-vuelta linear infinite;
+
+    &::before {
+      // Contrapeso.
+      content: "";
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: $kl-sup-4;
+      transform: translateX(-50%);
+    }
+
+    &::after {
+      // Cápsula con la púa.
+      content: "";
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      width: 18px;
+      height: 22px;
+      border-radius: 4px;
+      background: tema(1);
+      transform: translateX(-50%) rotate(-18deg);
+    }
+  }
+
+  &__texto {
+    h1 {
+      display: grid;
+      margin: .4rem 0 1rem;
+      font-size: clamp(2.2rem, 6vw, 4.2rem);
+      line-height: 1;
+    }
+
+    p { max-width: 42ch; color: $kl-texto-suave; }
+  }
+
+  &__bucle,
+  &__real { grid-area: 1 / 1; }
+
+  // Se escribe tres veces y se traba; después aparece la frase entera.
+  &__bucle {
+    color: tema(1);
+    clip-path: inset(0 100% 0 0);
+    animation:
+      kl-rayado-escribe .75s steps(15, end) 3,
+      kl-rayado-apaga .01s 2.25s forwards;
+  }
+
+  &__real {
+    opacity: 0;
+    animation: kl-aparecer .5s cubic-bezier(.22, 1, .36, 1) 2.3s forwards;
+  }
+}
+
+@keyframes kl-brazo-salta {
+  // La raya llega a la púa a ~56° de su posición inicial: 16% de la vuelta.
+  0%, 14%, 23%, 100% { transform: rotate(24deg); }
+  17% { transform: rotate(21deg) translateY(-3px); }
+  20% { transform: rotate(25deg); }
+}
+
+@keyframes kl-rayado-escribe {
+  to { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes kl-rayado-apaga {
+  to { opacity: 0; visibility: hidden; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-rayado__disco .kl-vinilo__giro,
+  .kl-rayado__brazo { animation: none; }
+  .kl-rayado__bucle { display: none; }
+  .kl-rayado__real { opacity: 1; animation: none; }
+}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load kl_extras %}
+
+{% block titulo %}Tu perfil{% endblock %}
+
+{% block contenido %}
+<header class="kl-perfil-disco">
+    {% include "usuarios/_etiqueta.html" with persona=user grabado=grabado vista_previa="avatar" %}
+    <div class="kl-perfil-disco__datos">
+        <span class="kl-eyebrow">Tu perfil</span>
+        <h1>{{ user.get_full_name|default:user.username }}</h1>
+        <p>@{{ user.username }}{% if user.es_admin %} · <span class="kl-badge kl-badge--aprobada">Administración</span>{% endif %}</p>
+        {% if user.biografia %}<p class="kl-perfil-disco__bio">{{ user.biografia }}</p>{% endif %}
+        {# Créditos, como en una contratapa. #}
+        <dl class="kl-creditos">
+            <div><dt>Me gusta</dt><dd>{{ me_gusta }}</dd></div>
+            <div><dt>Publicados</dt><dd>{{ publicaciones }}</dd></div>
+            <div><dt>En revisión</dt><dd>{{ pendientes }}</dd></div>
+            <div><dt>Compras</dt><dd>{{ pedidos }}</dd></div>
+        </dl>
+    </div>
+</header>
+
+<div class="kl-perfil-grilla">
+    <section class="kl-panel-caja" aria-labelledby="titulo-datos">
+        <h2 id="titulo-datos">Datos de la cuenta</h2>
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+            <div class="kl-perfil-grilla__par">
+                <div class="kl-flotante">
+                    {{ form.first_name|flotante }}
+                    <label for="{{ form.first_name.id_for_label }}">{{ form.first_name.label }}</label>
+                </div>
+                <div class="kl-flotante">
+                    {{ form.last_name|flotante }}
+                    <label for="{{ form.last_name.id_for_label }}">{{ form.last_name.label }}</label>
+                </div>
+            </div>
+            <div class="kl-flotante">
+                {{ form.email|flotante }}
+                <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                <i class="bi bi-envelope" aria-hidden="true"></i>
+            </div>
+            {% for error in form.email.errors %}<p class="kl-form__error" id="{{ form.email.auto_id }}-error">{{ error }}</p>{% endfor %}
+            <div class="kl-flotante kl-flotante--area">
+                {{ form.biografia|flotante }}
+                <label for="{{ form.biografia.id_for_label }}">{{ form.biografia.label }}</label>
+            </div>
+            <label class="kl-archivo" for="{{ form.avatar.id_for_label }}">
+                <i class="bi bi-image" aria-hidden="true"></i>
+                <span><strong>{{ form.avatar.label }}</strong><small>Se ve en la etiqueta de tu disco. JPG o PNG.</small></span>
+                <input type="file" name="{{ form.avatar.html_name }}" id="{{ form.avatar.id_for_label }}" accept="image/*" data-preview="avatar">
+            </label>
+            {% for error in form.avatar.errors %}<p class="kl-form__error">{{ error }}</p>{% endfor %}
+            <div class="kl-form__acciones">
+                <a class="kl-btn kl-btn--fantasma" href="{% url 'usuarios:cambiar_password' %}"><i class="bi bi-key" aria-hidden="true"></i> Cambiar contraseña</a>
+                <button class="kl-btn" type="submit"><i class="bi bi-check2" aria-hidden="true"></i> Guardar</button>
+            </div>
+        </form>
+    </section>
+
+    <nav class="kl-panel-caja kl-atajos" aria-labelledby="titulo-atajos">
+        <h2 id="titulo-atajos">Tus lugares</h2>
+        <a href="{% url 'musica:mi_musica' %}"><i class="bi bi-vinyl" aria-hidden="true"></i><span><strong>Tu colección</strong><small>La batea con tus me gusta</small></span></a>
+        <a href="{% url 'musica:mis_publicaciones' %}"><i class="bi bi-cloud-arrow-up" aria-hidden="true"></i><span><strong>Tus publicaciones</strong><small>{{ aprobadas }} aprobadas · {{ pendientes }} en revisión</small></span></a>
+        <a href="{% url 'tienda:mis_pedidos' %}"><i class="bi bi-bag-check" aria-hidden="true"></i><span><strong>Tus compras</strong><small>{{ pedidos }} pedido{{ pedidos|pluralize }}</small></span></a>
+        <a href="{% url 'usuarios:perfil_publico' user.username %}"><i class="bi bi-person-badge" aria-hidden="true"></i><span><strong>Tu página pública</strong><small>Cómo te ven los demás</small></span></a>
+        {% if user.es_admin %}
+            <a href="{% url 'panel:dashboard' %}"><i class="bi bi-shield-check" aria-hidden="true"></i><span><strong>Panel de administración</strong><small>Moderación, tienda y usuarios</small></span></a>
+        {% endif %}
+    </nav>
+</div>
+{% endblock %}

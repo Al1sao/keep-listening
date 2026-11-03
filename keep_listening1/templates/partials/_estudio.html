@@ -1,0 +1,112 @@
+{# "Ahora suena": sube desde abajo, la portada vuela a su lugar y el fondo vivo queda detrás. #}
+<div class="kl-ahora" id="kl-estudio" hidden role="dialog" aria-modal="true" aria-labelledby="kl-estudio-titulo">
+    <div class="kl-ahora__velo" aria-hidden="true"></div>
+    <div class="kl-ahora__hoja" id="kl-ahora-hoja">
+        <header class="kl-ahora__top" data-ahora-arrastre>
+            <span class="kl-ahora__agarre" aria-hidden="true"></span>
+            <button class="kl-ahora__icono" type="button" data-cerrar-estudio aria-label="Cerrar">
+                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+            <p class="kl-ahora__origen">
+                <span>Sonando</span>
+                <strong id="kl-ahora-origen">Keep Listening</strong>
+            </p>
+            <button class="kl-ahora__icono" type="button" data-bs-toggle="offcanvas" data-bs-target="#klCola"
+                    aria-label="Ver cola de reproducción">
+                <i class="bi bi-music-note-list" aria-hidden="true"></i>
+            </button>
+        </header>
+
+        <div class="kl-ahora__cuerpo">
+            <div class="kl-ahora__escena">
+                {# El vinilo sale de la funda (la portada) mientras suena. Su diseño depende del tema. #}
+                <div class="kl-ahora__disco" id="kl-ahora-disco" data-estilo="0" aria-hidden="true">
+                    {# En el modo letra, el aro se llena con cada verso. #}
+                    <span class="kl-ahora__disco-aro"></span>
+                    <div class="kl-ahora__disco-giro" id="kl-ahora-giro">
+                        <span class="kl-ahora__disco-sello"></span>
+                    </div>
+                </div>
+                {# La portada es la funda: en el modo letra se achica y el disco queda solo. #}
+                <div class="kl-ahora__tarjeta" id="kl-ahora-tarjeta">
+                    <button class="kl-ahora__cara kl-ahora__cara--frente" type="button" id="kl-ahora-frente"
+                            aria-label="Ver la letra">
+                        <img class="kl-ahora__portada" id="kl-estudio-portada" alt="" crossorigin="anonymous"
+                             width="520" height="520" hidden>
+                        <span class="kl-ahora__vacia" id="kl-ahora-vacia" aria-hidden="true">
+                            <i class="bi bi-vinyl-fill" aria-hidden="true"></i>
+                        </span>
+                        <span class="kl-ahora__brillo" aria-hidden="true"></span>
+                    </button>
+                </div>
+                <div class="kl-ahora__reflejo" aria-hidden="true"></div>
+            </div>
+
+            {# Modo letra: ocupa la pantalla al lado del disco. #}
+            <section class="kl-ahora__letras" id="kl-ahora-letras" aria-label="Letra" aria-hidden="true">
+                <div class="kl-ahora__letra" id="kl-ahora-letra" tabindex="-1"></div>
+            </section>
+
+            <div class="kl-ahora__panel">
+                <div class="kl-ahora__meta">
+                    <div>
+                        <h2 id="kl-estudio-titulo">Keep Listening</h2>
+                        <p id="kl-estudio-artista">Elegí un tema o encendé la radio</p>
+                    </div>
+                    <button class="kl-ahora__icono kl-ahora__gusta" id="kl-ahora-gusta" type="button"
+                            aria-pressed="false" aria-label="Me gusta">
+                        <i class="bi bi-heart" aria-hidden="true"></i>
+                    </button>
+                    <button class="kl-ahora__icono kl-ahora__letra-btn" type="button" data-ahora-voltear
+                            aria-pressed="false" aria-label="Ver la letra sobre la portada">
+                        <i class="bi bi-chat-quote" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <p class="kl-ahora__nota">
+                    <span class="kl-ahora__edicion" id="kl-ahora-edicion"><i class="bi bi-vinyl" aria-hidden="true"></i> <span>Negro clásico</span></span>
+                    <span id="kl-estudio-nota" hidden></span>
+                </p>
+                <a class="kl-ahora__completa" id="kl-estudio-completa" href="#" target="_blank" rel="noopener" hidden>
+                    Abrir la canción completa <i class="bi bi-box-arrow-up-right" aria-hidden="true"></i>
+                </a>
+
+                <div class="kl-ahora__progreso">
+                    <canvas class="kl-ahora__espectro" id="kl-ahora-espectro" aria-hidden="true"></canvas>
+                    <input type="range" id="kl-ahora-barra" min="0" max="1000" step="1" value="0"
+                           aria-label="Progreso de la canción" aria-valuetext="0:00">
+                    <div class="kl-ahora__tiempos">
+                        <span id="kl-ahora-actual">0:00</span>
+                        <span id="kl-ahora-total">0:00</span>
+                    </div>
+                </div>
+
+                <div class="kl-ahora__controles">
+                    <button type="button" data-ahora-aleatorio aria-pressed="false" aria-label="Aleatorio">
+                        <i class="bi bi-shuffle" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" data-estudio-anterior aria-label="Anterior">
+                        <i class="bi bi-skip-start-fill" aria-hidden="true"></i>
+                    </button>
+                    <button class="kl-ahora__play" type="button" data-estudio-play aria-label="Reproducir">
+                        <i class="bi bi-play-fill" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" data-estudio-siguiente aria-label="Siguiente">
+                        <i class="bi bi-skip-end-fill" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" data-ahora-repetir aria-pressed="false" aria-label="Repetir">
+                        <i class="bi bi-repeat" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <section class="kl-ahora__siguen" aria-labelledby="kl-ahora-siguen-titulo">
+                    <h3 id="kl-ahora-siguen-titulo">A continuación</h3>
+                    <div id="kl-ahora-siguen"></div>
+                </section>
+
+                <p class="kl-ahora__pista" aria-hidden="true">
+                    Tocá la portada para el modo letra · deslizala para cambiar de tema · tocá el fondo y hacé olas
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

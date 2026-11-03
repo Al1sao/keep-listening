@@ -1,0 +1,89 @@
+// ---------------------------------------------------------------------------
+// Variables de marca - Keep Listening
+// Estudio nocturno: negro tinta, lima de escenario y oro de vinilo.
+// Los nombres historicos (crema, verde) se conservan para no reescribir
+// cada componente; el valor ahora describe una superficie oscura.
+// ---------------------------------------------------------------------------
+
+// ---- Superficies neutras ----------------------------------------------------
+// Concepto "Surco": la base es negro de vinilo, sin tinte. El color lo pone el
+// tema que suena (--kl-c1 / --kl-c2 / --kl-c3, ver ambiente.js). De 0 a 4, de
+// más profundo a más cercano.
+$kl-sup-0: #000;       // fondo de la app
+$kl-sup-1: #0b0d0c;    // paneles grandes: área de trabajo, bandeja, visor
+$kl-sup-2: #141615;    // tarjetas y campos
+$kl-sup-3: #1e2120;    // hover y activo
+$kl-sup-4: #2a2d2c;    // pistas, bordes marcados
+$kl-linea: rgba(#fff, .08);
+
+// Colores con función (no decoración)
+$kl-rosa: #ff5c8a;     // me gusta
+
+// ---- Nombres históricos --------------------------------------------------------
+// Se conservan para no reescribir cada componente, pero ahora apuntan a la
+// escala neutra (antes tenían un tinte verde que chocaba con el color del tema).
+$kl-verde-900: #070808;
+$kl-verde-800: $kl-sup-1;
+$kl-verde-700: #1a7a4c;
+$kl-verde-600: #3dcea0;
+$kl-verde-500: #8dffc0;
+$kl-verde-300: #c6f5d8;
+$kl-verde-100: $kl-sup-3;
+
+$kl-crema-100: $kl-sup-2;
+$kl-crema-300: $kl-sup-3;
+
+// Acentos. La lima es el color de marca cuando no suena nada.
+$kl-noche: #050606;
+$kl-tinta: #eef1ef;
+$kl-menta: #c6f54e;
+$kl-oro: #f0c36a;
+$kl-ambar: $kl-oro;
+$kl-terracota: #e08a6a;
+$kl-error: #e06a5c;
+$kl-exito: #7dffb2;
+
+// Sobre el estudio oscuro los acentos se leen en su tono luminoso.
+$kl-ambar-texto: #f3d48a;
+$kl-terracota-texto: #f3b79a;
+$kl-exito-texto: #b6ffd0;
+
+// Tipografia
+$kl-fuente: "Nunito", "Segoe UI", system-ui, -apple-system, sans-serif;
+$kl-fuente-display: "Syne", "Nunito", "Segoe UI", sans-serif;
+
+// Texto
+$kl-texto: $kl-tinta;
+$kl-texto-suave: #a3a9a5;   // ~8:1 sobre negro
+$kl-texto-claro: #f7fff9;
+
+// Sombras y radios
+$kl-radio-sm: 10px;
+$kl-radio: 16px;
+$kl-radio-lg: 24px;
+$kl-radio-pill: 999px;
+
+$kl-sombra-sm: 0 8px 24px rgba(0, 0, 0, .35);
+$kl-sombra: 0 16px 40px rgba(0, 0, 0, .4);
+$kl-sombra-lg: 0 28px 70px rgba(0, 0, 0, .5);
+
+// Medidas de layout
+$kl-header-alto: 64px;
+$kl-contenedor: 1280px;
+
+// Transiciones
+$kl-transicion: 180ms cubic-bezier(.4, 0, .2, 1);
+$kl-transicion-lenta: 320ms cubic-bezier(.4, 0, .2, 1);
+
+// Una vuelta de disco (la misma que KL.GRADOS_POR_SEGUNDO en nucleo.js: 360 / 90).
+$kl-vuelta-disco: 4s;
+
+// Breakpoints propios (complementan los de Bootstrap)
+$kl-bp: (
+  "xs": 0,
+  "sm": 576px,
+  "md": 768px,
+  "lg": 992px,
+  "xl": 1200px,
+  "xxl": 1400px
+);

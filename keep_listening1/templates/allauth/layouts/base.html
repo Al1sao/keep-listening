@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% comment %}
+Las pocas páginas propias de allauth (error o cancelación al volver de una
+plataforma, conectar una cuenta) usan el diseño del sitio en lugar del suyo.
+{% endcomment %}
+
+{% block titulo %}{% block head_title %}Tu cuenta{% endblock head_title %}{% endblock %}
+
+{% block contenedor %}kl-contenedor-angosto{% endblock %}
+
+{% block contenido %}
+<section class="kl-panel-caja kl-allauth">
+    {% block body %}{% block content %}{% endblock content %}{% endblock body %}
+    <p class="kl-allauth__volver"><a href="{% url 'usuarios:login' %}"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver a entrar</a></p>
+</section>
+{% endblock %}

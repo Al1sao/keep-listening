@@ -1,0 +1,42 @@
+# =============================================================================
+# Keep Listening - entorno local con Docker
+#
+#   docker compose up --build     levanta el sitio en http://localhost:8000
+#   docker compose down           lo detiene (los datos quedan en los volumenes)
+#   docker compose down -v        lo detiene y borra tambien los datos
+# =============================================================================
+
+services:
+  web:
+    build: .
+    container_name: keep_listening
+    ports:
+      - "8000:8000"
+    # Claves opcionales (Google, Apple, ... para entrar): copiar .env.example a .env.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DJANGO_DEBUG: "1"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
+      DJANGO_CSRF_TRUSTED_ORIGINS: "http://localhost:8000,http://127.0.0.1:8000"
+      SQLITE_PATH: "/app/datos/db.sqlite3"
+      CARGAR_DATOS: "1"          # poner en 0 para arrancar sin datos de ejemplo
+      # Con DJANGO_DEBUG=1 la clave se genera sola. Para servir el sitio de
+      # verdad hay que poner DJANGO_DEBUG=0 y definir esta variable; sin ella
+      # el proyecto se niega a arrancar, a proposito.
+      # DJANGO_SECRET_KEY: "..."
+    volumes:
+      - sqlite_datos:/app/datos   # la base SQLite sobrevive a los reinicios
+      - media_datos:/app/media    # audios y portadas subidas
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  sqlite_datos:
+  media_datos:
