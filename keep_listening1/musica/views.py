@@ -263,6 +263,11 @@ def mi_musica(request):
     # La batea: los me gusta de Apple (lo que más se guarda) y los favoritos propios.
     coleccion = [m.como_pista() for m in MeGusta.objects.filter(usuario=request.user)]
 
+    # Los discos comprados en la tienda, para escucharlos.
+    from tienda.views import discos_comprados
+
+    comprados = discos_comprados(request.user)
+
     contexto = {
         "titulo": "Tu colección",
         "coleccion": coleccion,
@@ -272,6 +277,7 @@ def mi_musica(request):
         "publicaciones": publicaciones,
         "pistas": _pistas(en_pagina),
         "pendientes": publicaciones.filter(estado=Cancion.Estado.PENDIENTE).count(),
+        "comprados": comprados,
     }
     return render(request, "musica/mi_musica.html", contexto)
 

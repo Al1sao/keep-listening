@@ -5498,6 +5498,112 @@ input[type=file].kl-input:hover::file-selector-button {
     transition: none;
   }
 }
+.kl-mis-discos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 1.25rem;
+}
+.kl-mis-discos__nota {
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+.kl-mis-discos__disco {
+  padding: 1rem;
+  border-radius: 18px;
+  background: #0b0d0c;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+.kl-mis-discos__cabeza {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 0.85rem;
+}
+.kl-mis-discos__tapa {
+  flex: 0 0 112px;
+}
+.kl-mis-discos__tapa img {
+  display: block;
+  width: 112px;
+  height: 112px;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.8);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.kl-mis-discos__tapa:hover img {
+  transform: rotate(-3deg) scale(1.04);
+}
+.kl-mis-discos__datos {
+  min-width: 0;
+}
+.kl-mis-discos__datos h2 {
+  margin: 0 0 0.15rem;
+  font-size: 1.15rem;
+}
+.kl-mis-discos__datos h2 a {
+  color: inherit;
+  text-decoration: none;
+}
+.kl-mis-discos__datos p {
+  margin: 0 0 0.5rem;
+}
+.kl-mis-discos__formatos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+.kl-mis-discos__temas {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.kl-mis-discos__temas li + li {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.kl-mis-discos__temas button {
+  display: grid;
+  grid-template-columns: 1.6rem 1fr auto;
+  gap: 0.5rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.45rem 0.35rem;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.kl-mis-discos__temas button i {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.kl-mis-discos__temas button:hover, .kl-mis-discos__temas button:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+}
+.kl-mis-discos__temas button:hover i, .kl-mis-discos__temas button:focus-visible i {
+  opacity: 1;
+}
+.kl-mis-discos__temas li.sonando button {
+  color: rgb(var(--kl-c1));
+}
+.kl-mis-discos__temas li.sonando button i {
+  opacity: 1;
+}
+.kl-mis-discos__numero {
+  color: #a3a9a5;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.kl-mis-discos__titulo {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
 .kl-pasos {
   --paso: 1;
   position: relative;

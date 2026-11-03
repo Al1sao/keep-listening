@@ -38,6 +38,11 @@
                 </li>
             {% endfor %}
         </ul>
+        {% if pedido.estado != 'CANCELADO' %}
+            <a class="kl-btn kl-btn--sm kl-btn--fantasma" href="{% url 'musica:mi_musica' %}#discos">
+                <i class="bi bi-play-fill" aria-hidden="true"></i> Escuchar en Tus discos
+            </a>
+        {% endif %}
     </article>
 {% empty %}
     <div class="kl-coleccion__vacia">

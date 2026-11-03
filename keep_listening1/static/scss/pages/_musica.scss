@@ -789,3 +789,109 @@
 @media (prefers-reduced-motion: reduce) {
   .kl-batea__disco { transition: none; }
 }
+
+// ---- Tus discos: lo comprado en la tienda ------------------------------------------
+.kl-mis-discos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: 1.25rem;
+
+  &__nota { margin: 0 0 1rem; font-size: .9rem; }
+
+  &__disco {
+    padding: 1rem;
+    border-radius: 18px;
+    background: $kl-sup-1;
+    box-shadow: inset 0 0 0 1px rgba(#fff, .06);
+  }
+
+  &__cabeza {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: .85rem;
+  }
+
+  &__tapa {
+    flex: 0 0 112px;
+
+    img {
+      display: block;
+      width: 112px;
+      height: 112px;
+      border-radius: 10px;
+      box-shadow: 0 10px 24px -12px rgba(#000, .8);
+      transition: transform .3s cubic-bezier(.22, 1, .36, 1);
+    }
+
+    &:hover img { transform: rotate(-3deg) scale(1.04); }
+  }
+
+  &__datos {
+    min-width: 0;
+
+    h2 { margin: 0 0 .15rem; font-size: 1.15rem; }
+    h2 a { color: inherit; text-decoration: none; }
+    p { margin: 0 0 .5rem; }
+  }
+
+  &__formatos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    align-items: center;
+  }
+
+  &__temas {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li + li { border-top: 1px solid rgba(#fff, .06); }
+
+    button {
+      display: grid;
+      grid-template-columns: 1.6rem 1fr auto;
+      gap: .5rem;
+      align-items: center;
+      width: 100%;
+      padding: .45rem .35rem;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      color: inherit;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color .15s ease;
+
+      i { opacity: 0; transition: opacity .15s ease; }
+
+      &:hover,
+      &:focus-visible {
+        background: rgba(#fff, .06);
+
+        i { opacity: 1; }
+      }
+    }
+
+    // El tema que suena se marca con el color del tema (reproductor.js pone .sonando).
+    li.sonando button {
+      color: tema(1);
+
+      i { opacity: 1; }
+    }
+  }
+
+  &__numero {
+    color: $kl-texto-suave;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  &__titulo {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}

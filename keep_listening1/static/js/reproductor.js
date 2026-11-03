@@ -155,7 +155,8 @@
     elementos.portada.src = pista.portada;
     elementos.portada.alt = `Portada de ${pista.titulo}`;
     elementos.titulo.textContent = pista.titulo;
-    elementos.artista.textContent = externa ? `${pista.artista} · Adelanto` : pista.artista;
+    const etiqueta = pista.compra ? "Muestra" : "Adelanto";
+    elementos.artista.textContent = externa ? `${pista.artista} · ${etiqueta}` : pista.artista;
     elementos.total.textContent = formatear(pista.duracion);
     barraPlayer.classList.add("activo");
 
@@ -305,8 +306,20 @@
     if (icono) icono.className = `bi ${guardada ? "bi-heart-fill" : "bi-heart"}`;
   }
 
+  // El botón trae d-sm-grid (con !important): para ocultarlo hace falta otro !important.
+  function mostrarCorazon(visible) {
+    if (visible) elementos.favorito.style.removeProperty("display");
+    else elementos.favorito.style.setProperty("display", "none", "important");
+  }
+
   function sincronizarFavorito(id) {
     if (!elementos.favorito) return;
+    // Lo comprado ya es tuyo: sus temas no se marcan con el corazón.
+    const tema = pistaPorId(id);
+    if (tema && tema.compra) {
+      mostrarCorazon(false);
+      return;
+    }
     const local = KL.util.esLocal(id);
     // Los temas propios usan el favorito de siempre (app.js); los de Apple, "me gusta".
     if (local) {
@@ -319,7 +332,7 @@
       elementos.favorito.dataset.meGusta = id;
       pintarCorazon(elementos.favorito, meGusta.has(String(id)));
     }
-    elementos.favorito.style.display = KL.autenticado ? "" : "none";
+    mostrarCorazon(KL.autenticado);
   }
 
   async function alternarMeGusta(id) {

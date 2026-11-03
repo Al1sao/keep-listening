@@ -291,3 +291,62 @@ class AuditoriaBackendTiendaTests(BaseTienda):
         respuesta = self.client.get(reverse("tienda:carrito"))
         self.assertEqual(respuesta.context["cantidad"], 2)
         self.assertEqual(respuesta.context["total"], 17000)
+
+
+class TusDiscosTests(BaseTienda):
+    """Lo comprado se escucha en Mi música, con una muestra por tema."""
+
+    def setUp(self):
+        super().setUp()
+        import tempfile
+
+        from django.test import override_settings
+
+        self.album.lista_temas = [["Kilómetro cero", "3:41"], ["Faros", "4:02"]]
+        self.album.save()
+        carpeta = tempfile.TemporaryDirectory()
+        self.addCleanup(carpeta.cleanup)
+        # Las muestras se guardan en BASE_DIR/.cache: en las pruebas, en una carpeta temporal.
+        ajuste = override_settings(BASE_DIR=carpeta.name)
+        ajuste.enable()
+        self.addCleanup(ajuste.disable)
+
+    def _comprar(self, estado=Pedido.Estado.PAGADO):
+        from .models import PedidoItem
+
+        pedido = Pedido.objects.create(usuario=self.usuario, total=8500, estado=estado)
+        PedidoItem.objects.create(
+            pedido=pedido, album=self.album, nombre_album=self.album.titulo,
+            artista=self.artista.username, formato=Formato.DIGITAL, cantidad=1, precio_unitario=8500,
+        )
+        return pedido
+
+    def test_quien_compro_escucha_la_muestra_y_puede_adelantar(self):
+        self._comprar()
+        url = reverse("tienda:muestra", args=[self.album.id, 1])
+        respuesta = self.client.get(url)
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(respuesta["Content-Type"], "audio/wav")
+        contenido = b"".join(respuesta.streaming_content)
+        self.assertTrue(contenido.startswith(b"RIFF"))
+        # Siempre la misma muestra para el mismo tema, y responde pedazos (Range).
+        parcial = self.client.get(url, HTTP_RANGE="bytes=0-99")
+        self.assertEqual(parcial.status_code, 206)
+        self.assertEqual(len(b"".join(parcial.streaming_content) if parcial.streaming else parcial.content), 100)
+
+    def test_sin_comprar_o_con_pedido_cancelado_no_se_escucha(self):
+        url = reverse("tienda:muestra", args=[self.album.id, 1])
+        self.assertEqual(self.client.get(url).status_code, 404)
+        self._comprar(Pedido.Estado.CANCELADO)
+        self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_tema_que_no_esta_en_el_disco(self):
+        self._comprar()
+        self.assertEqual(self.client.get(reverse("tienda:muestra", args=[self.album.id, 9])).status_code, 404)
+
+    def test_mi_musica_muestra_los_discos_comprados(self):
+        self._comprar()
+        respuesta = self.client.get(reverse("musica:mi_musica"))
+        self.assertContains(respuesta, "Tus discos")
+        self.assertContains(respuesta, f"compra-{self.album.id}-2")
+        self.assertContains(respuesta, "Faros")

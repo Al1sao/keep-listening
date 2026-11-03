@@ -40,7 +40,8 @@
         {% if pedido.tiene_fisicos %}<p class="kl-prensado__pago"><i class="bi bi-truck" aria-hidden="true"></i> Los vinilos se preparan para el envío.</p>{% endif %}
 
         <div class="kl-batea__acciones">
-            <a class="kl-btn" href="{% url 'tienda:mis_pedidos' %}"><i class="bi bi-bag-check" aria-hidden="true"></i> Ver mis compras</a>
+            <a class="kl-btn" href="{% url 'musica:mi_musica' %}#discos"><i class="bi bi-play-fill" aria-hidden="true"></i> Escuchar lo que compraste</a>
+            <a class="kl-btn kl-btn--fantasma" href="{% url 'tienda:mis_pedidos' %}"><i class="bi bi-bag-check" aria-hidden="true"></i> Ver mis compras</a>
             <a class="kl-btn kl-btn--fantasma" href="{% url 'tienda:catalogo' %}">Seguir en la disquería</a>
         </div>
     </div>

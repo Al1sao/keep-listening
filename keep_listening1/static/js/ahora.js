@@ -69,7 +69,9 @@
       el.vacia.hidden = false;
     }
     const externa = esExterna(pista);
-    el.nota.textContent = externa ? "Adelanto de unos 30 segundos." : "";
+    el.nota.textContent = !externa ? "" : pista.compra
+      ? "Muestra del disco que compraste."
+      : "Adelanto de unos 30 segundos.";
     el.nota.hidden = !externa;
     const ficha = externa && pista.url && /^https:\/\//.test(pista.url) ? pista.url : "";
     el.completa.hidden = !ficha;
@@ -95,7 +97,7 @@
     gustaHoja.classList.toggle("guardada", guardada);
     gustaHoja.setAttribute("aria-pressed", String(guardada));
     gustaHoja.querySelector("i").className = `bi ${guardada ? "bi-heart-fill" : "bi-heart"}`;
-    gustaHoja.hidden = !pista;
+    gustaHoja.hidden = !pista || Boolean(pista.compra);
   }
   if (gustaHoja && gustaPlayer) {
     gustaHoja.addEventListener("click", () => gustaPlayer.click());

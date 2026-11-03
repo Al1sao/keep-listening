@@ -11,6 +11,7 @@
     </div>
     <ul class="kl-coleccion__cifras" aria-label="Resumen">
         <li><strong>{{ total_discos }}</strong><span>disco{{ total_discos|pluralize }}</span></li>
+        {% if comprados %}<li><strong>{{ comprados|length }}</strong><span>comprado{{ comprados|length|pluralize }}</span></li>{% endif %}
         <li><strong>{{ publicaciones|length }}</strong><span>publicados</span></li>
         {% if pendientes %}<li><strong>{{ pendientes }}</strong><span>en revisión</span></li>{% endif %}
     </ul>
@@ -19,6 +20,10 @@
 <div class="kl-tabs" role="tablist" aria-label="Secciones de tu colección">
     <button class="kl-tabs__item activo" type="button" data-tab="batea" role="tab" aria-selected="true" aria-controls="tab-batea">
         <i class="bi bi-vinyl" aria-hidden="true"></i> La batea
+    </button>
+    <button class="kl-tabs__item" type="button" data-tab="discos" role="tab" aria-selected="false" aria-controls="tab-discos">
+        <i class="bi bi-bag-heart" aria-hidden="true"></i> Tus discos
+        {% if comprados %}<span class="kl-badge">{{ comprados|length }}</span>{% endif %}
     </button>
     {% if favoritos or historial %}
         <button class="kl-tabs__item" type="button" data-tab="propios" role="tab" aria-selected="false" aria-controls="tab-propios">
@@ -67,6 +72,65 @@
                 <h2>La batea está vacía</h2>
                 <p>Mientras suena un tema, tocá el <i class="bi bi-heart-fill" aria-hidden="true"></i> y queda guardado acá.</p>
                 <a class="kl-btn" href="{% url 'musica:explorar' %}"><i class="bi bi-compass" aria-hidden="true"></i> Ir a Explorar</a>
+            </div>
+        </div>
+    {% endif %}
+</section>
+
+{# ---- Tus discos: lo comprado en la tienda, para escuchar ---- #}
+<section class="kl-tab-panel" id="tab-discos" role="tabpanel" aria-label="Tus discos">
+    {% if comprados %}
+        <p class="kl-texto-suave kl-mis-discos__nota">
+            Los discos de la tienda son de artistas de prueba: cada tema suena con una muestra
+            de unos 20 segundos compuesta para ese tema.
+        </p>
+        <div class="kl-mis-discos">
+            {% for disco in comprados %}
+                {{ disco.pistas|json_script:disco.id_json }}
+                <article class="kl-mis-discos__disco" data-lista="{{ disco.id_json }}">
+                    <header class="kl-mis-discos__cabeza">
+                        <a class="kl-mis-discos__tapa" href="{{ disco.album.get_absolute_url }}">
+                            <img src="{{ disco.album.portada_url }}" alt="Tapa de {{ disco.album.titulo }}" width="120" height="120" loading="lazy">
+                        </a>
+                        <div class="kl-mis-discos__datos">
+                            <h2><a href="{{ disco.album.get_absolute_url }}">{{ disco.album.titulo }}</a></h2>
+                            <p class="kl-texto-suave">{{ disco.album.artista.username }}{% if disco.album.genero %} · {{ disco.album.genero.nombre }}{% endif %}</p>
+                            <p class="kl-mis-discos__formatos">
+                                {% for formato in disco.formatos %}<span class="kl-badge">{{ formato }}</span>{% endfor %}
+                                <small class="kl-texto-suave">Comprado el {{ disco.fecha|date:"d/m/Y" }}</small>
+                            </p>
+                            {% if disco.pistas %}
+                                <button class="kl-btn kl-btn--sm" type="button" data-catalogo="{{ disco.pistas.0.id }}">
+                                    <i class="bi bi-play-fill" aria-hidden="true"></i> Escuchar el disco
+                                </button>
+                            {% endif %}
+                        </div>
+                    </header>
+                    {% if disco.pistas %}
+                        <ol class="kl-mis-discos__temas">
+                            {% for pista in disco.pistas %}
+                                <li data-tema="{{ pista.id }}">
+                                    <button type="button" data-catalogo="{{ pista.id }}" aria-label="Escuchar {{ pista.titulo }}">
+                                        <span class="kl-mis-discos__numero">{{ forloop.counter }}</span>
+                                        <span class="kl-mis-discos__titulo">{{ pista.titulo }}</span>
+                                        <i class="bi bi-play-fill" aria-hidden="true"></i>
+                                    </button>
+                                </li>
+                            {% endfor %}
+                        </ol>
+                    {% else %}
+                        <p class="kl-texto-suave">Este disco todavía no tiene temas cargados.</p>
+                    {% endif %}
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="kl-coleccion__vacia">
+            <div class="kl-vinilo" data-estilo="2" aria-hidden="true"><div class="kl-vinilo__giro"><span class="kl-vinilo__sello"></span></div></div>
+            <div>
+                <h2>Todavía no compraste discos</h2>
+                <p class="kl-texto-suave">Lo que compres en la disquería aparece acá para escucharlo.</p>
+                <a class="kl-btn" href="{% url 'tienda:catalogo' %}"><i class="bi bi-vinyl" aria-hidden="true"></i> Ir a la disquería</a>
             </div>
         </div>
     {% endif %}

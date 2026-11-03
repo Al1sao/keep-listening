@@ -13,8 +13,9 @@ from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Case, Count, F, Q, When
 from django.db.models.functions import Least
-from django.http import HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 
@@ -23,6 +24,7 @@ from musica.utilidades import es_ajax
 
 from .forms import PagoForm, marca_tarjeta
 from .models import Carrito, CarritoItem, Formato, Pago, Pedido, PedidoItem
+from .muestras import DURACION, ruta_muestra
 from .portadas import portada_svg
 
 PAGINA = 9
@@ -403,6 +405,82 @@ def confirmacion(request, numero):
         "tienda/confirmacion.html",
         {"titulo": "Compra realizada", "pedido": pedido, "pago": getattr(pedido, "pago", None)},
     )
+
+
+# ---------------------------------------------------------------------------
+# Tus discos: lo comprado se escucha en Mi música
+# ---------------------------------------------------------------------------
+def _temas_del_disco(album):
+    """Nombres de los temas del disco (lista_temas guarda [nombre, duración])."""
+    return [str(t[0] if isinstance(t, (list, tuple)) else t) for t in (album.lista_temas or []) if t]
+
+
+def _pistas_del_disco(album):
+    """Cada tema del disco como pista del reproductor, sonando con su muestra."""
+    portada, ficha = album.portada_url, album.get_absolute_url()
+    genero = album.genero.nombre if album.genero_id else ""
+    return [
+        {
+            "id": f"compra-{album.pk}-{numero}",
+            "titulo": titulo,
+            "artista": album.artista.username,
+            "artistaUrl": "",
+            "portada": portada,
+            "audio": reverse("tienda:muestra", args=[album.pk, numero]),
+            "url": ficha,
+            "duracion": int(DURACION),
+            "genero": genero,
+            "fuente": "Tus discos",
+            "externo": True,
+            "compra": True,
+        }
+        for numero, titulo in enumerate(_temas_del_disco(album), start=1)
+    ]
+
+
+def _compras_validas(usuario):
+    return PedidoItem.objects.filter(pedido__usuario=usuario, album__isnull=False).exclude(
+        pedido__estado=Pedido.Estado.CANCELADO
+    )
+
+
+def discos_comprados(usuario):
+    """Los discos que compró (de pedidos no cancelados), el más reciente primero,
+    con los formatos que tiene y sus temas listos para el reproductor."""
+    items = _compras_validas(usuario).select_related(
+        "album", "album__artista", "album__genero", "pedido"
+    ).order_by("-pedido__fecha")
+    discos = {}
+    for item in items:
+        disco = discos.get(item.album_id)
+        if disco is None:
+            disco = discos[item.album_id] = {
+                "album": item.album,
+                "fecha": item.pedido.fecha,
+                "formatos": set(),
+                "pistas": _pistas_del_disco(item.album),
+                "id_json": f"kl-disco-{item.album_id}",
+            }
+        disco["formatos"].add(item.get_formato_display())
+    for disco in discos.values():
+        disco["formatos"] = sorted(disco["formatos"])
+    return list(discos.values())
+
+
+@login_required
+def muestra(request, album_id, numero):
+    """La muestra de un tema: solo para quien compró el disco."""
+    if not _compras_validas(request.user).filter(album_id=album_id).exists():
+        raise Http404("No compraste este disco.")
+    album = get_object_or_404(Album.objects.select_related("genero"), pk=album_id)
+    temas = _temas_del_disco(album)
+    if not 1 <= numero <= len(temas):
+        raise Http404("Ese tema no está en el disco.")
+    from musica.views import responder_archivo
+
+    respuesta = responder_archivo(request, ruta_muestra(album, numero, temas[numero - 1]), "audio/wav")
+    respuesta["Cache-Control"] = "private, max-age=86400"
+    return respuesta
 
 
 @login_required
