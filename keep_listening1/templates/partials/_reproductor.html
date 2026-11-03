@@ -77,23 +77,40 @@
             </div>
         </div>
 
-        {# ---- Perilla, letra, bandeja de próximos ---- #}
+        {# ---- Letra, volumen, bandeja de próximos ---- #}
         <div class="kl-bandeja__extras">
             <button class="kl-player__boton" id="kl-player-letra" type="button" data-abrir-letra aria-label="Ver la letra">
                 <i aria-hidden="true" class="bi bi-chat-quote"></i>
             </button>
-            <div class="kl-perilla" id="kl-perilla" role="slider" tabindex="0" aria-label="Volumen"
-                 aria-valuemin="0" aria-valuemax="100" aria-valuenow="80" aria-valuetext="80 %">
-                <span class="kl-perilla__aro" aria-hidden="true"></span>
-                <span class="kl-perilla__tapa" aria-hidden="true"><span class="kl-perilla__marca"></span></span>
-                <span class="kl-perilla__valor" aria-hidden="true">80%</span>
+            {% comment %}
+            Volumen: el parlante silencia y la barra es un range nativo (mouse, dedo y
+            flechas). Las barritas de arriba se encienden hasta el nivel y saltan con
+            la música; el tirador es un mini vinilo que gira al moverlo (bandeja.js).
+            {% endcomment %}
+            <div class="kl-volumen" id="kl-volumen" style="--vol: .8">
+                <button class="kl-player__boton kl-bandeja__silencio" id="kl-player-silencio" type="button" aria-pressed="false" aria-label="Silenciar">
+                    <i aria-hidden="true" class="bi bi-volume-up-fill"></i>
+                </button>
+                <div class="kl-volumen__pista">
+                    <span class="kl-volumen__barras" aria-hidden="true">
+                    <span style="--i: 0"></span>
+                    <span style="--i: 1"></span>
+                    <span style="--i: 2"></span>
+                    <span style="--i: 3"></span>
+                    <span style="--i: 4"></span>
+                    <span style="--i: 5"></span>
+                    <span style="--i: 6"></span>
+                    <span style="--i: 7"></span>
+                    <span style="--i: 8"></span>
+                    <span style="--i: 9"></span>
+                    <span style="--i: 10"></span>
+                    <span style="--i: 11"></span>
+                    </span>
+                    <input type="range" class="kl-volumen__rango" id="kl-player-volumen" min="0" max="1" step="0.01" value="0.8"
+                           aria-label="Volumen" aria-valuetext="80 %">
+                    <span class="kl-volumen__valor" aria-hidden="true">80%</span>
+                </div>
             </div>
-            <button class="kl-player__boton kl-bandeja__silencio" id="kl-player-silencio" type="button" aria-pressed="false" aria-label="Silenciar">
-                <i aria-hidden="true" class="bi bi-volume-up-fill"></i>
-            </button>
-            {# El range de volumen sigue existiendo: la perilla lo mueve y reproductor.js lo escucha. #}
-            <input type="range" class="kl-solo-lectores" id="kl-player-volumen" min="0" max="1" step="0.01" value="0.8"
-                   tabindex="-1" aria-hidden="true">
             <button class="kl-bandeja__siguen" id="kl-bandeja-siguen" type="button" data-bs-toggle="offcanvas" data-bs-target="#klCola"
                     aria-label="Ver cola de reproducción">
                 <span class="kl-bandeja__pila" id="kl-bandeja-pila" aria-hidden="true"></span>

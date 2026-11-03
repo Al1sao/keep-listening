@@ -30,7 +30,8 @@
     rango: $("kl-player-barra"),
     globo: $("kl-mapa-globo"),
     estribillo: $("kl-mapa-estribillo"),
-    perilla: $("kl-perilla"),
+    volumenCaja: $("kl-volumen"),
+    volumenValor: document.querySelector(".kl-volumen__valor"),
     volumen: $("kl-player-volumen"),
     silencio: $("kl-player-silencio"),
     pila: $("kl-bandeja-pila"),
@@ -388,58 +389,51 @@
   }
 
   // =========================================================================
-  // 3. Perilla de volumen
+  // 3. Volumen: una barra horizontal (range nativo) con su animación
   // =========================================================================
-  // La perilla siempre marca el volumen real; en silencio solo se apaga
-  // (no salta a cero), así al volver queda donde estaba.
-  function pintarPerilla() {
-    if (!el.perilla || !el.volumen) return;
+  // La barra siempre marca el volumen real; en silencio solo se apaga (no
+  // salta a cero), así al volver queda donde estaba. --vol lo usa el CSS para
+  // el relleno, las barritas encendidas y el giro del mini vinilo.
+  function pintarVolumen() {
+    if (!el.volumenCaja || !el.volumen) return;
     const v = Number(el.volumen.value);
     const mudo = audio.muted || v === 0;
-    el.perilla.style.setProperty("--vol", v);
-    el.perilla.classList.toggle("muda", mudo);
+    el.volumenCaja.style.setProperty("--vol", v);
+    el.volumenCaja.classList.toggle("muda", mudo);
     const porcentaje = Math.round(v * 100);
-    const texto = mudo ? "Silenciado" : `${porcentaje} %`;
-    el.perilla.setAttribute("aria-valuenow", String(porcentaje));
-    el.perilla.setAttribute("aria-valuetext", texto);
-    if (el.perillaValor) el.perillaValor.textContent = mudo ? "Mudo" : `${porcentaje}%`;
+    el.volumen.setAttribute("aria-valuetext", mudo ? "Silenciado" : `${porcentaje} %`);
+    if (el.volumenValor) el.volumenValor.textContent = mudo ? "Mudo" : `${porcentaje}%`;
   }
 
-  // Mientras se gira (y un ratito después) se ve el número arriba de la perilla.
+  // Mientras se mueve (y un ratito después) se ve el número arriba del tirador.
   let ocultarValor = 0;
   function mostrarValor() {
-    el.perilla.classList.add("mostrando");
+    el.volumenCaja.classList.add("mostrando");
     clearTimeout(ocultarValor);
-    ocultarValor = setTimeout(() => el.perilla.classList.remove("mostrando"), 900);
+    ocultarValor = setTimeout(() => el.volumenCaja.classList.remove("mostrando"), 900);
   }
 
   function ponerVolumen(v) {
     el.volumen.value = String(limitar(Math.round(v * 100) / 100, 0, 1));
     el.volumen.dispatchEvent(new Event("input", { bubbles: true }));
-    pintarPerilla();
-    mostrarValor();
   }
 
-  if (el.perilla && el.volumen) {
-    el.perillaValor = el.perilla.querySelector(".kl-perilla__valor");
-    let giro = null;
-    el.perilla.addEventListener("pointerdown", (evento) => {
-      giro = { x: evento.clientX, y: evento.clientY, v: Number(el.volumen.value) };
-      el.perilla.setPointerCapture(evento.pointerId);
-      el.perilla.classList.add("girando");
+  if (el.volumenCaja && el.volumen) {
+    el.volumen.addEventListener("input", () => {
+      pintarVolumen();
       mostrarValor();
     });
-    el.perilla.addEventListener("pointermove", (evento) => {
-      if (!giro) return;
-      ponerVolumen(giro.v + (giro.y - evento.clientY) / 120 + (evento.clientX - giro.x) / 240);
+    // Las flechas mueven de a 5 % (el range solo, de a 1 %, apenas se nota).
+    el.volumen.addEventListener("keydown", (evento) => {
+      const pasos = { ArrowUp: 0.05, ArrowRight: 0.05, ArrowDown: -0.05, ArrowLeft: -0.05, PageUp: 0.2, PageDown: -0.2 };
+      if (!(evento.key in pasos)) return;
+      evento.preventDefault();
+      ponerVolumen(Number(el.volumen.value) + pasos[evento.key]);
     });
-    const soltar = () => { giro = null; el.perilla.classList.remove("girando"); };
-    el.perilla.addEventListener("pointerup", soltar);
-    el.perilla.addEventListener("pointercancel", soltar);
     // La rueda se acumula: un touchpad manda pasos muy chicos que, de a uno,
-    // se perdían al redondear. Un clic de rueda de mouse sube o baja 5 %.
+    // se perderían al redondear. Un clic de rueda de mouse sube o baja 5 %.
     let rueda = 0;
-    el.perilla.addEventListener("wheel", (evento) => {
+    el.volumenCaja.addEventListener("wheel", (evento) => {
       evento.preventDefault();
       const pixeles = evento.deltaMode === 1 ? evento.deltaY * 33 : evento.deltaY;
       rueda -= pixeles * 0.0005;
@@ -447,20 +441,8 @@
       ponerVolumen(Number(el.volumen.value) + rueda);
       rueda = 0;
     }, { passive: false });
-    el.perilla.addEventListener("keydown", (evento) => {
-      const v = Number(el.volumen.value);
-      const pasos = { ArrowUp: 0.05, ArrowRight: 0.05, ArrowDown: -0.05, ArrowLeft: -0.05, PageUp: 0.2, PageDown: -0.2 };
-      if (evento.key in pasos) ponerVolumen(v + pasos[evento.key]);
-      else if (evento.key === "Home") ponerVolumen(0);
-      else if (evento.key === "End") ponerVolumen(1);
-      else if (evento.key === "Enter" || evento.key === " ") el.silencio.click();
-      else return;
-      evento.preventDefault();
-      evento.stopPropagation();
-    });
-    el.perilla.addEventListener("dblclick", () => el.silencio.click());
-    audio.addEventListener("volumechange", pintarPerilla);
-    pintarPerilla();
+    audio.addEventListener("volumechange", pintarVolumen);
+    pintarVolumen();
   }
 
   // =========================================================================

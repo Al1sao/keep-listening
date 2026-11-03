@@ -65,7 +65,7 @@
   } catch (error) {
     /* sessionStorage puede estar bloqueado: el volumen queda en 0.8 */
   }
-  // El último volumen que se oía: quitar el silencio con la perilla en 0 vuelve ahí.
+  // El último volumen que se oía: quitar el silencio con la barra en 0 vuelve ahí.
   let volumenAudible = audio.volume > 0 ? audio.volume : 0.8;
 
   function asegurarAnalizador() {
@@ -542,8 +542,8 @@
     actualizarIconoVolumen();
   });
 
-  // Un solo interruptor para el parlante, la tecla M y la perilla (doble clic o Enter).
-  // Con la perilla en 0 no alcanza con quitar el silencio: vuelve al último volumen que se oía.
+  // Un solo interruptor para el parlante y la tecla M.
+  // Con la barra en 0 no alcanza con quitar el silencio: vuelve al último volumen que se oía.
   function alternarSilencio() {
     if (audio.volume === 0) {
       elementos.volumen.value = String(volumenAudible);

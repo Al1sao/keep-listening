@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // "La bandeja": reproductor fijo inferior.
-// Plato (vinilo agarrable + brazo) · controles + mapa del tema · perilla y pila.
+// Plato (vinilo agarrable + brazo) · controles + mapa del tema · volumen y pila.
 // Todo se tiñe con el tema que suena (--kl-c1 / --kl-c2).
 // ---------------------------------------------------------------------------
 
@@ -365,80 +365,170 @@ $bandeja-curva: cubic-bezier(.22, 1, .36, 1);
   }
 }
 
-// ---- Perilla de volumen -------------------------------------------------------------
-.kl-perilla {
+// ---- Volumen ------------------------------------------------------------------------
+// Una barra como la de cualquier reproductor, con tres capas de animación:
+// el relleno con el color del tema, doce barritas que se encienden hasta el
+// nivel (y saltan con la música mientras suena) y un tirador que es un mini
+// vinilo y gira al moverlo. --vol (0 a 1) lo escribe bandeja.js.
+$vol-curva: cubic-bezier(.22, 1, .36, 1);
+$vol-tirador: 16px;
+
+.kl-volumen {
   --vol: .8;
-  position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: ns-resize;
-  touch-action: none;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
 
-  &__aro {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    // 270° de recorrido, empezando abajo a la izquierda.
-    background: conic-gradient(from 225deg,
-      tema(1) calc(var(--vol) * 270deg),
-      rgba(#fff, .12) calc(var(--vol) * 270deg) 270deg,
-      transparent 270deg);
-    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
-    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  &__pista {
+    position: relative;
+    display: grid;
+    align-items: center;
+    width: 92px;
+    height: 36px;
+    transition: width .35s $vol-curva;
   }
 
-  &__tapa {
+  // Al pasar el mouse o con el foco del teclado la barra se estira: más precisión.
+  &:hover &__pista,
+  &:focus-within &__pista { width: 124px; }
+
+  // ---- Las barritas: suben en escalera, como el ícono de volumen
+  &__barras {
     position: absolute;
-    inset: 6px;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #3a3d3c, #151716 70%);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(#fff, .12);
-    transform: rotate(calc(-135deg + var(--vol) * 270deg));
-    transition: transform .08s linear;
+    left: 2px;
+    right: 2px;
+    bottom: calc(50% + 6px);
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+    pointer-events: none;
+
+    span {
+      // Encendida (1) si su lugar quedó debajo del nivel, con un borde suave.
+      --on: clamp(0, (var(--vol) * 12 - var(--i)) * 2, 1);
+      position: relative;
+      flex: 1;
+      height: calc(22% + var(--i) * 6.5%);
+      border-radius: 1px;
+      background: rgba(#fff, .1);
+      transform-origin: bottom;
+      transition: transform .25s $vol-curva;
+
+      &::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(to top, tema(1), tema(2));
+        opacity: var(--on);
+        transition: opacity .2s ease;
+      }
+    }
   }
 
-  &__marca {
-    position: absolute;
-    top: 3px;
-    left: 50%;
-    width: 2px;
-    height: 7px;
-    border-radius: 2px;
-    background: #fff;
-    transform: translateX(-50%);
+  // Mientras suena, las encendidas saltan con el pulso (las pares con los
+  // graves, las impares con los medios) y las apagadas quedan quietas.
+  @at-root body.kl-ambiente-vivo &__barras span {
+    transform: scaleY(calc(1 + var(--kl-pulso, 0) * 1.1 * var(--on)));
   }
 
-  // El número aparece arriba mientras se gira, con la rueda o con las flechas.
+  @at-root body.kl-ambiente-vivo &__barras span:nth-child(odd) {
+    transform: scaleY(calc(1 + var(--kl-medio, 0) * 1.4 * var(--on)));
+  }
+
+  // ---- La barra (range nativo, con su tirador de vinilo)
+  &__rango {
+    width: 100%;
+    height: 6px;
+    margin: 0;
+    border-radius: 999px;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    background:
+      linear-gradient(90deg, tema(1), tema(2)) 0 / calc(var(--vol) * 100%) 100% no-repeat,
+      rgba(#fff, .14);
+    transition: height .25s $vol-curva;
+
+    &:focus-visible { outline: 2px solid rgba(#fff, .8); outline-offset: 6px; }
+
+    // El tirador: disco negro con surcos, etiqueta del color del tema y un
+    // reflejo que delata el giro (dos vueltas de punta a punta).
+    @mixin tirador {
+      width: $vol-tirador;
+      height: $vol-tirador;
+      border: 0;
+      border-radius: 50%;
+      background:
+        conic-gradient(from 20deg, rgba(#fff, .32) 0 10%, transparent 10% 50%, rgba(#fff, .18) 50% 58%, transparent 58%),
+        radial-gradient(circle, #fff 0 9%, tema(1) 11% 36%, #0b0b0b 38% 52%, #1d1d1d 53% 60%, #0b0b0b 61%);
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, .55), 0 0 calc(6px + var(--kl-pulso, 0) * 14px) tema(1, .55);
+      transform: rotate(calc(var(--vol) * 720deg));
+      transition: transform .2s $vol-curva, scale .2s $vol-curva;
+    }
+
+    &::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; @include tirador; }
+    &::-moz-range-thumb { @include tirador; }
+    &::-moz-range-track { background: transparent; }
+  }
+
+  &:hover &__rango,
+  &:focus-within &__rango { height: 8px; }
+
+  &__rango:active::-webkit-slider-thumb { scale: 1.35; }
+  &__rango:active::-moz-range-thumb { scale: 1.35; }
+
+  // ---- El número: aparece arriba del tirador mientras se mueve
   &__valor {
     position: absolute;
-    bottom: calc(100% + 8px);
-    left: 50%;
-    padding: .15rem .45rem;
+    bottom: calc(100% + 2px);
+    left: calc(var(--vol) * (100% - #{$vol-tirador}) + #{$vol-tirador} / 2);
+    padding: .12rem .42rem;
     border-radius: 6px;
     background: rgba(5, 6, 6, .92);
-    box-shadow: 0 0 0 1px rgba(#fff, .1);
+    box-shadow: 0 0 0 1px tema(1, .35);
     color: #fff;
-    font-size: .7rem;
+    font-size: .68rem;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     pointer-events: none;
     opacity: 0;
-    transform: translate(-50%, 4px);
-    transition: opacity .15s ease, transform .15s ease;
+    transform: translate(-50%, 6px) scale(.85);
+    transition: opacity .15s ease, transform .25s $vol-curva;
   }
 
-  &.mostrando .kl-perilla__valor {
+  &.mostrando &__valor {
     opacity: 1;
-    transform: translate(-50%, 0);
+    transform: translate(-50%, 0) scale(1);
   }
 
-  // En silencio la perilla queda donde estaba, apagada.
-  &.muda .kl-perilla__aro { opacity: .3; filter: grayscale(1); }
-  &.muda .kl-perilla__marca { background: rgba(#fff, .35); }
-  &:focus-visible { outline: 2px solid rgba(#fff, .8); outline-offset: 3px; }
-  &.girando { cursor: grabbing; }
+  // ---- En silencio: queda donde estaba, apagada y con las barritas acostadas
+  &.muda {
+    .kl-volumen__barras span {
+      transform: scaleY(.25) !important;
+
+      &::after { opacity: 0; }
+    }
+
+    .kl-volumen__rango {
+      background:
+        linear-gradient(90deg, rgba(#fff, .35), rgba(#fff, .35)) 0 / calc(var(--vol) * 100%) 100% no-repeat,
+        rgba(#fff, .1);
+    }
+
+    .kl-volumen__rango::-webkit-slider-thumb { filter: grayscale(1) brightness(.8); box-shadow: 0 0 0 2px rgba(0, 0, 0, .55); }
+    .kl-volumen__rango::-moz-range-thumb { filter: grayscale(1) brightness(.8); box-shadow: 0 0 0 2px rgba(0, 0, 0, .55); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kl-volumen__pista,
+  .kl-volumen__barras span,
+  .kl-volumen__valor { transition: none; }
+
+  body.kl-ambiente-vivo .kl-volumen__barras span { transform: none; }
 }
 
 // ---- Cola ------------------------------------------------------------------------------
