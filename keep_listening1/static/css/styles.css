@@ -6264,6 +6264,7 @@ input[type=file].kl-input:hover::file-selector-button {
 
 .kl-disco-ficha {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
   margin-bottom: 2.5rem;
@@ -6414,7 +6415,13 @@ input[type=file].kl-input:hover::file-selector-button {
   position: relative;
   display: grid;
   aspect-ratio: 1.15;
-  min-height: 360px;
+}
+@media (min-width: 576px) {
+  .kl-visor {
+    min-height: 360px;
+  }
+}
+.kl-visor {
   overflow: hidden;
   border-radius: 28px;
   background: radial-gradient(circle at 50% 45%, rgba(var(--fondo), 0.22), transparent 65%), radial-gradient(circle at 80% 90%, rgba(var(--disco-a), 0.14), transparent 50%), #0b0d0c;

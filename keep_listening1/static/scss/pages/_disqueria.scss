@@ -261,6 +261,8 @@ $disqueria-curva: cubic-bezier(.22, 1, .36, 1);
 // ---- Ficha del disco -------------------------------------------------------
 .kl-disco-ficha {
   display: grid;
+  // minmax(0, …): en el celular la columna no se estira para hacer lugar al visor.
+  grid-template-columns: minmax(0, 1fr);
   gap: 2rem;
   align-items: start;
   margin-bottom: 2.5rem;
@@ -387,7 +389,9 @@ $disqueria-curva: cubic-bezier(.22, 1, .36, 1);
   position: relative;
   display: grid;
   aspect-ratio: 1.15;
-  min-height: 360px;
+  // El alto mínimo solo desde tablet: en el celular manda el ancho disponible
+  // (360px de alto con esta proporción pedirían 414px de ancho).
+  @include desde("sm") { min-height: 360px; }
   overflow: hidden;
   border-radius: 28px;
   background:

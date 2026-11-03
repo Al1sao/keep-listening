@@ -83,6 +83,11 @@ CSRF_TRUSTED_ORIGINS = [
     if origen.strip()
 ]
 
+# Publicado en Render (render.yaml): el dominio público llega en esta variable.
+if host_render := os.environ.get("RENDER_EXTERNAL_HOSTNAME"):
+    ALLOWED_HOSTS.append(host_render)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{host_render}")
+
 # Cabeceras y cookies endurecidas: solo se activan fuera de desarrollo,
 # porque exigen HTTPS y romperian el entorno local sobre http://.
 SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -100,6 +105,8 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    # El chequeo de salud del hosting entra por http interno: no se redirige.
+    SECURE_REDIRECT_EXEMPT = [r"^health/$"]
 
 # Cuántos proxies de confianza hay delante (nginx, balanceador). Con 0 se usa
 # REMOTE_ADDR; con 1 o más, la IP del cliente sale de X-Forwarded-For contando

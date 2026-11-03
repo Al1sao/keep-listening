@@ -1,0 +1,36 @@
+# Keep Listening publicado en Render (https://render.com), plan gratuito.
+# Render lee este archivo al crear el servicio desde el repositorio:
+#   https://render.com/deploy?repo=https://github.com/Al1sao/keep-listening
+#
+# Es un sitio de demostración: la base SQLite vive dentro del contenedor y se
+# vuelve a crear con los datos de ejemplo cada vez que el servicio arranca.
+services:
+  - type: web
+    name: keep-listening
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health/
+    envVars:
+      - key: KL_SERVIDOR
+        value: gunicorn
+      - key: PORT
+        value: "8000"
+      - key: DJANGO_DEBUG
+        value: "0"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: CARGAR_DATOS
+        value: "1"
+      - key: KL_DEMO
+        value: "1"
+      # La pide Render al crear el servicio: la contraseña del usuario admin.
+      - key: KL_ADMIN_PASSWORD
+        sync: false
+      - key: KL_SERVIR_MEDIA
+        value: "1"
+      - key: KL_PROXIES
+        value: "1"
+      - key: SQLITE_PATH
+        value: /app/datos/db.sqlite3

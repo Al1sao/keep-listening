@@ -17,6 +17,7 @@ Proyecto: Keep listening · Empresa: TecnoPlus · Taller de Construcción de Sof
 | Tecnologías usadas y por qué | [TECNOLOGIAS.md](TECNOLOGIAS.md) |
 | Sistema de diseño | [DISENO.md](DISENO.md) |
 | Versión web de la documentación | <https://al1sao.github.io/keep-listening/> |
+| **Página funcionando en línea** | <https://keep-listening.onrender.com> (ver "Versión en línea" más abajo) |
 
 ---
 
@@ -143,6 +144,20 @@ python -c "from django.core.management.utils import get_random_secret_key as k; 
 ```
 
 ---
+
+### Versión en línea (Render)
+
+La página también está publicada en <https://keep-listening.onrender.com>, en el plan gratuito de
+[Render](https://render.com). Render construye la imagen con el mismo  y toma la configuración
+de [render.yaml](render.yaml): , clave secreta generada por Render, gunicorn como servidor y
+los datos de ejemplo cargados al arrancar (). La contraseña del usuario  no está en el
+repositorio: se carga en Render como .
+
+- Es una **demostración**: la base SQLite vive dentro del contenedor y vuelve a los datos de ejemplo cada vez
+  que el servicio se reinicia.
+- En el plan gratuito el servicio se duerme tras unos minutos sin uso: la primera visita tarda cerca de un
+  minuto.
+- Para publicarlo en otra cuenta: <https://render.com/deploy?repo=https://github.com/Al1sao/keep-listening>.
 
 ### Entrar con Spotify, Apple Music, YouTube Music o SoundCloud
 
