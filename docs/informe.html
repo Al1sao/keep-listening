@@ -21,6 +21,8 @@
     <tr><th>Primera entrega</th><td>24 de mayo de 2026</td></tr>
     <tr><th>Entrega final</th><td>6 de noviembre de 2026</td></tr>
     <tr><th>Repositorio</th><td><a href="https://github.com/Al1sao/keep-listening">github.com/Al1sao/keep-listening</a></td></tr>
+    <tr><th>Página publicada</th><td><a href="https://keep-listening.onrender.com">keep-listening.onrender.com</a></td></tr>
+    <tr><th>Documentación web</th><td><a href="https://al1sao.github.io/keep-listening/">al1sao.github.io/keep-listening</a></td></tr>
   </table>
   <p>TecnoPlus realiza páginas web personalizadas para cada cliente. Para nosotros es vital que los clientes se sientan escuchados y vistos, para que el producto final sea totalmente de su gusto. Buscamos facilitar el acceso a la tecnología con plataformas modernas e intuitivas, y trabajamos constantemente para mejorar nuestros servicios y adaptarnos a las nuevas necesidades del mercado.</p>
   <p class="solo-web"><a href="Informe_Keep_Listening.pdf">Descargar en PDF</a> · <a href="index.html">Volver al inicio</a></p>
@@ -401,14 +403,16 @@ flowchart LR
 <table class="datos">
   <thead><tr><th>Tecnología</th><th>Para qué se usó</th></tr></thead>
   <tr><td>Python 3.10 o superior y Django 5.2</td><td>Servidor: vistas, formularios, modelos, autenticación y panel.</td></tr>
-  <tr><td>SQLite</td><td>Base de datos (archivo <code>db.sqlite3</code>; copia exportada en <code>base_de_datos/keep_listening.sql</code>).</td></tr>
+  <tr><td>SQLite</td><td>Base de datos en la computadora (archivo <code>db.sqlite3</code>; copia exportada en <code>base_de_datos/keep_listening.sql</code>).</td></tr>
+  <tr><td>PostgreSQL</td><td>Base de datos de la versión publicada: conserva cuentas y compras aunque el servidor se reinicie.</td></tr>
   <tr><td>HTML (plantillas de Django)</td><td>Estructura de cada pantalla.</td></tr>
   <tr><td>SCSS (Dart Sass) + Bootstrap 5</td><td>Estilos modulares compilados a un único CSS.</td></tr>
   <tr><td>JavaScript nativo</td><td>Reproductor, letras, animaciones, buscador y carrito sin recargar. Sin React ni jQuery.</td></tr>
   <tr><td>Web Audio API y WebGL</td><td>Análisis del sonido (onda y pulso) y el fondo animado.</td></tr>
   <tr><td>django-allauth</td><td>Inicio de sesión con Spotify, Apple Music, YouTube Music y SoundCloud (opcional).</td></tr>
   <tr><td>WhiteNoise y Gunicorn</td><td>Servir archivos estáticos y el sitio fuera de desarrollo.</td></tr>
-  <tr><td>Docker y Docker Compose</td><td>Ejecución local en un solo comando.</td></tr>
+  <tr><td>Docker y Docker Compose</td><td>Ejecución local en un solo comando, y la misma imagen se usa para publicar.</td></tr>
+  <tr><td>Render</td><td>Publicación de la página en internet (plan gratuito), configurada en <code>render.yaml</code>. Se actualiza sola con cada cambio subido a GitHub.</td></tr>
   <tr><td>API de Apple Music (iTunes) y LRCLIB</td><td>Adelantos de 30 segundos y letras sincronizadas.</td></tr>
   <tr><td>Git y GitHub</td><td>Control de versiones, entrega y publicación de la documentación (GitHub Pages).</td></tr>
 </table>
@@ -424,6 +428,7 @@ flowchart LR
   <tr><td>Seguridad</td><td>Límite de intentos de login, política CSP y validación de archivos subidos.</td></tr>
   <tr><td>Requisitos</td><td>Se corrigieron requisitos repetidos y se agregaron los nuevos (14 a 18).</td></tr>
   <tr><td>Diseño</td><td>Rediseño completo con el concepto "Surco" y fondo que reacciona a la música.</td></tr>
+  <tr><td>Publicación</td><td>La página quedó publicada en Render con una base PostgreSQL, y la documentación en GitHub Pages.</td></tr>
 </table>
 
 <h2>13. Manual de usuario</h2>
