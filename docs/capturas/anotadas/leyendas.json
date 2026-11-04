@@ -420,18 +420,14 @@
  "c06-letra": [
   {
    "num": 1,
-   "t": "La línea que se canta: se pinta palabra por palabra."
+   "t": "La línea que se canta: se pinta palabra por palabra. Tocá cualquier verso para ir a ese momento (o usá ↑ / ↓)."
   },
   {
    "num": 2,
-   "t": "Otros versos: tocá uno para ir a ese momento (o usá ↑ / ↓)."
-  },
-  {
-   "num": 3,
    "t": "Mapa de la letra: una marca por verso; los estribillos resaltados."
   },
   {
-   "num": 4,
+   "num": 3,
    "t": "El disco gira y se llena con cada verso."
   }
  ],
@@ -581,31 +577,31 @@
   {
    "num": 2,
    "t": "Ver el disco destacado."
-  },
-  {
-   "num": 3,
-   "t": "Buscar por disco o artista."
-  },
-  {
-   "num": 4,
-   "t": "Filtrar por género."
-  },
-  {
-   "num": 5,
-   "t": "Ordenar: recientes, menor o mayor precio, A-Z."
   }
  ],
  "e02-catalogo": [
   {
    "num": 1,
-   "t": "Tarjeta del disco: al pasar el mouse el vinilo sale de la funda; tocala para ver la ficha."
+   "t": "Buscar por disco o artista."
   },
   {
    "num": 2,
-   "t": "Aviso de stock: últimas unidades o agotado."
+   "t": "Filtrar por género."
   },
   {
    "num": 3,
+   "t": "Ordenar: recientes, menor o mayor precio, A-Z."
+  },
+  {
+   "num": 4,
+   "t": "Tarjeta del disco: al pasar el mouse el vinilo sale de la funda; tocala para ver la ficha."
+  },
+  {
+   "num": 5,
+   "t": "Aviso de stock: últimas unidades o agotado."
+  },
+  {
+   "num": 6,
    "t": "Precio desde (el formato más barato)."
   }
  ],
@@ -864,18 +860,10 @@
   },
   {
    "num": 7,
-   "t": "Django admin (administración avanzada)."
-  },
-  {
-   "num": 8,
-   "t": "Volver a la sala."
-  },
-  {
-   "num": 9,
    "t": "Medidores: cuentas, en revisión, en la sala, escuchas, me gusta, pedidos y facturado."
   },
   {
-   "num": 10,
+   "num": 8,
    "t": "Bus master: actividad de los últimos 14 días (pasá el mouse por un día)."
   }
  ],
@@ -904,7 +892,7 @@
   },
   {
    "num": 3,
-   "t": "Usuario: abre su página pública."
+   "t": "La tabla se desliza hacia los costados para ver todas las columnas."
   },
   {
    "num": 4,
@@ -977,6 +965,20 @@
   {
    "num": 2,
    "t": "Explorar: buscar música."
+  }
+ ],
+ "g01b-panel-accesos": [
+  {
+   "num": 1,
+   "t": "Las pestañas del panel se deslizan hacia los costados cuando no entran."
+  },
+  {
+   "num": 2,
+   "t": "Django admin (administración avanzada)."
+  },
+  {
+   "num": 3,
+   "t": "Volver a la sala."
   }
  ]
 }
