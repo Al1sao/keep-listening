@@ -1,0 +1,982 @@
+{
+ "a01-menu": [
+  {
+   "num": 1,
+   "t": "Logo: vuelve al inicio."
+  },
+  {
+   "num": 2,
+   "t": "Inicio: la sala con temas al azar y las secciones de la portada."
+  },
+  {
+   "num": 3,
+   "t": "Explorar: el dial de radio, la búsqueda y las listas por género."
+  },
+  {
+   "num": 4,
+   "t": "Tienda: la disquería para comprar discos."
+  },
+  {
+   "num": 5,
+   "t": "Ahora suena: abre la pantalla completa del tema que suena."
+  },
+  {
+   "num": 6,
+   "t": "Tu estante: tus últimos me gusta como lomos de discos; tocá uno para escucharlo."
+  },
+  {
+   "num": 7,
+   "t": "Mi música: la batea, tus discos comprados y lo guardado."
+  },
+  {
+   "num": 8,
+   "t": "Subir canción: publicar un tema propio."
+  },
+  {
+   "num": 9,
+   "t": "Publicaciones: el estado de lo que subiste y tus álbumes."
+  },
+  {
+   "num": 10,
+   "t": "Carrito: los discos que vas a comprar (con su cantidad)."
+  },
+  {
+   "num": 11,
+   "t": "Perfil: tus datos, foto y contraseña."
+  },
+  {
+   "num": 12,
+   "t": "Buscador: resultados mientras escribís (temas, discos y artistas)."
+  },
+  {
+   "num": 13,
+   "t": "Ícono del carrito con la cantidad de productos."
+  },
+  {
+   "num": 14,
+   "t": "Tu cuenta: menú con Mi música, Publicaciones, Compras, Perfil y Cerrar sesión."
+  }
+ ],
+ "a02-reproductor": [
+  {
+   "num": 1,
+   "t": "Panel Ahora: el tocadiscos con el tema que suena; tocalo para abrir Ahora suena."
+  },
+  {
+   "num": 2,
+   "t": "Play / Pausa desde el panel."
+  },
+  {
+   "num": 3,
+   "t": "Radio: pone temas al azar."
+  },
+  {
+   "num": 4,
+   "t": "Abre la letra del tema."
+  },
+  {
+   "num": 5,
+   "t": "Abre Ahora suena en pantalla completa."
+  },
+  {
+   "num": 6,
+   "t": "Vinilo: tocalo para abrir Ahora suena; giralo con el mouse para hacer scratch."
+  },
+  {
+   "num": 7,
+   "t": "Tema y artista que suenan (Adelanto = fragmento de 30 s)."
+  },
+  {
+   "num": 8,
+   "t": "Corazón: guarda el tema en Mi música y en tu estante."
+  },
+  {
+   "num": 9,
+   "t": "Aleatorio: el próximo tema se elige al azar."
+  },
+  {
+   "num": 10,
+   "t": "Anterior (o vuelve al principio del tema)."
+  },
+  {
+   "num": 11,
+   "t": "Play / Pausa (también con la barra espaciadora)."
+  },
+  {
+   "num": 12,
+   "t": "Siguiente tema."
+  },
+  {
+   "num": 13,
+   "t": "Repetir: vuelve a empezar el tema al terminar."
+  },
+  {
+   "num": 14,
+   "t": "Onda del tema: tocá o arrastrá para adelantar; las zonas marcadas son estribillos."
+  },
+  {
+   "num": 15,
+   "t": "Estribillo: salta directo al próximo estribillo."
+  },
+  {
+   "num": 16,
+   "t": "Letra: abre la letra sincronizada."
+  },
+  {
+   "num": 17,
+   "t": "Parlante: silencia o vuelve a activar el sonido (tecla M)."
+  },
+  {
+   "num": 18,
+   "t": "Volumen: arrastrá la barra, usá la rueda o las flechas; arriba se ve el %."
+  },
+  {
+   "num": 19,
+   "t": "Cola: muestra lo que sigue; tocala para ver la lista completa."
+  }
+ ],
+ "a03-cola": [
+  {
+   "num": 1,
+   "t": "Cola de reproducción: todos los temas que van a sonar."
+  },
+  {
+   "num": 2,
+   "t": "Cada tema: el que suena tiene el ecualizador; tocá otro para saltar a él."
+  },
+  {
+   "num": 3,
+   "t": "Cierra la cola."
+  }
+ ],
+ "a04-buscador": [
+  {
+   "num": 1,
+   "t": "Escribí al menos 2 letras."
+  },
+  {
+   "num": 2,
+   "t": "Temas: tocá una tapa para escucharla."
+  },
+  {
+   "num": 3,
+   "t": "Ver todo en Explorar."
+  }
+ ],
+ "a05-cuenta": [
+  {
+   "num": 1,
+   "t": "Mi música."
+  },
+  {
+   "num": 2,
+   "t": "Mis publicaciones."
+  },
+  {
+   "num": 3,
+   "t": "Mis compras: los pedidos y su estado."
+  },
+  {
+   "num": 4,
+   "t": "Mi perfil."
+  },
+  {
+   "num": 5,
+   "t": "Cerrar sesión."
+  }
+ ],
+ "a06-pide-sesion": [
+  {
+   "num": 1,
+   "t": "Usuario o correo."
+  },
+  {
+   "num": 2,
+   "t": "Contraseña."
+  },
+  {
+   "num": 3,
+   "t": "Muestra u oculta la contraseña."
+  },
+  {
+   "num": 4,
+   "t": "Entrar y escuchar: el tema arranca solo, sin perder la página."
+  },
+  {
+   "num": 5,
+   "t": "Entrar con una plataforma de música (si está configurada)."
+  },
+  {
+   "num": 6,
+   "t": "Crear una cuenta gratis."
+  },
+  {
+   "num": 7,
+   "t": "Cierra el panel (también con Esc)."
+  }
+ ],
+ "b01-registro": [
+  {
+   "num": 1,
+   "t": "Vinilo: tu usuario aparece en la etiqueta; la edición mejora con la seguridad de la clave."
+  },
+  {
+   "num": 2,
+   "t": "Nombre de usuario (hasta 30 caracteres, único)."
+  },
+  {
+   "num": 3,
+   "t": "Correo electrónico (único)."
+  },
+  {
+   "num": 4,
+   "t": "Contraseña: 8 o más caracteres, con mayúscula y número."
+  },
+  {
+   "num": 5,
+   "t": "Muestra u oculta la contraseña."
+  },
+  {
+   "num": 6,
+   "t": "Medidor de seguridad de la contraseña."
+  },
+  {
+   "num": 7,
+   "t": "Repetí la contraseña."
+  },
+  {
+   "num": 8,
+   "t": "Crear mi cuenta: crea la cuenta y entra."
+  },
+  {
+   "num": 9,
+   "t": "Registrarse con una plataforma de música (si está configurada)."
+  }
+ ],
+ "b02-login": [
+  {
+   "num": 1,
+   "t": "Usuario o correo."
+  },
+  {
+   "num": 2,
+   "t": "Contraseña (5 intentos fallidos frenan el ingreso unos 15 minutos)."
+  },
+  {
+   "num": 3,
+   "t": "Muestra u oculta la contraseña."
+  },
+  {
+   "num": 4,
+   "t": "Entrar."
+  },
+  {
+   "num": 5,
+   "t": "Entrar con Spotify, Apple Music, YouTube Music o SoundCloud."
+  },
+  {
+   "num": 6,
+   "t": "Ir a crear una cuenta."
+  }
+ ],
+ "c01-inicio": [
+  {
+   "num": 1,
+   "t": "Portadas flotantes: 12 temas al azar; tocá una para escucharla."
+  },
+  {
+   "num": 2,
+   "t": "Reproducir: pone los 12 temas en orden."
+  },
+  {
+   "num": 3,
+   "t": "Radio: mezcla los temas al azar."
+  }
+ ],
+ "c02-disco-del-dia": [
+  {
+   "num": 1,
+   "t": "Disco del día: igual para todos, cambia a medianoche."
+  },
+  {
+   "num": 2,
+   "t": "Poner el lado que se ve."
+  },
+  {
+   "num": 3,
+   "t": "Dar vuelta el disco (lado A hip hop, lado B pop)."
+  },
+  {
+   "num": 4,
+   "t": "Tocá un tema para escucharlo con ese lado como lista."
+  }
+ ],
+ "c03-juego": [
+  {
+   "num": 1,
+   "t": "Tocá el disco: suenan 3 segundos de un tema."
+  },
+  {
+   "num": 2,
+   "t": "Elegí cuál es entre 4 opciones (3 puntos con 3 s, 1 punto con 6 s)."
+  },
+  {
+   "num": 3,
+   "t": "+3 s: escuchá 6 segundos."
+  },
+  {
+   "num": 4,
+   "t": "Otra: arma una ronda nueva."
+  },
+  {
+   "num": 5,
+   "t": "Racha, mejor marca y puntos."
+  },
+  {
+   "num": 6,
+   "t": "Lo más guardado: los 10 temas con más me gusta de la comunidad."
+  }
+ ],
+ "c04-explorar": [
+  {
+   "num": 1,
+   "t": "Reproducir toda la lista en orden."
+  },
+  {
+   "num": 2,
+   "t": "Radio: toda la lista mezclada."
+  },
+  {
+   "num": 3,
+   "t": "Buscar un artista o tema (Enter)."
+  },
+  {
+   "num": 4,
+   "t": "Perilla: girala para cambiar de estación."
+  },
+  {
+   "num": 5,
+   "t": "Estación anterior."
+  },
+  {
+   "num": 6,
+   "t": "Escuchar la estación."
+  },
+  {
+   "num": 7,
+   "t": "Estación siguiente."
+  },
+  {
+   "num": 8,
+   "t": "Sintonía automática: suena sola cuando dejás quieto el dial."
+  },
+  {
+   "num": 9,
+   "t": "Banda del dial: arrastrala o usá la rueda; entre estaciones hay estática."
+  },
+  {
+   "num": 10,
+   "t": "Filtros: toda la banda, Hip hop o Pop."
+  },
+  {
+   "num": 11,
+   "t": "Escuchar entera la sección."
+  }
+ ],
+ "c05-ahora-suena": [
+  {
+   "num": 1,
+   "t": "Cierra la pantalla (también Esc, la tecla E o arrastrar hacia abajo)."
+  },
+  {
+   "num": 2,
+   "t": "Portada: deslizala para pasar de tema; tocala para ver la letra."
+  },
+  {
+   "num": 3,
+   "t": "Corazón: guarda el tema."
+  },
+  {
+   "num": 4,
+   "t": "Letra (tecla L)."
+  },
+  {
+   "num": 5,
+   "t": "Abrir la canción completa en Apple Music."
+  },
+  {
+   "num": 6,
+   "t": "Progreso con espectro: arrastrá para adelantar."
+  },
+  {
+   "num": 7,
+   "t": "Controles: aleatorio, anterior, play, siguiente, repetir."
+  },
+  {
+   "num": 8,
+   "t": "A continuación: los próximos 3 temas; tocá uno para escucharlo."
+  }
+ ],
+ "c06-letra": [
+  {
+   "num": 1,
+   "t": "La línea que se canta: se pinta palabra por palabra."
+  },
+  {
+   "num": 2,
+   "t": "Otros versos: tocá uno para ir a ese momento (o usá ↑ / ↓)."
+  },
+  {
+   "num": 3,
+   "t": "Mapa de la letra: una marca por verso; los estribillos resaltados."
+  },
+  {
+   "num": 4,
+   "t": "El disco gira y se llena con cada verso."
+  }
+ ],
+ "d01-batea": [
+  {
+   "num": 1,
+   "t": "Resumen: discos, comprados y publicados."
+  },
+  {
+   "num": 2,
+   "t": "Pestaña La batea: tus me gusta."
+  },
+  {
+   "num": 3,
+   "t": "Pestaña Tus discos: lo que compraste, para escuchar."
+  },
+  {
+   "num": 4,
+   "t": "Pestaña Tus publicaciones."
+  },
+  {
+   "num": 5,
+   "t": "La batea: pasá los discos con la rueda, arrastrando o con las flechas."
+  },
+  {
+   "num": 6,
+   "t": "Escuchar el disco de adelante."
+  },
+  {
+   "num": 7,
+   "t": "Toda la batea seguida."
+  }
+ ],
+ "d02-tus-discos": [
+  {
+   "num": 1,
+   "t": "Tapa: abre la ficha del disco en la tienda."
+  },
+  {
+   "num": 2,
+   "t": "Formato comprado (digital o vinilo) y fecha de compra."
+  },
+  {
+   "num": 3,
+   "t": "Escuchar el disco entero."
+  },
+  {
+   "num": 4,
+   "t": "Tocá un tema para escucharlo (los de prueba suenan con una muestra)."
+  }
+ ],
+ "d03-subir": [
+  {
+   "num": 1,
+   "t": "Audio: arrastralo o tocá para elegirlo (mp3, wav, ogg, m4a o flac, hasta 25 MB)."
+  },
+  {
+   "num": 2,
+   "t": "Nombre de la canción (aparece en la etiqueta del disco)."
+  },
+  {
+   "num": 3,
+   "t": "Género."
+  },
+  {
+   "num": 4,
+   "t": "Sencillo o parte de un álbum (pide álbum y número de pista)."
+  },
+  {
+   "num": 5,
+   "t": "Portada: cuadrada, hasta 5 MB."
+  },
+  {
+   "num": 6,
+   "t": "Torno: muestra la onda real del audio y permite escucharlo antes de subir."
+  },
+  {
+   "num": 7,
+   "t": "Volver sin publicar."
+  },
+  {
+   "num": 8,
+   "t": "Enviar a revisión: un administrador la aprueba o la devuelve."
+  }
+ ],
+ "d04-publicaciones": [
+  {
+   "num": 1,
+   "t": "Cuántos temas están en la sala, en revisión y devueltos."
+  },
+  {
+   "num": 2,
+   "t": "Filtros por estado: todas, en revisión, aprobadas, rechazadas."
+  },
+  {
+   "num": 3,
+   "t": "Subir un tema."
+  },
+  {
+   "num": 4,
+   "t": "Nuevo álbum."
+  },
+  {
+   "num": 5,
+   "t": "Tus álbumes: tapa y título."
+  },
+  {
+   "num": 6,
+   "t": "Editar el álbum."
+  }
+ ],
+ "d05-album-nuevo": [
+  {
+   "num": 1,
+   "t": "Título del álbum."
+  },
+  {
+   "num": 2,
+   "t": "Género."
+  },
+  {
+   "num": 3,
+   "t": "Álbum o sencillo."
+  },
+  {
+   "num": 4,
+   "t": "Descripción."
+  },
+  {
+   "num": 5,
+   "t": "Fecha de lanzamiento."
+  },
+  {
+   "num": 6,
+   "t": "Portada (se ve en el disco)."
+  },
+  {
+   "num": 7,
+   "t": "Formato físico: CD, vinilo o cassette."
+  }
+ ],
+ "e01-tienda": [
+  {
+   "num": 1,
+   "t": "Disco destacado: abre su ficha."
+  },
+  {
+   "num": 2,
+   "t": "Ver el disco destacado."
+  },
+  {
+   "num": 3,
+   "t": "Buscar por disco o artista."
+  },
+  {
+   "num": 4,
+   "t": "Filtrar por género."
+  },
+  {
+   "num": 5,
+   "t": "Ordenar: recientes, menor o mayor precio, A-Z."
+  }
+ ],
+ "e02-catalogo": [
+  {
+   "num": 1,
+   "t": "Tarjeta del disco: al pasar el mouse el vinilo sale de la funda; tocala para ver la ficha."
+  },
+  {
+   "num": 2,
+   "t": "Aviso de stock: últimas unidades o agotado."
+  },
+  {
+   "num": 3,
+   "t": "Precio desde (el formato más barato)."
+  }
+ ],
+ "e03-ficha": [
+  {
+   "num": 1,
+   "t": "Volver a la disquería."
+  },
+  {
+   "num": 2,
+   "t": "Vista 2D."
+  },
+  {
+   "num": 3,
+   "t": "Vista 3D: arrastrá el disco para girarlo."
+  },
+  {
+   "num": 4,
+   "t": "Guardar / sacar el disco de la funda."
+  },
+  {
+   "num": 5,
+   "t": "Artista: abre su página."
+  },
+  {
+   "num": 6,
+   "t": "Vinilo: formato físico, con envío (avisa el stock)."
+  },
+  {
+   "num": 7,
+   "t": "Digital: descarga."
+  },
+  {
+   "num": 8,
+   "t": "Cantidad (1 a 20)."
+  },
+  {
+   "num": 9,
+   "t": "Agregar al carrito."
+  }
+ ],
+ "e04-carrito": [
+  {
+   "num": 1,
+   "t": "Pasos de la compra: bolsa, pago y listo."
+  },
+  {
+   "num": 2,
+   "t": "Disco en el carrito: abre su ficha."
+  },
+  {
+   "num": 3,
+   "t": "Restar uno (en 1, quita el disco)."
+  },
+  {
+   "num": 4,
+   "t": "Cantidad."
+  },
+  {
+   "num": 5,
+   "t": "Sumar uno."
+  },
+  {
+   "num": 6,
+   "t": "Quitar el disco."
+  },
+  {
+   "num": 7,
+   "t": "Seguir mirando la tienda."
+  },
+  {
+   "num": 8,
+   "t": "Vaciar el carrito (pide confirmación)."
+  },
+  {
+   "num": 9,
+   "t": "Ticket con el total."
+  },
+  {
+   "num": 10,
+   "t": "Ir a pagar."
+  }
+ ],
+ "e05-pago": [
+  {
+   "num": 1,
+   "t": "Tarjeta dibujada: se completa mientras escribís y muestra la marca."
+  },
+  {
+   "num": 2,
+   "t": "Nombre del titular."
+  },
+  {
+   "num": 3,
+   "t": "Apellido del titular."
+  },
+  {
+   "num": 4,
+   "t": "Número de tarjeta (prueba: 4111 1111 1111 1111)."
+  },
+  {
+   "num": 5,
+   "t": "Vencimiento MM/AA (prueba: 12/30)."
+  },
+  {
+   "num": 6,
+   "t": "Código de seguridad (prueba: 123)."
+  },
+  {
+   "num": 7,
+   "t": "Pagar: es una simulación, no se cobra nada."
+  },
+  {
+   "num": 8,
+   "t": "Volver a la bolsa."
+  }
+ ],
+ "e06-confirmacion": [
+  {
+   "num": 1,
+   "t": "Número de pedido grabado en el disco."
+  },
+  {
+   "num": 2,
+   "t": "Discos comprados, total y tarjeta (solo los últimos 4 números)."
+  },
+  {
+   "num": 3,
+   "t": "Escuchar lo que compraste (Mi música, Tus discos)."
+  },
+  {
+   "num": 4,
+   "t": "Ver mis compras."
+  },
+  {
+   "num": 5,
+   "t": "Seguir en la disquería."
+  }
+ ],
+ "e07-compras": [
+  {
+   "num": 1,
+   "t": "Cantidad de pedidos y total gastado."
+  },
+  {
+   "num": 2,
+   "t": "Número y fecha del pedido."
+  },
+  {
+   "num": 3,
+   "t": "Estado: los vinilos van de Recibido a Entregado; los digitales a En tu biblioteca."
+  },
+  {
+   "num": 4,
+   "t": "Discos del pedido, formato, cantidad y precio."
+  },
+  {
+   "num": 5,
+   "t": "Escuchar en Tus discos."
+  }
+ ],
+ "f01-perfil": [
+  {
+   "num": 1,
+   "t": "Tu etiqueta: foto o iniciales y tus cifras."
+  },
+  {
+   "num": 2,
+   "t": "Nombre."
+  },
+  {
+   "num": 3,
+   "t": "Apellido."
+  },
+  {
+   "num": 4,
+   "t": "Correo (único)."
+  },
+  {
+   "num": 5,
+   "t": "Biografía (se ve en tu página pública)."
+  },
+  {
+   "num": 6,
+   "t": "Cambiar contraseña."
+  },
+  {
+   "num": 7,
+   "t": "Guardar los cambios."
+  },
+  {
+   "num": 8,
+   "t": "Tus lugares: colección, publicaciones, compras y página pública."
+  }
+ ],
+ "f02-password": [
+  {
+   "num": 1,
+   "t": "Contraseña actual."
+  },
+  {
+   "num": 2,
+   "t": "Contraseña nueva."
+  },
+  {
+   "num": 3,
+   "t": "Repetí la nueva."
+  },
+  {
+   "num": 4,
+   "t": "Muestra u oculta cada contraseña."
+  },
+  {
+   "num": 5,
+   "t": "Volver sin cambiar."
+  },
+  {
+   "num": 6,
+   "t": "Actualizar (la sesión sigue abierta)."
+  }
+ ],
+ "f03-artista": [
+  {
+   "num": 1,
+   "t": "Página pública del artista: nombre, biografía y cifras."
+  },
+  {
+   "num": 2,
+   "t": "Sus discos en la tienda."
+  }
+ ],
+ "g01-panel": [
+  {
+   "num": 1,
+   "t": "Resumen."
+  },
+  {
+   "num": 2,
+   "t": "Pruebas de prensa: revisar lo que suben los usuarios."
+  },
+  {
+   "num": 3,
+   "t": "Cuentas."
+  },
+  {
+   "num": 4,
+   "t": "Catálogo de la tienda."
+  },
+  {
+   "num": 5,
+   "t": "Pedidos."
+  },
+  {
+   "num": 6,
+   "t": "Géneros."
+  },
+  {
+   "num": 7,
+   "t": "Django admin (administración avanzada)."
+  },
+  {
+   "num": 8,
+   "t": "Volver a la sala."
+  },
+  {
+   "num": 9,
+   "t": "Medidores: cuentas, en revisión, en la sala, escuchas, me gusta, pedidos y facturado."
+  },
+  {
+   "num": 10,
+   "t": "Bus master: actividad de los últimos 14 días (pasá el mouse por un día)."
+  }
+ ],
+ "g02-revision": [
+  {
+   "num": 1,
+   "t": "Filtros: pendientes, aprobadas, rechazadas o todas."
+  },
+  {
+   "num": 2,
+   "t": "Buscar por título o artista."
+  },
+  {
+   "num": 3,
+   "t": "Cada prueba: escuchar, Aprobar, Rechazar con motivo o Eliminar."
+  }
+ ],
+ "g03-cuentas": [
+  {
+   "num": 1,
+   "t": "Filtros: todos, sancionados o administradores."
+  },
+  {
+   "num": 2,
+   "t": "Buscar por usuario o correo."
+  },
+  {
+   "num": 3,
+   "t": "Usuario: abre su página pública."
+  },
+  {
+   "num": 4,
+   "t": "Bloquear o desbloquear (pide confirmación)."
+  },
+  {
+   "num": 5,
+   "t": "Cambiar el rol (solo un superusuario)."
+  }
+ ],
+ "g04-catalogo": [
+  {
+   "num": 1,
+   "t": "Buscar disco o artista."
+  },
+  {
+   "num": 2,
+   "t": "Nuevo producto."
+  },
+  {
+   "num": 3,
+   "t": "Disco y artista."
+  },
+  {
+   "num": 4,
+   "t": "Editar precios, stock, formatos y visibilidad."
+  },
+  {
+   "num": 5,
+   "t": "Eliminar (pide confirmación)."
+  }
+ ],
+ "g05-pedidos": [
+  {
+   "num": 1,
+   "t": "Filtrar por estado."
+  },
+  {
+   "num": 2,
+   "t": "Nuevo estado: pagado, enviado, entregado o cancelado."
+  },
+  {
+   "num": 3,
+   "t": "Pasar: aplica el estado (cancelar devuelve el stock)."
+  }
+ ],
+ "g06-generos": [
+  {
+   "num": 1,
+   "t": "Ver el género en Explorar."
+  },
+  {
+   "num": 2,
+   "t": "Eliminar el género (pide confirmación)."
+  },
+  {
+   "num": 3,
+   "t": "Nombre del género nuevo."
+  },
+  {
+   "num": 4,
+   "t": "Agregar el género."
+  }
+ ],
+ "h01-error": [
+  {
+   "num": 1,
+   "t": "Levantar la púa: vuelve al inicio."
+  },
+  {
+   "num": 2,
+   "t": "Explorar: buscar música."
+  }
+ ]
+}
