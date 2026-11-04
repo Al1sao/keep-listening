@@ -12,6 +12,7 @@ import io
 import math
 import random
 import struct
+import tempfile
 import wave
 from array import array
 from pathlib import Path
@@ -208,7 +209,9 @@ def ruta_muestra(album, numero, titulo):
         carpeta.mkdir(parents=True, exist_ok=True)
         genero = album.genero.nombre if album.genero_id else ""
         datos = componer(f"{album.slug}|{numero}|{titulo}", genero)
-        temporal = ruta.with_suffix(".tmp")
-        temporal.write_bytes(datos)
-        temporal.replace(ruta)  # nadie lee un archivo a medio escribir
+        # Temporal con nombre único: si dos pedidos la generan a la vez, cada uno
+        # escribe el suyo y el reemplazo atómico deja una sola, completa.
+        with tempfile.NamedTemporaryFile(dir=carpeta, suffix=".tmp", delete=False) as temporal:
+            temporal.write(datos)
+        Path(temporal.name).replace(ruta)
     return ruta

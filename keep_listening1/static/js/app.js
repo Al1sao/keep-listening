@@ -158,6 +158,8 @@
     const buscar = debounce(async (texto) => {
       ultimaConsulta = texto.trim();
       if (ultimaConsulta.length < 2) {
+        if (pedidoBusqueda) pedidoBusqueda.abort();
+        pedidoBusqueda = null;
         abrirPanel(false);
         return;
       }
@@ -447,6 +449,10 @@
     $$("[data-carrito-contador]").forEach((nodo) => {
       nodo.textContent = datos.cantidad;
       nodo.dataset.cantidad = datos.cantidad;
+    });
+    // El lector de pantalla lee la etiqueta del ícono, no el número: va al día.
+    $$("[data-carrito-etiqueta]").forEach((nodo) => {
+      nodo.setAttribute("aria-label", `Carrito, ${datos.cantidad} producto${Number(datos.cantidad) === 1 ? "" : "s"}`);
     });
     $$("[data-carrito-cantidad]").forEach((nodo) => (nodo.textContent = datos.cantidad));
     $$("[data-carrito-total]").forEach((nodo) => (nodo.textContent = datos.total_formateado));

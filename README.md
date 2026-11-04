@@ -136,6 +136,13 @@ Copiar `.env.example` a `.env` y ajustarlo. Las que importan:
 | `DJANGO_CSRF_TRUSTED_ORIGINS` | Origenes con esquema, separados por coma. |
 | `SQLITE_PATH` | Ruta del archivo de base de datos. |
 | `CARGAR_DATOS` | `1` carga los datos de ejemplo al arrancar el contenedor; `0` no. |
+| `DATABASE_URL` | Si está, se usa PostgreSQL (`postgresql://usuario:clave@host:puerto/base`) en lugar de SQLite. La pone Render. |
+| `KL_DEMO` | `1` permite cargar los datos de ejemplo con `DJANGO_DEBUG=0` (sitio de demostración). |
+| `KL_ADMIN_PASSWORD` | Contraseña del usuario `admin` en la demo publicada (reemplaza la de ejemplo). |
+| `KL_SERVIDOR` | `gunicorn` arranca Gunicorn en el puerto `PORT` en lugar de `runserver`. |
+| `KL_SERVIR_MEDIA` | `1` hace que Django sirva los archivos subidos fuera de desarrollo (cuando no hay nginx). |
+| `KL_PROXIES` | Cuántos proxies de confianza hay delante, para leer la IP real en los límites de pedidos. |
+| `KL_CACHE_DIR` | Carpeta de la caché de disco del catálogo (por defecto `.cache/catalogo`). |
 
 Generar una clave:
 

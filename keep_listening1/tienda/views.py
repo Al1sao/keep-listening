@@ -94,7 +94,9 @@ def catalogo(request):
         "precio_desc": "-precio_orden",
         "titulo": "titulo",
     }
-    albumes = albumes.order_by(ordenes.get(orden, "-fecha_lanzamiento"))
+    # El id desempata: con precios o fechas iguales, PostgreSQL no garantiza el
+    # orden y un disco podría repetirse o faltar entre páginas.
+    albumes = albumes.order_by(ordenes.get(orden, "-fecha_lanzamiento"), "-pk")
 
     paginador = Paginator(albumes, PAGINA)
     pagina = paginador.get_page(request.GET.get("page"))
@@ -130,6 +132,12 @@ def _destacado():
 def portada(request, slug):
     """Portada minimalista del disco, generada con su título (ver portadas.py)."""
     album = get_object_or_404(Album.objects.select_related("artista"), slug=slug)
+    # Un disco sin publicar no se anuncia: su tapa solo la ven el artista y los admin.
+    usuario = request.user
+    if not album.publicado and not (
+        usuario.is_authenticated and (usuario.pk == album.artista_id or usuario.es_admin)
+    ):
+        raise Http404("Ese disco no está publicado.")
     respuesta = HttpResponse(portada_svg(album.titulo, album.artista.username), content_type="image/svg+xml")
     respuesta["Cache-Control"] = "public, max-age=86400"
     return respuesta
@@ -416,7 +424,12 @@ def _temas_del_disco(album):
 
 
 def _pistas_del_disco(album):
-    """Cada tema del disco como pista del reproductor, sonando con su muestra."""
+    """Los temas del disco para el reproductor. Si el artista subió canciones y
+    están aprobadas, suenan esas; si no (los discos de prueba), cada tema de la
+    lista suena con su muestra generada."""
+    canciones = list(album.canciones_aprobadas().select_related("artista", "genero", "album"))
+    if canciones:
+        return [cancion.como_pista() for cancion in canciones]
     portada, ficha = album.portada_url, album.get_absolute_url()
     genero = album.genero.nombre if album.genero_id else ""
     return [
@@ -459,11 +472,13 @@ def discos_comprados(usuario):
                 "fecha": item.pedido.fecha,
                 "formatos": set(),
                 "pistas": _pistas_del_disco(item.album),
-                "id_json": f"kl-disco-{item.album_id}",
+                # Prefijo propio: la batea ya usa ids kl-disco-0, kl-disco-1...
+                "id_json": f"kl-comprado-{item.album_id}",
             }
         disco["formatos"].add(item.get_formato_display())
     for disco in discos.values():
         disco["formatos"] = sorted(disco["formatos"])
+        disco["muestras"] = any(pista.get("compra") for pista in disco["pistas"])
     return list(discos.values())
 
 

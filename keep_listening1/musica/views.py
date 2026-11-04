@@ -278,6 +278,7 @@ def mi_musica(request):
         "pistas": _pistas(en_pagina),
         "pendientes": publicaciones.filter(estado=Cancion.Estado.PENDIENTE).count(),
         "comprados": comprados,
+        "hay_muestras": any(disco["muestras"] for disco in comprados),
     }
     return render(request, "musica/mi_musica.html", contexto)
 

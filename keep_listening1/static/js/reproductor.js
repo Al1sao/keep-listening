@@ -67,6 +67,8 @@
   }
   // El último volumen que se oía: quitar el silencio con la barra en 0 vuelve ahí.
   let volumenAudible = audio.volume > 0 ? audio.volume : 0.8;
+  // El ícono del parlante sigue al audio, se cambie desde donde se cambie.
+  audio.addEventListener("volumechange", () => actualizarIconoVolumen());
 
   function asegurarAnalizador() {
     if (window.KLAudio) {
@@ -508,7 +510,9 @@
     const externa = pista && !KL.util.esLocal(pista.id);
     const ultima = estado.indice + 1 >= estado.pistas.length;
     if (externa && ultima && !estado.repetir) {
-      avisar("Se terminó el adelanto. Abrí la portada en grande para ir a la canción completa.", "info");
+      avisar(pista.compra
+        ? "Se terminó el disco. Tocá un tema para escucharlo de nuevo."
+        : "Se terminó el adelanto. Abrí la portada en grande para ir a la canción completa.", "info");
       emitir();
       return;
     }
@@ -665,11 +669,16 @@
       avisar("Este tema no trae adelanto. Abrimos su ficha.", "info");
       return;
     }
-    const cola = ultimaLista.length ? ultimaLista.slice() : [pista];
-    const inicio = cola.findIndex((item) => String(item.id) === String(pista.id));
+    let cola = ultimaLista.length ? ultimaLista.slice() : [pista];
+    let inicio = cola.findIndex((item) => String(item.id) === String(pista.id));
+    // El tema tocado no estaba en la última lista: suena él y después sigue esa lista.
+    if (inicio < 0) {
+      cola = [pista, ...cola];
+      inicio = 0;
+    }
     estado.pistas = cola;
     marcarAleatorio(false);
-    cargar(inicio >= 0 ? inicio : 0);
+    cargar(inicio);
     const panel = document.getElementById("kl-buscador-resultados");
     if (panel) panel.classList.remove("visible");
   }
@@ -715,7 +724,11 @@
   function leerPagina() {
     const propias = KL.util.json("kl-pistas", []);
     pistasDePagina = Array.isArray(propias) ? propias : [];
-    if (!audio.getAttribute("src") && pistasDePagina.length) estado.pistas = pistasDePagina.slice();
+    if (!audio.getAttribute("src") && pistasDePagina.length) {
+      estado.pistas = pistasDePagina.slice();
+      pintarCola();
+      emitir();
+    }
     const catalogo = KL.util.json("kl-catalogo", null);
     if (Array.isArray(catalogo)) tomarLista(catalogo);
     const pista = estado.pistas[estado.indice];
@@ -737,6 +750,10 @@
       const nodoLista = seccion && document.getElementById(seccion.dataset.lista);
       if (nodoLista) {
         try { tomarLista(JSON.parse(nodoLista.textContent)); } catch (error) { /* se usa la cola anterior */ }
+      } else {
+        // Sin sección propia (las portadas del inicio): vuelve la lista de la página.
+        const catalogo = KL.util.json("kl-catalogo", null);
+        if (Array.isArray(catalogo)) tomarLista(catalogo);
       }
       encolarExterna(externas.get(externo.dataset.catalogo));
       return;
@@ -782,7 +799,9 @@
     siguiente: () => siguiente(),
     anterior,
     formatear,
+    alternarSilencio,
   };
 
   pintarCola();
+  actualizarIconoVolumen();
 })();

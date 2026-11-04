@@ -64,7 +64,7 @@
             </svg>
             <div>
                 <strong data-medidor-texto>Muy débil</strong>
-                <small>8 caracteres o más, con mayúscula y número.</small>
+                <small id="{{ form.password1.auto_id }}_helptext">8 caracteres o más, con mayúscula y número.</small>
             </div>
         </div>
         {% for error in form.password1.errors %}<p class="kl-form__error" id="{{ form.password1.auto_id }}-error">{{ error }}</p>{% endfor %}

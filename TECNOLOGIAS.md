@@ -23,7 +23,11 @@ El pago es una simulación. Valida la tarjeta con el algoritmo de Luhn, descuent
 
 ## SQLite
 
-Usamos SQLite, la que viene por defecto. Para un proyecto que corre local en un contenedor no hacía falta un servidor de base de datos aparte, y así cualquiera lo levanta sin instalar nada. Una cosa que nos costó entender fue la concurrencia: dos compras al mismo tiempo del mismo carrito podían cobrarse dos veces. Lo resolvimos en `settings.py` con `transaction_mode: IMMEDIATE`, que toma el lock de escritura apenas empieza la transacción, y con un `timeout` de 20 segundos. Si algún día esto tuviera mucho tráfico, habría que pasarse a PostgreSQL, pero para lo que es hoy alcanza.
+Usamos SQLite, la que viene por defecto. Para un proyecto que corre local en un contenedor no hacía falta un servidor de base de datos aparte, y así cualquiera lo levanta sin instalar nada. Una cosa que nos costó entender fue la concurrencia: dos compras al mismo tiempo del mismo carrito podían cobrarse dos veces. Lo resolvimos en `settings.py` con `transaction_mode: IMMEDIATE`, que toma el lock de escritura apenas empieza la transacción, y con un `timeout` de 20 segundos. Para trabajar en la compu y para la entrega en ZIP sigue siendo SQLite.
+
+## PostgreSQL (la versión publicada)
+
+Cuando publicamos la página en Render nos pasó algo que no esperábamos: la base SQLite vivía adentro del contenedor y se borraba cada vez que el servidor se reiniciaba o se publicaba una versión nueva, así que las compras y las cuentas desaparecían. Lo solucionamos con una base PostgreSQL gratuita de Render. En `settings.py`, si existe la variable `DATABASE_URL`, Django usa PostgreSQL; si no, sigue con SQLite. El código no tuvo que cambiar porque todo pasa por el ORM, pero aprendimos que PostgreSQL es más estricto: no deja guardar un texto más largo que el campo ni el carácter nulo, cosas que SQLite dejaba pasar. Para conectarse usa `psycopg`, que está en `requirements.txt` solo para las versiones de Python que lo necesitan.
 
 ## django-allauth
 
@@ -37,7 +41,7 @@ Pillow es lo que necesita Django para los campos de imagen, o sea las portadas d
 
 WhiteNoise sirve los archivos estáticos desde la propia aplicación, así que no hace falta un nginx para ver el CSS y el JS. Lo usamos con `CompressedManifestStaticFilesStorage`, que los comprime y les pone un hash en el nombre para que el navegador no use versiones viejas.
 
-Gunicorn está en `requirements.txt` para cuando se sirva fuera de desarrollo. Hay que ser claros con esto: el `docker-compose.yml` levanta el sitio con `runserver`, el servidor de desarrollo de Django. Gunicorn quedó documentado en el Dockerfile como el comando para producción (con `DJANGO_DEBUG=0`), pero no es lo que corre por defecto.
+Gunicorn está en `requirements.txt` para servir fuera de desarrollo. En la compu, el `docker-compose.yml` levanta el sitio con `runserver`, el servidor de desarrollo de Django. En Render, en cambio, `render.yaml` pone `KL_SERVIDOR=gunicorn` y el `entrypoint.sh` arranca Gunicorn con dos procesos en el puerto que da la plataforma.
 
 ## JavaScript sin frameworks
 
@@ -83,7 +87,11 @@ Los tests no dependen de estas APIs: `python manage.py test` corre sin internet.
 
 ## Git
 
-Usamos Git para el control de versiones. El repositorio tiene pocos commits, todos sobre `main`, y un `.gitignore` que deja afuera `node_modules`, `media/`, el `.env`, la clave secreta de desarrollo y el CSS compilado.
+Usamos Git para el control de versiones, todo sobre `main`, y un `.gitignore` que deja afuera `node_modules`, `media/`, el `.env` y la clave secreta de desarrollo. El CSS compilado sí lo subimos, para que el proyecto se pueda correr sin instalar Node.
+
+## Render y GitHub Pages
+
+La página está publicada en Render (plan gratuito) desde el mismo repositorio: lee `render.yaml`, construye la imagen con el `Dockerfile` y vuelve a publicar sola cada vez que subimos un cambio a GitHub. Ahí corre con `DJANGO_DEBUG=0`, una clave secreta que genera Render y los datos de ejemplo cargados al arrancar. La contraseña del administrador no está en el código: se carga en Render como `KL_ADMIN_PASSWORD`. La documentación (manual, informe y capturas) está en GitHub Pages, desde la carpeta `docs/`.
 
 ## Resumen
 
@@ -94,7 +102,10 @@ Usamos Git para el control de versiones. El repositorio tiene pocos commits, tod
 | django-allauth | Entrar con Spotify, Apple, Google (YouTube Music) y SoundCloud |
 | Pillow | Portadas e imágenes subidas |
 | WhiteNoise | Servir los archivos estáticos desde la aplicación |
-| Gunicorn | Servidor para producción (por defecto en Docker corre `runserver`) |
+| Gunicorn | Servidor de la versión publicada en Render (en local corre `runserver`) |
+| PostgreSQL + psycopg | Base de datos de la versión publicada |
+| Render | Publicación de la página, con `render.yaml` |
+| GitHub Pages | Publicación de la documentación |
 | JavaScript nativo | Reproductor, navegación sin recargar, buscador, carrito y panel |
 | Web Audio API | Analizar el audio para el pulso de la interfaz |
 | Canvas 2D y WebGL | Bandeja, torno, letra, fondo vivo y vinilo 3D |

@@ -75,6 +75,8 @@
     const script = [...doc.scripts].map((s) => s.textContent).find((t) => t.includes("window.KL"));
     const token = script && script.match(/csrf:\s*"([^"]+)"/);
     if (token) KL.csrf = token[1];
+    KL.autenticado = true;
+    document.body.dataset.autenticado = "1";
     const gustos = doc.getElementById("kl-me-gusta-ids");
     if (gustos) {
       const viejo = document.getElementById("kl-me-gusta-ids");
@@ -83,8 +85,6 @@
     }
     const aviso = doc.querySelector(".kl-alerta__texto");
     if (aviso && typeof window.klAviso === "function") window.klAviso(aviso.textContent.trim(), "success");
-    KL.autenticado = true;
-    document.body.dataset.autenticado = "1";
   }
 
   if (form) {

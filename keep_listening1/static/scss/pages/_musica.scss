@@ -875,6 +875,10 @@
       }
     }
 
+    @media (hover: none) {
+      button i { opacity: .6; }
+    }
+
     // El tema que suena se marca con el color del tema (reproductor.js pone .sonando).
     li.sonando button {
       color: tema(1);

@@ -34,7 +34,7 @@
   border-radius: $kl-radio-pill;
   transition: border-color $kl-transicion, box-shadow $kl-transicion;
 
-  &::placeholder { color: rgba($kl-texto-suave, .65); }
+  &::placeholder { color: rgba($kl-texto-suave, .82); }
 
   &:focus {
     outline: none;

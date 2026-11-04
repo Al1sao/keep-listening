@@ -47,6 +47,7 @@
     const mhzDe = (i) => MIN + (i / (n - 1)) * (MAX - MIN);
     const pos = { actual: 0, objetivo: 0, arrastre: null, cercana: -1 };
     let esperaAuto = 0;
+    let sintonizado = false; // pasa a true cuando la persona mueve el dial
     let anchoBanda = 0;
 
     // ---- La escala: marcas cada 0,5 MHz, números cada 2, una muesca por estación ----
@@ -140,6 +141,7 @@
     }
 
     function sintonizar(indice) {
+      sintonizado = true;
       pos.objetivo = Math.max(0, Math.min(n - 1, indice));
       clearTimeout(esperaAuto);
       // La pantalla (y lo que anuncia el lector) cambia ya; la banda llega animada.
@@ -150,7 +152,8 @@
     // Sintonía automática: si la banda se quedó quieta en una estación, suena.
     function programarAuto() {
       clearTimeout(esperaAuto);
-      if (!el.auto.checked) return;
+      // Solo después de que la persona movió el dial: entrar a la página no cambia el tema.
+      if (!el.auto.checked || !sintonizado) return;
       const tema = estaciones[pos.cercana];
       const bandeja = window.KLPlayer;
       const yaSuena = bandeja && bandeja.estado.pistas[bandeja.estado.indice];
@@ -162,6 +165,7 @@
     function arrastrable(nodo, sensibilidad) {
       nodo.addEventListener("pointerdown", (evento) => {
         pos.arrastre = { x: evento.clientX, desde: pos.actual, id: evento.pointerId, movido: false };
+        sintonizado = true;
         try { nodo.setPointerCapture(evento.pointerId); } catch (e) { /* puntero que ya se fue */ }
         dial.classList.add("sintonizando");
         clearTimeout(esperaAuto);

@@ -92,6 +92,26 @@ class LimiteDeSubida:
         return self.get_response(request)
 
 
+class SinCaracteresNulos:
+    """PostgreSQL no acepta el carácter NUL (%00) dentro de un texto: un pedido
+    que lo traiga en la dirección o en un campo terminaría en un error 500 al
+    buscar o guardar. Se responde 400 antes de llegar a la vista."""
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    @staticmethod
+    def _con_nulo(datos):
+        return any("\x00" in clave or any("\x00" in valor for valor in valores) for clave, valores in datos.lists())
+
+    def __call__(self, request):
+        if "\x00" in request.path or self._con_nulo(request.GET) or (
+            request.method == "POST" and self._con_nulo(request.POST)
+        ):
+            return HttpResponse("Pedido inválido.", status=400, content_type="text/plain; charset=utf-8")
+        return self.get_response(request)
+
+
 def nonce(request):
     """Context processor: {{ csp_nonce }} en los templates."""
     return {"csp_nonce": getattr(request, "csp_nonce", "")}

@@ -8,7 +8,7 @@
  *     marcas donde empieza cada verso y los estribillos resaltados (versos que
  *     se repiten). Al pasar el puntero se ve el verso de ese momento. Cerca de
  *     la púa, la huella respira con los graves.
- *  3. Perilla de volumen: arrastrar, rueda o flechas. Doble clic silencia.
+ *  3. Volumen: barra horizontal (arrastrar, rueda o flechas) con barritas.
  *  4. Pila: las tapas de los próximos temas.
  * =========================================================================== */
 (function () {
@@ -72,6 +72,11 @@
 
     el.disco.addEventListener("pointermove", (evento) => {
       if (!toque || evento.pointerId !== toque.id) return;
+      // Se soltó fuera del disco: ya no hay botón apretado.
+      if (evento.pointerType === "mouse" && evento.buttons === 0) {
+        toque = null;
+        return;
+      }
       const a = angulo(evento);
       let delta = a - toque.ultimo;
       if (delta > Math.PI) delta -= Math.PI * 2;

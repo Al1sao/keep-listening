@@ -194,7 +194,9 @@
   function cargarLetra() {
     if (!karaoke) return;
     const actual = ++pedidoLetra;
-    window.KLMontarLetra(karaoke, pista, () => actual === pedidoLetra && volteada);
+    // Vale el último pedido aunque la letra se haya cerrado mientras cargaba:
+    // si no, al volver quedaría para siempre en "Buscando la letra…".
+    window.KLMontarLetra(karaoke, pista, () => actual === pedidoLetra);
   }
 
   // "volteada" = modo letra activo (antes la portada se daba vuelta).
@@ -551,6 +553,8 @@
 
   document.addEventListener("keydown", (evento) => {
     if (evento.ctrlKey || evento.metaKey || evento.altKey) return;
+    const sesion = document.getElementById("kl-sesion");
+    if (sesion && !sesion.hidden) return;
     if (evento.key === "Escape" && abierto) {
       if (document.querySelector(".offcanvas.show")) return;
       cerrar();
@@ -569,10 +573,7 @@
       if (player()) player().alternarPlay();
     }
     // Con la hoja abierta, los atajos de la bandeja no corren (ver reproductor.js): el silencio va acá.
-    if ((evento.key === "m" || evento.key === "M") && player()) {
-      const a = audio();
-      a.muted = !a.muted;
-    }
+    if ((evento.key === "m" || evento.key === "M") && player()) player().alternarSilencio();
     if (evento.key === "ArrowRight" && !foco.closest("input") && player()) player().siguiente();
     if (evento.key === "ArrowLeft" && !foco.closest("input") && player()) player().anterior();
   });

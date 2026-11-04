@@ -19,7 +19,7 @@
 
     <nav class="kl-top__acciones" aria-label="Tu cuenta">
         {% if user.is_authenticated %}
-            <a class="kl-top__icono" href="{% url 'tienda:carrito' %}" aria-label="Carrito, {{ carrito_cantidad }} productos">
+            <a class="kl-top__icono" href="{% url 'tienda:carrito' %}" aria-label="Carrito, {{ carrito_cantidad }} producto{{ carrito_cantidad|pluralize }}" data-carrito-etiqueta>
                 <i aria-hidden="true" class="bi bi-cart3"></i>
                 <span class="kl-header__contador" data-carrito-contador data-cantidad="{{ carrito_cantidad }}">{{ carrito_cantidad }}</span>
             </a>

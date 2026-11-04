@@ -22,7 +22,7 @@
         <i class="bi bi-vinyl" aria-hidden="true"></i> La batea
     </button>
     <button class="kl-tabs__item" type="button" data-tab="discos" role="tab" aria-selected="false" aria-controls="tab-discos">
-        <i class="bi bi-bag-heart" aria-hidden="true"></i> Tus discos
+        <i class="bi bi-bag-check" aria-hidden="true"></i> Tus discos
         {% if comprados %}<span class="kl-badge">{{ comprados|length }}</span>{% endif %}
     </button>
     {% if favoritos or historial %}
@@ -80,10 +80,12 @@
 {# ---- Tus discos: lo comprado en la tienda, para escuchar ---- #}
 <section class="kl-tab-panel" id="tab-discos" role="tabpanel" aria-label="Tus discos">
     {% if comprados %}
+        {% if hay_muestras %}
         <p class="kl-texto-suave kl-mis-discos__nota">
-            Los discos de la tienda son de artistas de prueba: cada tema suena con una muestra
-            de unos 20 segundos compuesta para ese tema.
+            Los discos de artistas de prueba no traen grabaciones: cada tema suena con una
+            muestra de unos 20 segundos compuesta para ese tema.
         </p>
+        {% endif %}
         <div class="kl-mis-discos">
             {% for disco in comprados %}
                 {{ disco.pistas|json_script:disco.id_json }}

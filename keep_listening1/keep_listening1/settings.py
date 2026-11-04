@@ -1,8 +1,9 @@
 """
 Configuración de Django para el proyecto Keep Listening.
 
-Proyecto: Keep listening  -  Empresa: TecnoPlus
-Base de datos: SQLite  -  Ejecución: Docker (ver docker-compose.yml) o runserver
+Proyecto: Keep Listening  -  Empresa: TecnoPlus
+Base de datos: SQLite en local; PostgreSQL publicada (DATABASE_URL, ver render.yaml)
+Ejecución: Docker (ver docker-compose.yml), runserver o Render (gunicorn)
 
 La configuración sensible se toma del entorno; ver .env.example y README.md.
 """
@@ -147,6 +148,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "keep_listening1.seguridad.LimiteDeSubida",
+    "keep_listening1.seguridad.SinCaracteresNulos",
     "keep_listening1.seguridad.EncabezadosSeguridad",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

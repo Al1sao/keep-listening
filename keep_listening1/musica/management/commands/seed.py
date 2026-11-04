@@ -287,8 +287,10 @@ class Command(BaseCommand):
                     "lista_temas": datos["temas"],
                 },
             )
-            if not creado:
-                # Datos de ejemplo de versiones anteriores: se ponen al día.
+            if not creado and not album.lista_temas:
+                # Datos de ejemplo de versiones anteriores (sin lista de temas): se
+                # ponen al día. Un disco ya completo no se toca: el seed corre en
+                # cada arranque de la demo y pisaría lo editado desde el panel.
                 cambios = {"lista_temas": datos["temas"], "tipo_disco": datos["tipo_disco"]}
                 for campo, valor in cambios.items():
                     setattr(album, campo, valor)
@@ -353,8 +355,10 @@ class Command(BaseCommand):
         # --- Favoritos e historial del usuario de prueba ---
         aprobadas = list(Cancion.objects.aprobadas())
         random.seed(7)
-        for cancion in random.sample(aprobadas, min(5, len(aprobadas))):
-            Favorito.objects.get_or_create(usuario=usuario, cancion=cancion)
+        # Solo la primera vez: si después los quitó, no vuelven en el próximo arranque.
+        if not Favorito.objects.filter(usuario=usuario).exists():
+            for cancion in random.sample(aprobadas, min(5, len(aprobadas))):
+                Favorito.objects.get_or_create(usuario=usuario, cancion=cancion)
         if not Reproduccion.objects.filter(usuario=usuario).exists():
             for cancion in random.sample(aprobadas, min(8, len(aprobadas))):
                 Reproduccion.objects.create(usuario=usuario, cancion=cancion)

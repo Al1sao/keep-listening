@@ -72,7 +72,8 @@ class PagoForm(forms.Form):
     codigo_seguridad = forms.CharField(
         label="Código de seguridad (CVV)",
         max_length=4,
-        widget=forms.TextInput(
+        widget=forms.PasswordInput(
+            render_value=False,
             attrs={
                 "class": "kl-input",
                 "placeholder": "123",
@@ -112,4 +113,7 @@ class PagoForm(forms.Form):
 
     @property
     def titular_completo(self):
-        return f"{self.cleaned_data['nombre_titular']} {self.cleaned_data['apellido_titular']}".strip()
+        # Nombre (60) + espacio + apellido (60) = 121: Pago.nombre_titular admite 120
+        # y PostgreSQL, a diferencia de SQLite, rechaza el texto largo.
+        completo = f"{self.cleaned_data['nombre_titular']} {self.cleaned_data['apellido_titular']}".strip()
+        return completo[:120]

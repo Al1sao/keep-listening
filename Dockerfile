@@ -47,8 +47,11 @@ COPY --from=estilos /estilos/static/fonts /app/static/fonts
 COPY entrypoint.sh /app/entrypoint.sh
 
 # El bit de ejecucion se marca aca: no sobrevive cuando la imagen se construye
-# desde un filesystem de Windows, y sin el el contenedor no arranca.
-RUN chmod +x /app/entrypoint.sh \
+# desde un filesystem de Windows, y sin el el contenedor no arranca. Por lo
+# mismo se sacan los finales de linea de Windows (CRLF): con ellos el shebang
+# queda "#!/bin/sh\r" y el contenedor tampoco arranca.
+RUN sed -i 's/\r$//' /app/entrypoint.sh \
+    && chmod +x /app/entrypoint.sh \
     && mkdir -p /app/media /app/datos /app/staticfiles
 
 # Servir el sitio no necesita privilegios de root.
