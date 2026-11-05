@@ -1,6 +1,6 @@
 # Keep Listening
 
-Plataforma web para **escuchar, guardar, publicar y comprar musica**, desarrollada con Django + SQLite,
+Plataforma web para **escuchar, guardar, publicar y comprar musica**, desarrollada con Django + SQLite (PostgreSQL en la versión publicada),
 estilos en **SCSS modular sobre Bootstrap 5** y ejecucion local con **Docker**.
 
 Proyecto: Keep listening · Empresa: TecnoPlus · Taller de Construcción de Software, 6.º año.
@@ -12,7 +12,7 @@ Proyecto: Keep listening · Empresa: TecnoPlus · Taller de Construcción de Sof
 | Documento | Dónde |
 |---|---|
 | Manual de usuario (PDF) | [docs/Manual_de_usuario_Keep_Listening.pdf](docs/Manual_de_usuario_Keep_Listening.pdf) |
-| Informe del proyecto actualizado (PDF) | [docs/Informe_Keep_Listening.pdf](docs/Informe_Keep_Listening.pdf) |
+| Informe final del proyecto (PDF) | [docs/Informe_Keep_Listening.pdf](docs/Informe_Keep_Listening.pdf) |
 | Base de datos exportada (.sql) | [base_de_datos/keep_listening.sql](base_de_datos/keep_listening.sql) |
 | Tecnologías usadas y por qué | [TECNOLOGIAS.md](TECNOLOGIAS.md) |
 | Sistema de diseño | [DISENO.md](DISENO.md) |
@@ -24,7 +24,7 @@ Proyecto: Keep listening · Empresa: TecnoPlus · Taller de Construcción de Sof
 ## Tecnologías utilizadas
 
 - **Backend:** Python 3 y Django 5.2 (vistas, formularios, modelos, autenticación y panel de administración).
-- **Base de datos:** SQLite.
+- **Base de datos:** SQLite en local y PostgreSQL en la versión publicada en Render.
 - **Frontend:** plantillas HTML de Django, SCSS compilado con Dart Sass sobre Bootstrap 5, y JavaScript nativo
   (sin React ni jQuery). Web Audio API para analizar el sonido y WebGL para el fondo animado.
 - **Librerías de Python:** django-allauth (entrar con plataformas de música), Pillow (imágenes),
